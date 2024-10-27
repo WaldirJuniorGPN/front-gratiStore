@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vendas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
+                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Registro de Vendas</h2>
+        <form id="registroVendasForm">
+            <label for="lojaSelecionada">Selecione a Loja:</label>
+            <input type="text" id="lojaSelecionada" name="lojaSelecionada">
+            
+            <label for="semana">Selecione a Semana:</label>
+            <input type="number" id="semana" name="semana" min="1" max="6">
+            
+            <div id="vendasContainer">
+                <!-- Campos de vendas serão gerados aqui -->
+            </div>
+
+            <button type="button" onclick="salvarVendas()">Salvar</button>
+        </form>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
