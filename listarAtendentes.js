@@ -18,14 +18,17 @@ function exibirListaAtendentes(atendentes) {
     
     atendentes.forEach(atendente => {
         const item = document.createElement("li");
+        
         item.innerHTML = `
-            Nome: ${atendente.nome}
+            Nome: ${atendente.nome} &emsp; Loja: ${atendente.nomeLoja || "Não vinculada"}
             <button onclick="window.location.href='atualizar-funcionario.html?id=${atendente.id}'">Editar</button>
             <button onclick="excluirAtendente(${atendente.id})">Excluir</button>
         `;
+        
         lista.appendChild(item);
     });
 }
+
 
 // Função para excluir o atendente
 export async function excluirAtendente(id) {

@@ -17,6 +17,13 @@
     <form id="formCadastroAtendente">
         <label for="nome">Nome do Atendente:</label>
         <input type="text" id="nome" name="nome" required>
+
+        <label for="loja">Loja:</label>
+        <select id="loja" name="loja" required>
+            <option value="">Selecione uma loja</option>
+            <!-- Opções de lojas serão adicionadas dinamicamente -->
+        </select>
+
         <button type="submit">Cadastrar</button>
     </form>
     <div id="mensagem"></div>
