@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Calculadoras</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html"> Início</a></li>
+        </ul>
+    </nav>
+    <h1>Cadastro de Calculadora de Gratificação</h1>
+    <form id="formCadastroCalculadora">
+        <label for="nome">Nome da Calculadora</label>
+        <input type="text" id="nome" name="nome">
+
+        <label for="primeiroColocado">Primeiro Colocado</label>
+        <input type="number" step="0.01" id="primeiroColocado" name="primeiroColocado">
+
+        <label for="segundoColocado">Segundo Colocado</label>
+        <input type="number" step="0.01" id="segundoColocado" name="segundoColocado">
+
+        <label for="terceiroColocado">Terceiro Colocado</label>
+        <input type="number" step="0.01" id="terceiroColocado" name="terceiroColocado">
+
+        <label for="quartoColocado">Quarto Colocado</label>
+        <input type="number" step="0.01" id="quartoColocado" name="quartoColocado">
+
+        <label for="demaisColocados">Demais Colocados</label>
+        <input type="number" step="0.01" id="demaisColocados" name="demaisColocados">
+
+        <button type="button" onclick="salvarCalculadora()">Salvar</button>
+    </form>
+</body>
+</html>
