@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.store-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.store-selection select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.note {
+    text-align: center;
+    color: #cc3333;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.employees {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.employee {
+    border: 1px dashed #3366cc;
+    padding: 10px;
+    width: 200px;
+    background-color: #f9f9f9;
+}
+
+.employee h3 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.week {
+    margin-bottom: 15px;
+}
+
+.week label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #3366cc;
+}
+
+.week input[type="number"],
+.week select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.save-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.save-button button {
+    padding: 10px 20px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Outros estilos permanecem iguais */
+
+.employees {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Altere o valor para 4 colunas */
+    gap: 20px;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 10px 20px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+#page-info {
+    font-size: 16px;
+    color: #3366cc;
+}
+
