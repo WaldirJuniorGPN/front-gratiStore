@@ -32,15 +32,13 @@ h1 {
 
 .employees {
     display: flex;
+    flex-direction: column;
     gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
 }
 
 .employee {
     border: 1px dashed #3366cc;
     padding: 10px;
-    width: 200px;
     background-color: #f9f9f9;
 }
 
@@ -49,8 +47,17 @@ h1 {
     color: #3366cc;
 }
 
+.weeks-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
 .week {
-    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f1f1f1;
 }
 
 .week label {
@@ -82,34 +89,43 @@ h1 {
     font-size: 16px;
 }
 
-/* Outros estilos permanecem iguais */
-
-.employees {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Altere o valor para 4 colunas */
-    gap: 20px;
-    justify-content: center;
+/* Estilos das setas de navegação */
+.arrow {
+    position: fixed;
+    top: 50%;
+    font-size: 24px;
+    color: #3366cc;
+    cursor: pointer;
+    display: none; /* Ocultas por padrão */
+    z-index: 100;
+    transform: translateY(-50%);
 }
 
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+.left-arrow {
+    left: 20px;
 }
 
-.pagination button {
-    padding: 10px 20px;
-    background-color: #3366cc;
+.right-arrow {
+    right: 20px;
+}
+
+.arrow:hover {
+    display: block;
+}
+
+/* Mostra as setas apenas ao passar o mouse sobre a área */
+.container:hover .arrow {
+    display: block;
+}
+
+.employee.success {
+    background-color: #d4edda; /* Fundo esverdeado */
+    border-color: #c3e6cb; /* Borda esverdeada */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transição suave */
+}
+
+.save-button button.success {
+    background-color: #28a745; /* Botão esverdeado */
     color: white;
     border: none;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 0 10px;
 }
-
-#page-info {
-    font-size: 16px;
-    color: #3366cc;
-}
-
