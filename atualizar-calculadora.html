@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Calculadora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
+                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
+                <li><a href="registro-vendas.html">Registro de Vendas</a></li>
+                <li><a href="resultado.html">Resultados</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Atualizar Calculadora</h2>
+        <form id="tualizarCalculadoraForm">
+            <label for="nome">Nome da Calculadora</label>
+        <input type="text" id="nome" name="nome">
+
+        <label for="percentualPrimeiroColocado">Primeiro Colocado</label>
+        <input type="number" step="0.01" id="percentualPrimeiroColocado" name="percentualPrimeiroColocado">
+
+        <label for="percentualSegundoColocado">Segundo Colocado</label>
+        <input type="number" step="0.01" id="percentualSegundoColocado" name="percentualSegundoColocado">
+
+        <label for="percentualTerceiroColocado">Terceiro Colocado</label>
+        <input type="number" step="0.01" id="percentualTerceiroColocado" name="percentualTerceiroColocado">
+
+        <label for="percentualDemaisColocados">Demais Colocados</label>
+        <input type="number" step="0.01" id="percentualDemaisColocados" name="percentualDemaisColocados">
+
+        <label for="bonusPrimeiroColocado">Bonus Primeiro Colocado</label>
+        <input type="number" step="0.01" id="bonusPrimeiroColocado" name="bonusPrimeiroColocado">
+
+        <label for="bonusSegundoColocado">Bonus Segundo Colocado</label>
+        <input type="number" step="0.01" id="bonusSegundoColocado" name="bonusSegundoColocado">
+
+        <label for="bonusTerceiroColocado">Bonus Terceiro Colocado</label>
+        <input type="number" step="0.01" id="bonusTerceiroColocado" name="bonusTerceiroColocado">
+
+        <label for="loja">Loja:</label>
+        <select id="loja" name="loja" required>
+            <option value="">Selecione uma loja</option>
+            <!-- Opções de lojas serão adicionadas dinamicamente -->
+        </select>
+
+        <button type="button" onclick="atualizarCalculadora()">Salvar Alterações</button>
+        </form>
+
+    </main>
+    <script src="atualizar-calculadora.js"></script>
+</body>
+</html>

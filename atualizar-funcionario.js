@@ -4,6 +4,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const funcionarioId = urlParams.get("id");
 
 document.addEventListener("DOMContentLoaded", carregarDadosFuncionario);
+document.addEventListener("DOMContentLoaded", carregarLojas);
 document.getElementById("formAtualizarAtendente").addEventListener("submit", atualizarFuncionario);
 
 async function carregarDadosFuncionario() {
@@ -25,6 +26,7 @@ async function atualizarFuncionario(event) {
     event.preventDefault();
     
     const nome = document.getElementById("nome").value;
+    const lojaId = document.getElementById("loja").value;
     
     try {
         const response = await fetch(`http://localhost:8080/atendentes/${funcionarioId}`, {
@@ -32,7 +34,7 @@ async function atualizarFuncionario(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ nome })
+            body: JSON.stringify({ nome, lojaId })
         });
         
         if (response.ok) {
@@ -43,5 +45,26 @@ async function atualizarFuncionario(event) {
     } catch (error) {
         document.getElementById("mensagem").innerText = "Erro de conexão com o servidor.";
         console.error("Erro:", error);
+    }
+}
+
+async function carregarLojas() {
+    try {
+        const response = await fetch('http://localhost:8080/lojas/listar'); // Ajuste o endpoint conforme necessário
+        if (response.ok) {
+            const lojas = await response.json();
+            const lojaSelect = document.getElementById("loja");
+
+            lojas.forEach(loja => {
+                const option = document.createElement("option");
+                option.value = loja.id;
+                option.textContent = loja.nome;
+                lojaSelect.appendChild(option);
+            });
+        } else {
+            console.error("Erro ao carregar a lista de lojas.");
+        }
+    } catch (error) {
+        console.error("Erro de conexão com o servidor:", error);
     }
 }

@@ -20,6 +20,13 @@
     <form id="formAtualizarAtendente">
         <label for="nome">Nome do Funcionário:</label>
         <input type="text" id="nome" name="nome" required>
+
+        <label for="loja">Loja:</label>
+        <select id="loja" name="loja" required>
+            <option value="">Selecione uma loja</option>
+            <!-- Opções de lojas serão adicionadas dinamicamente -->
+        </select>
+        
         <button type="submit">Salvar Alterações</button>
     </form>
     <div id="mensagem"></div>

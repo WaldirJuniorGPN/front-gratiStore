@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Vendas</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="registro-vendas.css">
 </head>
 <body>
     <header>
@@ -12,26 +13,29 @@
             <ul>
                 <li><a href="index.html">Início</a></li>
                 <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
-                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
+                <li><a href="cadastro-funcionario.html">Cadastro de Funcionario</a></li>
+                <li><a href="cadastro-calculadora.html">Cadastro de Calculadora</a></li>
+                <li><a href="resultado.html">Resultados</a></li>
             </ul>
         </nav>
     </header>
-    <main>
-        <h2>Registro de Vendas</h2>
-        <form id="registroVendasForm">
-            <label for="lojaSelecionada">Selecione a Loja:</label>
-            <input type="text" id="lojaSelecionada" name="lojaSelecionada">
-            
-            <label for="semana">Selecione a Semana:</label>
-            <input type="number" id="semana" name="semana" min="1" max="6">
-            
-            <div id="vendasContainer">
-                <!-- Campos de vendas serão gerados aqui -->
-            </div>
+    <div class="container">
+        <h1>Registro de Vendas</h1>
+        <div class="store-selection">
+            <label for="store-select">Selecione a loja:</label>
+            <select id="store-select">
+                <option value="">Lista de todas as lojas</option>
+            </select>
+        </div>
+        <p class="note">Ao selecionar a loja, todos os funcionários relacionados a ela devem aparecer abaixo.</p>
+        
+        <div id="employees" class="employees"></div>
 
-            <button type="button" onclick="salvarVendas()">Salvar</button>
-        </form>
-    </main>
-    <script src="script.js"></script>
+        <!-- Setas de navegação -->
+        <div id="left-arrow" class="arrow left-arrow">&#9664;</div>
+        <div id="right-arrow" class="arrow right-arrow">&#9654;</div>
+    </div>
+
+    <script src="registro-vendas.js"></script>
 </body>
 </html>

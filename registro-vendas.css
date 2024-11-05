@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.store-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.store-selection select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.note {
+    text-align: center;
+    color: #cc3333;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.employees {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.employee {
+    border: 1px dashed #3366cc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.employee h3 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.weeks-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.week {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f1f1f1;
+}
+
+.week label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #3366cc;
+}
+
+.week input[type="number"],
+.week select {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.save-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.save-button button {
+    padding: 10px 20px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Estilos das setas de navegação */
+.arrow {
+    position: fixed;
+    top: 50%;
+    font-size: 24px;
+    color: #3366cc;
+    cursor: pointer;
+    display: none; /* Ocultas por padrão */
+    z-index: 100;
+    transform: translateY(-50%);
+}
+
+.left-arrow {
+    left: 20px;
+}
+
+.right-arrow {
+    right: 20px;
+}
+
+.arrow:hover {
+    display: block;
+}
+
+/* Mostra as setas apenas ao passar o mouse sobre a área */
+.container:hover .arrow {
+    display: block;
+}
+
+.employee.success {
+    background-color: #d4edda; /* Fundo esverdeado */
+    border-color: #c3e6cb; /* Borda esverdeada */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Transição suave */
+}
+
+.save-button button.success {
+    background-color: #28a745; /* Botão esverdeado */
+    color: white;
+    border: none;
+}
