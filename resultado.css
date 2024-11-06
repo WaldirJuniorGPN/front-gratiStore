@@ -1,0 +1,46 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.stores {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.store {
+    border: 1px dashed #3366cc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.store h2 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.atendentes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.atendente {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f1f1f1;
+}
+
+.total {
+    font-weight: bold;
+    font-size: 18px;
+    color: #cc3333;
+    text-align: center;
+}
