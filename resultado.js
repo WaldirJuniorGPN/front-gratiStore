@@ -23,6 +23,15 @@ async function fetchAllStoreResults() {
     }
 }
 
+// Função para formatar números no formato de moeda brasileira
+function formatCurrency(value) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2
+    }).format(value);
+}
+
 // Função para exibir os resultados de cada loja
 function displayStoresResults(stores) {
     storesContainer.innerHTML = "";
@@ -47,15 +56,15 @@ function displayStoresResults(stores) {
             atendenteCard.appendChild(atendenteName);
 
             const vendas = document.createElement("p");
-            vendas.textContent = `Vendas: ${atendente.vendasTotais}`;
+            vendas.textContent = `Vendas: ${formatCurrency(atendente.vendasTotais)}`;
             atendenteCard.appendChild(vendas);
 
             const gratificacao = document.createElement("p");
-            gratificacao.textContent = `Gratificação: ${atendente.gratificacao}`;
+            gratificacao.textContent = `Gratificação: ${formatCurrency(atendente.gratificacao)}`;
             atendenteCard.appendChild(gratificacao);
 
             const bonus = document.createElement("p");
-            bonus.textContent = `Bônus: ${atendente.bonus}`;
+            bonus.textContent = `Bônus: ${formatCurrency(atendente.bonus)}`;
             atendenteCard.appendChild(bonus);
 
             atendentesContainer.appendChild(atendenteCard);
@@ -65,12 +74,13 @@ function displayStoresResults(stores) {
 
         const total = document.createElement("p");
         total.className = "total";
-        total.textContent = `Total de Vendas: ${store.totalVendas}`;
+        total.textContent = `Total de Vendas: ${formatCurrency(store.totalVendas)}`;
         storeCard.appendChild(total);
 
         storesContainer.appendChild(storeCard);
     });
 }
+
 
 // Carregar a lista de lojas ao carregar a página
 window.addEventListener("DOMContentLoaded", fetchAllStoreResults);
