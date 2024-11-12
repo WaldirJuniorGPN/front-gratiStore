@@ -96,16 +96,27 @@ async function saveEmployeeData(employee) {
     const data = {
         vendasPrimeiraSemana: parseFloat(employee.vendasSemana1.replace(",", ".")) || 0.00,
         atrasoPrimeiraSemana: employee.atrasoSemana1 || "nao",
+        quantidadeAtendimentosPrimeiraSemana: parseInt(employee.atendimentosSemana1) || 0,
+
         vendasSegundaSemana: parseFloat(employee.vendasSemana2.replace(",", ".")) || 0.00,
         atrasoSegundaSemana: employee.atrasoSemana2 || "nao",
+        quantidadeAtendimentosSegundaSemana: parseInt(employee.atendimentosSemana2) || 0,
+
         vendasTerceiraSemana: parseFloat(employee.vendasSemana3.replace(",", ".")) || 0.00,
         atrasoTerceiraSemana: employee.atrasoSemana3 || "nao",
+        quantidadeAtendimentosTerceiraSemana: parseInt(employee.atendimentosSemana3) || 0,
+
         vendasQuartaSemana: parseFloat(employee.vendasSemana4.replace(",", ".")) || 0.00,
         atrasoQuartaSemana: employee.atrasoSemana4 || "nao",
+        quantidadeAtendimentosQuartaSemana: parseInt(employee.atendimentosSemana4) || 0,
+
         vendasQuintaSemana: parseFloat(employee.vendasSemana5.replace(",", ".")) || 0.00,
         atrasoQuintaSemana: employee.atrasoSemana5 || "nao",
+        quantidadeAtendimentosQuintaSemana: parseInt(employee.atendimentosSemana5) || 0,
+
         vendasSextaSemana: parseFloat(employee.vendasSemana6.replace(",", ".")) || 0.00,
         atrasoSextaSemana: employee.atrasoSemana6 || "nao",
+        quantidadeAtendimentosSextaSemana: parseInt(employee.atendimentosSemana6) || 0,
     };
 
     try {
@@ -129,6 +140,7 @@ async function saveEmployeeData(employee) {
         alert("Erro ao salvar os dados.");
     }
 }
+
 
 // Função para atualizar a visibilidade das setas
 function updateArrows() {

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultados de Gratificação</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Resultados</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="resultado.css">
 </head>
 <body>
     <header>
@@ -12,27 +13,17 @@
             <ul>
                 <li><a href="index.html">Início</a></li>
                 <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
-                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
-                <li><a href="registro-vendas.html">Registro de Vendas</a></li>
+                <li><a href="cadastro-funcionario.html">Cadastro de Funcionario</a></li>
+                <li><a href="cadastro-calculadora.html">Cadastro de Calculadora</a></li>
+                <li><a href="resultado.html">Resultados</a></li>
             </ul>
         </nav>
     </header>
-    <main>
-        <h2>Resultado de Gratificação</h2>
-        <table id="tabelaResultados">
-            <thead>
-                <tr>
-                    <th>Funcionário</th>
-                    <th>Vendas</th>
-                    <th>Gratificação</th>
-                    <th>Bônus</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- As linhas de resultados serão adicionadas dinamicamente via JavaScript -->
-            </tbody>
-        </table>
-    </main>
-    <script src="script.js"></script>
+    <div class="container">
+        <h1>Resultados</h1>
+        <div id="stores" class="stores"></div>
+    </div>
+
+    <script src="resultado.js"></script>
 </body>
 </html>
