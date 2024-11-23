@@ -1,0 +1,68 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.store-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.store-selection select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.weeks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+
+.week {
+    border: 1px dashed #3366cc;
+    padding: 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+    min-height: 180px; /* Altura mínima para evitar sobreposição */
+}
+
+.week label {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.week input[type="file"] {
+    display: block;
+    width: 90%; /* Largura para caber no layout */
+    margin: 10px auto;
+}
+
+.week button {
+    padding: 10px 20px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.week.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.week .filename {
+    margin-top: 10px;
+    color: #28a745;
+    font-weight: bold;
+}
