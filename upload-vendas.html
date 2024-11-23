@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Vendas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="upload-vendas.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
+                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
+                <li><a href="resultado.html">Resultados</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Upload de Vendas</h1>
+        <div class="store-selection">
+            <label for="store-select">Selecione a loja:</label>
+            <select id="store-select">
+                <option value="">Selecione uma loja</option>
+            </select>
+        </div>
+        <div id="weeks-container" class="weeks-container">
+            <!-- Campos das semanas serão gerados dinamicamente -->
+        </div>
+    </div>
+
+    <script src="upload-vendas.js"></script>
+</body>
+</html>
