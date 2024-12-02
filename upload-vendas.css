@@ -66,3 +66,27 @@ h1 {
     color: #28a745;
     font-weight: bold;
 }
+
+.zerar-button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.success-message {
+    margin-top: 10px;
+    color: #28a745;
+    font-weight: bold;
+    text-align: center;
+}
+
+.error-message {
+    margin-top: 10px;
+    color: #dc3545;
+    font-weight: bold;
+    text-align: center;
+}

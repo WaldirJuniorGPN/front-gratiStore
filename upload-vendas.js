@@ -90,6 +90,67 @@ async function uploadFile(fileInput, weekIndex, weekDiv) {
     }
 }
 
+// Função para zerar valores dos atendentes
+async function zerarValoresAtendentes() {
+    const storeId = storeSelect.value;
+    if (!storeId) {
+        alert("Selecione uma loja antes de zerar os valores.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/lojas/${storeId}`, {
+            method: "PATCH"
+        });
+
+        const messageContainer = document.getElementById("message-container");
+        messageContainer.innerHTML = "";
+
+        if (response.ok) {
+            const successMessage = document.createElement("p");
+            successMessage.textContent = "Valores dos atendentes zerados com sucesso!";
+            successMessage.className = "success-message";
+            messageContainer.appendChild(successMessage);
+        } else {
+            const errorMessage = document.createElement("p");
+            errorMessage.textContent = `Erro ao zerar valores dos atendentes: ${response.status}`;
+            errorMessage.className = "error-message";
+            messageContainer.appendChild(errorMessage);
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        const messageContainer = document.getElementById("message-container");
+        messageContainer.innerHTML = "";
+        const errorMessage = document.createElement("p");
+        errorMessage.textContent = "Erro ao zerar valores dos atendentes. Tente novamente mais tarde.";
+        errorMessage.className = "error-message";
+        messageContainer.appendChild(errorMessage);
+    }
+}
+
+// Inicializar botão de zerar valores
+function initZerarButton() {
+    const zerarButton = document.createElement("button");
+    zerarButton.textContent = "Zerar Valores dos Atendentes";
+    zerarButton.className = "zerar-button";
+    zerarButton.addEventListener("click", zerarValoresAtendentes);
+
+    const container = document.querySelector(".store-selection");
+    const messageContainer = document.createElement("div");
+    messageContainer.id = "message-container";
+
+    container.appendChild(zerarButton);
+    container.appendChild(messageContainer);
+}
+
+// Chamada inicial
+window.addEventListener("DOMContentLoaded", () => {
+    fetchStores();
+    generateWeekFields();
+    initZerarButton();
+});
+
+
 // Inicializar
 window.addEventListener("DOMContentLoaded", () => {
     fetchStores();
