@@ -53,12 +53,15 @@ h1 {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
 }
 
 .attendee-row label {
-    flex: 1;
+    flex: 2; 
     color: #333;
     font-size: 16px;
+    margin-right: 10px;
 }
 
 .attendee-row select {
@@ -68,6 +71,7 @@ h1 {
 }
 
 .attendee-row button {
+    flex: 1; 
     background-color: #3366cc;
     color: white;
     border: none;
