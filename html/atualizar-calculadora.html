@@ -1,20 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Calculadoras</title>
-    <link rel="stylesheet" href="cadastro-calculadora.css">
+    <title>Atualizar Calculadora</title>
+    <link rel="stylesheet" href="/css/atualizar-calculadora.css">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="index.html"> Início</a></li>
-        </ul>
-    </nav>
-    <h1>Cadastro de Calculadora de Gratificação</h1>
-    <form id="formCadastroCalculadora">
-        <label for="nome">Nome da Calculadora</label>
+    <div id="header-container"></div>
+    <main>
+        <h2>Atualizar Calculadora</h2>
+        <form id="tualizarCalculadoraForm">
+            <label for="nome">Nome da Calculadora</label>
         <input type="text" id="nome" name="nome">
 
         <label for="percentualPrimeiroColocado">Primeiro Colocado</label>
@@ -44,13 +41,10 @@
             <!-- Opções de lojas serão adicionadas dinamicamente -->
         </select>
 
-        <button type="submit">Salvar</button>
-    </form>
-    <div id="mensagem"></div>
+        <button type="button" onclick="atualizarCalculadora()">Salvar Alterações</button>
+        </form>
 
-    <h2>Lista de Calculadoras</h2>
-    <ul id="listaCalculadoras"></ul>
-
-    <script type="module" src="cadastro-calculadora.js"></script>
+    </main>
+    <script src="/js/atualizar-calculadora.js"></script>
 </body>
 </html>
