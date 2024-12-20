@@ -1,29 +1,20 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atualizar Calculadora</title>
-    <link rel="stylesheet" href="atualizar-calculadora.css">
+    <title>Cadastro de Calculadoras</title>
+    <link rel="stylesheet" href="/css/cadastro-calculadora.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="index.html">Início</a></li>
-                <li><a href="cadastro-loja.html">Cadastro de Loja</a></li>
-                <li><a href="cadastro-funcionario.html">Cadastro de Funcionário</a></li>
-                <li><a href="registro-vendas.html">Registro de Vendas</a></li>
-                <li><a href="upload-vendas.html">Upload</a></li>
-                <li><a href="update-atrasos.html">Lançamento Atrasos</a></li>
-                <li><a href="resultado.html">Resultados</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <h2>Atualizar Calculadora</h2>
-        <form id="tualizarCalculadoraForm">
-            <label for="nome">Nome da Calculadora</label>
+    <nav>
+        <ul>
+            <li><a href="index.html"> Início</a></li>
+        </ul>
+    </nav>
+    <h1>Cadastro de Calculadora de Gratificação</h1>
+    <form id="formCadastroCalculadora">
+        <label for="nome">Nome da Calculadora</label>
         <input type="text" id="nome" name="nome">
 
         <label for="percentualPrimeiroColocado">Primeiro Colocado</label>
@@ -53,10 +44,13 @@
             <!-- Opções de lojas serão adicionadas dinamicamente -->
         </select>
 
-        <button type="button" onclick="atualizarCalculadora()">Salvar Alterações</button>
-        </form>
+        <button type="submit">Salvar</button>
+    </form>
+    <div id="mensagem"></div>
 
-    </main>
-    <script src="atualizar-calculadora.js"></script>
+    <h2>Lista de Calculadoras</h2>
+    <ul id="listaCalculadoras"></ul>
+
+    <script type="module" src="/js/cadastro-calculadora.js"></script>
 </body>
 </html>
