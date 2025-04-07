@@ -7,9 +7,9 @@ function formatarMoeda(valor) {
 }
 
 // Função para buscar o total de vendas de uma loja
-async function buscarTotalVendas(cnpj) {
+async function buscarTotalVendas(id) {
     try {
-        const response = await fetch(`http://localhost:8080/vendas/total/${cnpj}`, {
+        const response = await fetch(`http://localhost:8080/lojas/${id}/vendas`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -18,7 +18,7 @@ async function buscarTotalVendas(cnpj) {
 
         if (response.ok) {
             const data = await response.json();
-            return data.total || 0;
+            return data.valor || 0;
         }
         return 0;
     } catch (error) {
@@ -43,7 +43,7 @@ async function listarLojas() {
             listaLojas.innerHTML = '';
 
             for (const loja of lojas) {
-                const totalVendas = await buscarTotalVendas(loja.cnpj);
+                const totalVendas = await buscarTotalVendas(loja.id);
                 const lojaElement = document.createElement('div');
                 lojaElement.className = 'loja-item';
                 lojaElement.innerHTML = `
