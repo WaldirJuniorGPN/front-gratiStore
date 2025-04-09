@@ -37,54 +37,100 @@ h1 {
 }
 
 .week-section {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .week-header {
-    font-weight: bold;
-    font-size: 18px;
-    color: #3366cc;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 15px;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.bulk-toggle, .bulk-register {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.bulk-toggle {
+    background-color: #6c757d;
+    color: white;
+}
+
+.bulk-toggle:hover {
+    background-color: #5a6268;
+}
+
+.bulk-register {
+    background-color: #007bff;
+    color: white;
+}
+
+.bulk-register:hover {
+    background-color: #0056b3;
+}
+
+.bulk-register:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.attendees-list {
+    padding: 15px;
 }
 
 .attendee-row {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.attendee-row:last-child {
+    border-bottom: none;
 }
 
 .attendee-row label {
-    flex: 2; 
-    color: #333;
-    font-size: 16px;
-    margin-right: 10px;
+    flex: 1;
+    margin-right: 15px;
 }
 
 .attendee-row select {
     width: 100px;
-    margin: 0 10px;
-    padding: 5px;
+    padding: 6px;
+    margin-right: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
 }
 
 .attendee-row button {
-    flex: 1; 
-    background-color: #3366cc;
+    padding: 6px 12px;
+    background-color: #28a745;
     color: white;
     border: none;
-    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
 }
 
 .attendee-row button:hover {
-    background-color: #285aa8;
+    background-color: #218838;
 }
 
-.attendee-row select.error {
-    border: 1px solid red;
-    box-shadow: 0 0 5px red;
+.error {
+    border-color: #dc3545 !important;
 }

@@ -6,84 +6,189 @@ body {
     padding: 0;
 }
 
-.container {
-    max-width: 1200px;
+main {
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
 }
 
-h2, h3 {
+h1, h2 {
     text-align: center;
     color: #3366cc;
     margin-top: 20px;
 }
 
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-bottom: 30px;
+}
+
 /* Estilos para o formulário */
 form {
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 30px;
     background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 form label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #3366cc;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
 }
 
 form input[type="text"] {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus {
+    border-color: #3366cc;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.1);
 }
 
 form button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: #3366cc;
     color: white;
     border: none;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
 }
 
 form button:hover {
-    background-color: #285a99;
+    background-color: #254e99;
 }
 
 /* Estilo para a lista de lojas */
 #listaLojas {
     max-width: 600px;
     margin: 20px auto;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 0;
+    list-style: none;
+}
+
+.loja-item {
     background-color: #ffffff;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
 }
 
-#listaLojas .loja-item {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+.loja-item:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-#listaLojas .loja-item:last-child {
-    border-bottom: none;
+.loja-info {
+    margin-bottom: 15px;
+}
+
+.loja-info strong {
+    color: #666;
+    font-size: 14px;
+}
+
+.loja-info .nome {
+    display: block;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.loja-info .cnpj {
+    color: #666;
+    font-size: 14px;
+}
+
+.acoes-loja {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.acoes-loja button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.btn-editar {
+    background-color: #4CAF50;
+}
+
+.btn-excluir {
+    background-color: #dc3545;
+}
+
+.btn-editar:hover {
+    background-color: #3d8b40;
+}
+
+.btn-excluir:hover {
+    background-color: #c82333;
+}
+
+/* Mensagens de estado */
+#mensagem {
+    max-width: 600px;
+    margin: 15px auto;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    border-radius: 4px;
+}
+
+#mensagem.sucesso {
+    color: #28a745;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+#mensagem.erro {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-form {
-    width: 100%;
+    main, form, #listaLojas {
+        width: 90%;
+        margin: 20px auto;
+    }
+    
+    .acoes-loja {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .acoes-loja button {
+        flex: 1;
     }
 }

@@ -3,9 +3,22 @@ import { carregarCalculadoras } from './listarCalculadoras.js';
 document.addEventListener("DOMContentLoaded", () => {
     carregarCalculadoras();
     carregarLojas();
+    document.getElementById("formCadastroCalculadora").addEventListener("submit", cadastrarCalculadora);
 });
 
-document.getElementById("formCadastroCalculadora").addEventListener("submit", cadastrarCalculadora);
+function formatarMoeda(valor) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(valor);
+}
+
+function formatarPercentual(valor) {
+    return new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(valor) + '%';
+}
 
 async function carregarLojas() {
     try {
@@ -30,16 +43,18 @@ async function carregarLojas() {
 
 async function cadastrarCalculadora(event) {
     event.preventDefault();
-
-    const nome = document.getElementById("nome").value;
-    const percentualPrimeiroColocado = document.getElementById("percentualPrimeiroColocado").value;
-    const percentualSegundoColocado = document.getElementById("percentualSegundoColocado").value;
-    const percentualTerceiroColocado = document.getElementById("percentualTerceiroColocado").value;
-    const percentualDemaisColocados = document.getElementById("percentualDemaisColocados").value;
-    const bonusPrimeiroColocado = document.getElementById("bonusPrimeiroColocado").value;
-    const bonusSegundoColocado = document.getElementById("bonusSegundoColocado").value;
-    const bonusTerceiroColocado = document.getElementById("bonusTerceiroColocado").value;
-    const lojaId = document.getElementById("loja").value;
+    
+    const calculadora = {
+        nome: document.getElementById('nome').value,
+        percentualPrimeiroColocado: parseFloat(document.getElementById('percentualPrimeiroColocado').value),
+        percentualSegundoColocado: parseFloat(document.getElementById('percentualSegundoColocado').value),
+        percentualTerceiroColocado: parseFloat(document.getElementById('percentualTerceiroColocado').value),
+        percentualDemaisColocados: parseFloat(document.getElementById('percentualDemaisColocados').value),
+        bonusPrimeiroColocado: parseFloat(document.getElementById('bonusPrimeiroColocado').value),
+        bonusSegundoColocado: parseFloat(document.getElementById('bonusSegundoColocado').value),
+        bonusTerceiroColocado: parseFloat(document.getElementById('bonusTerceiroColocado').value),
+        lojaId: document.getElementById('loja').value
+    };
 
     try {
         const response = await fetch('http://localhost:8080/calculadoras', {
@@ -47,35 +62,53 @@ async function cadastrarCalculadora(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({nome,
-                percentualPrimeiroColocado,
-                percentualSegundoColocado,
-                percentualTerceiroColocado,
-                percentualDemaisColocados,
-                bonusPrimeiroColocado,
-                bonusSegundoColocado,
-                bonusTerceiroColocado,
-                lojaId})
+            body: JSON.stringify(calculadora)
         });
 
         if (response.ok) {
-            document.getElementById("mensagem").innerText = "Calculadora cadastrada com sucesso!"
-            document.getElementById("nome").value = "";
-            document.getElementById("percentualPrimeiroColocado").value = "";
-            document.getElementById("percentualSegundoColocado").value = "";
-            document.getElementById("percentualTerceiroColocado").value = "";
-            document.getElementById("percentualDemaisColocados").value = "";
-            document.getElementById("bonusPrimeiroColocado").value = "";
-            document.getElementById("bonusSegundoColocado").value = "";
-            document.getElementById("bonusTerceiroColocado").value = "";
-            document.getElementById("loja").value = "";
-
+            mostrarMensagem('Calculadora cadastrada com sucesso!', 'sucesso');
+            document.getElementById('formCadastroCalculadora').reset();
             carregarCalculadoras();
         } else {
-            document.getElementById("mensagem").innerText = "Erro ao cadastrar calculadora.";
+            mostrarMensagem('Erro ao cadastrar a calculadora.', 'erro');
         }
     } catch (error) {
-        document.getElementById("mensagem").innerText = "Erro de conexão com o servidor.";
-        console.error("Erro:", error);
+        console.error('Erro:', error);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
 }
+
+async function excluirCalculadora(id) {
+    if (!confirm('Tem certeza que deseja excluir esta calculadora?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/calculadoras/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            mostrarMensagem('Calculadora excluída com sucesso!', 'sucesso');
+            carregarCalculadoras();
+        } else {
+            mostrarMensagem('Erro ao excluir a calculadora.', 'erro');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+    }
+}
+
+function mostrarMensagem(texto, tipo) {
+    const mensagem = document.getElementById('mensagem');
+    mensagem.textContent = texto;
+    mensagem.className = tipo;
+    setTimeout(() => {
+        mensagem.textContent = '';
+        mensagem.className = '';
+    }, 3000);
+}
+
+// Tornar funções globalmente acessíveis
+window.excluirCalculadora = excluirCalculadora;

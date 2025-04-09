@@ -8,23 +8,36 @@
 </head>
 <body>
     <div id="header-container"></div>
-    <h1>Cadastro de Atendente</h1>
-    <form id="formCadastroAtendente">
-        <label for="nome">Nome do Atendente:</label>
-        <input type="text" id="nome" name="nome" required>
+    <main>
+        <h1>Cadastro de Atendente</h1>
+        <form id="formCadastroAtendente">
+            <label for="nome">Nome do Atendente:</label>
+            <input type="text" id="nome" name="nome" required>
 
-        <label for="loja">Loja:</label>
-        <select id="loja" name="loja" required>
-            <option value="">Selecione uma loja</option>
-            <!-- Opções de lojas serão adicionadas dinamicamente -->
-        </select>
+            <label for="loja">Loja:</label>
+            <select id="loja" name="loja" required>
+                <option value="">Selecione uma loja</option>
+                <!-- Opções de lojas serão adicionadas dinamicamente -->
+            </select>
 
-        <button type="submit">Cadastrar</button>
-    </form>
-    <div id="mensagem"></div>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <div id="mensagem"></div>
 
-    <h2>Lista de Atendentes</h2>
-    <ul id="listaAtendentes"></ul>
+        <h2>Lista de Atendentes</h2>
+        <div class="filtro-loja">
+            <label for="filtroLoja">Filtrar por Loja:</label>
+            <div class="filtro-wrapper">
+                <select id="filtroLoja">
+                    <option value="">Selecione uma loja</option>
+                    <!-- Opções de lojas serão adicionadas dinamicamente -->
+                </select>
+            </div>
+        </div>
+        <ul id="listaAtendentes">
+            <li class="mensagem-inicial">Selecione uma loja para ver seus atendentes.</li>
+        </ul>
+    </main>
 
     <script type="module" src="/js/cadastro-funcionario.js"></script>
     <script src="/js/header.js"></script>

@@ -149,10 +149,3 @@ window.addEventListener("DOMContentLoaded", () => {
     generateWeekFields();
     initZerarButton();
 });
-
-
-// Inicializar
-window.addEventListener("DOMContentLoaded", () => {
-    fetchStores();
-    generateWeekFields();
-});

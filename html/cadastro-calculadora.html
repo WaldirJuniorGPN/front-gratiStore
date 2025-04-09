@@ -8,44 +8,50 @@
 </head>
 <body>
     <div id="header-container"></div>
-    <h1>Cadastro de Calculadora de Gratificação</h1>
-    <form id="formCadastroCalculadora">
-        <label for="nome">Nome da Calculadora</label>
-        <input type="text" id="nome" name="nome">
+    <main>
+        <h1>Cadastro de Calculadora de Gratificação</h1>
+        <form id="formCadastroCalculadora">
+            <label for="nome">Nome da Calculadora</label>
+            <input type="text" id="nome" name="nome" required>
 
-        <label for="percentualPrimeiroColocado">Primeiro Colocado</label>
-        <input type="number" step="0.01" id="percentualPrimeiroColocado" name="percentualPrimeiroColocado">
+            <h3>Percentuais de Gratificação</h3>
+            <label for="percentualPrimeiroColocado">Primeiro Colocado (%)</label>
+            <input type="number" step="0.01" id="percentualPrimeiroColocado" name="percentualPrimeiroColocado" required>
 
-        <label for="percentualSegundoColocado">Segundo Colocado</label>
-        <input type="number" step="0.01" id="percentualSegundoColocado" name="percentualSegundoColocado">
+            <label for="percentualSegundoColocado">Segundo Colocado (%)</label>
+            <input type="number" step="0.01" id="percentualSegundoColocado" name="percentualSegundoColocado" required>
 
-        <label for="percentualTerceiroColocado">Terceiro Colocado</label>
-        <input type="number" step="0.01" id="percentualTerceiroColocado" name="percentualTerceiroColocado">
+            <label for="percentualTerceiroColocado">Terceiro Colocado (%)</label>
+            <input type="number" step="0.01" id="percentualTerceiroColocado" name="percentualTerceiroColocado" required>
 
-        <label for="percentualDemaisColocados">Demais Colocados</label>
-        <input type="number" step="0.01" id="percentualDemaisColocados" name="percentualDemaisColocados">
+            <label for="percentualDemaisColocados">Demais Colocados (%)</label>
+            <input type="number" step="0.01" id="percentualDemaisColocados" name="percentualDemaisColocados" required>
 
-        <label for="bonusPrimeiroColocado">Bonus Primeiro Colocado</label>
-        <input type="number" step="0.01" id="bonusPrimeiroColocado" name="bonusPrimeiroColocado">
+            <h3>Bônus Adicional</h3>
+            <label for="bonusPrimeiroColocado">Bônus Primeiro Colocado (R$)</label>
+            <input type="number" step="0.01" id="bonusPrimeiroColocado" name="bonusPrimeiroColocado" required>
 
-        <label for="bonusSegundoColocado">Bonus Segundo Colocado</label>
-        <input type="number" step="0.01" id="bonusSegundoColocado" name="bonusSegundoColocado">
+            <label for="bonusSegundoColocado">Bônus Segundo Colocado (R$)</label>
+            <input type="number" step="0.01" id="bonusSegundoColocado" name="bonusSegundoColocado" required>
 
-        <label for="bonusTerceiroColocado">Bonus Terceiro Colocado</label>
-        <input type="number" step="0.01" id="bonusTerceiroColocado" name="bonusTerceiroColocado">
+            <label for="bonusTerceiroColocado">Bônus Terceiro Colocado (R$)</label>
+            <input type="number" step="0.01" id="bonusTerceiroColocado" name="bonusTerceiroColocado" required>
 
-        <label for="loja">Loja:</label>
-        <select id="loja" name="loja" required>
-            <option value="">Selecione uma loja</option>
-            <!-- Opções de lojas serão adicionadas dinamicamente -->
-        </select>
+            <label for="loja">Loja</label>
+            <select id="loja" name="loja" required>
+                <option value="">Selecione uma loja</option>
+                <!-- Opções de lojas serão adicionadas dinamicamente -->
+            </select>
 
-        <button type="submit">Salvar</button>
-    </form>
-    <div id="mensagem"></div>
+            <button type="submit">Salvar</button>
+        </form>
+        <div id="mensagem"></div>
 
-    <h2>Lista de Calculadoras</h2>
-    <ul id="listaCalculadoras"></ul>
+        <h2>Lista de Calculadoras</h2>
+        <div id="listaCalculadoras">
+            <!-- As calculadoras serão adicionadas aqui dinamicamente -->
+        </div>
+    </main>
 
     <script type="module" src="/js/cadastro-calculadora.js"></script>
     <script src="/js/header.js"></script>
