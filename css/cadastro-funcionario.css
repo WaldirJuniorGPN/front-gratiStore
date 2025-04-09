@@ -12,88 +12,222 @@ body {
     padding: 20px;
 }
 
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 h1, h2 {
     text-align: center;
     color: #3366cc;
     margin-top: 20px;
 }
 
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-bottom: 30px;
+}
+
 /* Estilos para o formulário */
 form {
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 30px;
     background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 form label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #3366cc;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
 }
 
 form input[type="text"],
-form select {
+form select,
+.filtro-loja select {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form select:focus,
+.filtro-loja select:focus {
+    border-color: #3366cc;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.1);
 }
 
 form button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: #3366cc;
     color: white;
     border: none;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
 }
 
 form button:hover {
-    background-color: #285a99;
+    background-color: #254e99;
 }
 
-/* Estilo para mensagens e listas */
+/* Estilo para mensagens */
 #mensagem {
     max-width: 600px;
-    margin: 20px auto;
-    padding: 10px;
+    margin: 15px auto;
+    padding: 12px;
     text-align: center;
-    font-weight: bold;
-    color: #3366cc;
+    font-weight: 600;
+    border-radius: 4px;
 }
 
+#mensagem.sucesso {
+    color: #28a745;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+#mensagem.erro {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+/* Filtro de loja */
+.filtro-loja {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filtro-loja label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.filtro-wrapper {
+    position: relative;
+}
+
+.filtro-wrapper::after {
+    content: '▼';
+    font-size: 12px;
+    color: #666;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Lista de atendentes */
 #listaAtendentes {
     max-width: 600px;
     margin: 20px auto;
-    padding: 10px;
+    padding: 0;
     list-style: none;
-    border: 1px solid #ddd;
-    background-color: #ffffff;
-    border-radius: 5px;
 }
 
 #listaAtendentes li {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-#listaAtendentes li:last-child {
-    border-bottom: none;
+.atendente-info {
+    flex-grow: 1;
+}
+
+.atendente-info strong {
+    font-size: 16px;
+    color: #333;
+}
+
+.acoes-atendente {
+    display: flex;
+    gap: 8px;
+}
+
+.acoes-atendente button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.btn-editar {
+    background-color: #4CAF50;
+}
+
+.btn-excluir {
+    background-color: #dc3545;
+}
+
+.btn-editar:hover {
+    background-color: #3d8b40;
+}
+
+.btn-excluir:hover {
+    background-color: #c82333;
+}
+
+/* Mensagens de estado */
+.erro {
+    color: #dc3545;
+    text-align: center;
+    padding: 15px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px 0;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-    form {
+    main, form, .filtro-loja, #listaAtendentes {
+        width: 90%;
+        margin: 20px auto;
+    }
+    
+    .acoes-atendente {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .acoes-atendente button {
         width: 100%;
     }
 }
