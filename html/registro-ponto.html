@@ -13,6 +13,20 @@
     <main>
         <h1>Registro de Ponto</h1>
         
+        <div class="store-selection">
+            <label for="store-select">Selecione a loja:</label>
+            <select id="store-select">
+                <option value="">Selecione uma loja</option>
+            </select>
+        </div>
+
+        <div class="employee-selection">
+            <label for="employee-select">Selecione o atendente:</label>
+            <select id="employee-select">
+                <option value="">Selecione um atendente</option>
+            </select>
+        </div>
+        
         <div class="period-selector">
             <label for="month-year">Selecione o Período:</label>
             <input type="month" id="month-year" name="month-year">
@@ -28,13 +42,16 @@
                         <th>Início Almoço</th>
                         <th>Fim Almoço</th>
                         <th>Saída</th>
-                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="ponto-tbody">
                     <!-- Preenchido via JavaScript -->
                 </tbody>
             </table>
+        </div>
+
+        <div class="bulk-actions">
+            <button id="bulk-register" class="bulk-register">Registrar Todos</button>
         </div>
     </main>
 
