@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Ponto - GratiStore</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/registro-ponto.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <main>
+        <h1>Registro de Ponto</h1>
+        
+        <div class="period-selector">
+            <label for="month-year">Selecione o Período:</label>
+            <input type="month" id="month-year" name="month-year">
+        </div>
+
+        <div class="time-table">
+            <table id="ponto-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Dia da Semana</th>
+                        <th>Entrada</th>
+                        <th>Início Almoço</th>
+                        <th>Fim Almoço</th>
+                        <th>Saída</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="ponto-tbody">
+                    <!-- Preenchido via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="/js/header.js"></script>
+    <script src="/js/registro-ponto.js"></script>
+</body>
+</html> 

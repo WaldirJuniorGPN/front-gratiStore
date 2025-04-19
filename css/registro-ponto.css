@@ -1,0 +1,99 @@
+.period-selector {
+    margin: 20px 0;
+}
+
+.period-selector label {
+    margin-right: 10px;
+}
+
+.period-selector input[type="month"] {
+    padding: 5px;
+    font-size: 16px;
+}
+
+.time-table {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+#ponto-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#ponto-table th,
+#ponto-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#ponto-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+#ponto-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#ponto-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.time-input {
+    width: 80px;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+}
+
+.weekend {
+    background-color: #ffe6e6 !important;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.btn-save,
+.btn-edit {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-save {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #218838;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+} 
