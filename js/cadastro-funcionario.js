@@ -49,8 +49,13 @@ async function cadastrarAtendente(event) {
     
     const nome = document.getElementById("nome").value;
     const lojaId = document.getElementById("loja").value;
+    const salarioRaw = document.getElementById("salario").value;
+    // Normaliza o valor: remove pontos de milhar, troca vírgula decimal por ponto
+    const salario = salarioRaw
+        .replace(/\./g, "")   // remove todos os pontos
+        .replace(/,/g, ".");  // troca vírgula por ponto
 
-    if (!nome || !lojaId) {
+    if (!nome || !lojaId || !salario) {
         document.getElementById("mensagem").innerText = "Por favor, preencha todos os campos.";
         return;
     }
@@ -61,13 +66,18 @@ async function cadastrarAtendente(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ nome, lojaId })
+            body: JSON.stringify({ 
+                nome, 
+                lojaId: parseInt(lojaId), 
+                salario: parseFloat(salario)
+            })
         });
         
         if (response.ok) {
             document.getElementById("mensagem").innerText = "Atendente cadastrado com sucesso!";
             document.getElementById("nome").value = "";
             document.getElementById("loja").value = "";
+            document.getElementById("salario").value = "";
             
             // Atualizar a lista se a loja do filtro for a mesma do cadastro
             const filtroLojaId = document.getElementById("filtroLoja").value;

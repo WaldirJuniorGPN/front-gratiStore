@@ -13,6 +13,11 @@ async function carregarDadosFuncionario() {
         if (response.ok) {
             const atendente = await response.json();
             document.getElementById("nome").value = atendente.nome;
+            if (atendente.salario !== undefined && atendente.salario !== null) {
+                document.getElementById("salario").value = Number(atendente.salario).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                document.getElementById("salario").value = "";
+            }
         } else {
             document.getElementById("mensagem").innerText = "Erro ao carregar dados do funcionário.";
         }
@@ -27,6 +32,10 @@ async function atualizarFuncionario(event) {
     
     const nome = document.getElementById("nome").value;
     const lojaId = document.getElementById("loja").value;
+    const salarioRaw = document.getElementById("salario").value;
+    const salario = salarioRaw
+        .replace(/\./g, "")
+        .replace(/,/g, ".");
     
     try {
         const response = await fetch(`http://localhost:8080/atendentes/${funcionarioId}`, {
@@ -34,7 +43,11 @@ async function atualizarFuncionario(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ nome, lojaId })
+            body: JSON.stringify({ 
+                nome, 
+                lojaId: parseInt(lojaId),
+                salario: parseFloat(salario)
+            })
         });
         
         if (response.ok) {
