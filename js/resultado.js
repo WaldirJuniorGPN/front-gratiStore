@@ -1,9 +1,10 @@
+const API_BASE_URL = 'http://localhost:8080';
 const storesContainer = document.getElementById("stores");
 
 // Função para buscar os resultados de todas as lojas usando POST
 async function fetchAllStoreResults() {
     try {
-        const response = await fetch("http://localhost:8080/resultados", {
+        const response = await fetch(`${API_BASE_URL}/resultados`, {
             method: "POST", // Define o método como POST
             headers: {
                 "Content-Type": "application/json"
@@ -84,3 +85,4 @@ function displayStoresResults(stores) {
 
 // Carregar a lista de lojas ao carregar a página
 window.addEventListener("DOMContentLoaded", fetchAllStoreResults);
+

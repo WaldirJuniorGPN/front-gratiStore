@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://localhost:8080';
+
 // Função para formatar valor em reais
 function formatarMoeda(valor) {
     return new Intl.NumberFormat('pt-BR', {
@@ -9,7 +11,7 @@ function formatarMoeda(valor) {
 // Função para buscar o total de vendas de uma loja
 async function buscarTotalVendas(id) {
     try {
-        const response = await fetch(`http://localhost:8080/lojas/${id}/vendas`, {
+        const response = await fetch(`${API_BASE_URL}/lojas/${id}/vendas`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -30,7 +32,7 @@ async function buscarTotalVendas(id) {
 // Função para buscar e listar todas as lojas
 async function listarLojas() {
     try {
-        const response = await fetch("http://localhost:8080/lojas/listar", {
+        const response = await fetch(`${API_BASE_URL}/lojas/listar`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
