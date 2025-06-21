@@ -32,25 +32,50 @@ function exibirListaAtendentes(atendentes) {
         return;
     }
 
-    atendentes.forEach(atendente => {
+    for (const atendente of atendentes) {
         const item = document.createElement("li");
-        
+
+        const salario = await obterSalario(atendente.id);
+
         item.innerHTML = `
             <div class="atendente-info">
-                <strong>${atendente.nome}</strong>
+                <strong>${atendente.nome}</strong> - <span class="salario">${salario !== null ? formatarMoeda(salario) : 'N/A'}</span>
             </div>
             <div class="acoes-atendente">
                 <button class="btn-editar" onclick="window.location.href='atualizar-funcionario.html?id=${atendente.id}'">
                     Editar
+                </button>
+                <button class="btn-salario" onclick="window.location.href='update-salario.html?id=${atendente.id}'">
+                    Salário
                 </button>
                 <button class="btn-excluir" onclick="excluirAtendente(${atendente.id})">
                     Excluir
                 </button>
             </div>
         `;
-        
+
         lista.appendChild(item);
-    });
+    }
+}
+
+async function obterSalario(id) {
+    try {
+        const response = await fetch(`http://localhost:8080/atendentes/salario/${id}`);
+        if (response.ok) {
+            const data = await response.json();
+            return data.salario;
+        }
+    } catch (error) {
+        console.error("Erro ao buscar salário:", error);
+    }
+    return null;
+}
+
+function formatarMoeda(valor) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(valor);
 }
 
 // Função para excluir o atendente
