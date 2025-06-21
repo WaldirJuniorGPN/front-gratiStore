@@ -204,6 +204,20 @@ form button:hover {
     background-color: #c82333;
 }
 
+.btn-salario {
+    background-color: #007bff;
+}
+
+.btn-salario:hover {
+    background-color: #0069d9;
+}
+
+.salario {
+    margin-left: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
 /* Mensagens de estado */
 .erro {
     color: #dc3545;

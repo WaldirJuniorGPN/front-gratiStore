@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Salário</title>
+    <link rel="stylesheet" href="/css/update-salario.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Atualizar Salário</h1>
+        <form id="form-salario">
+            <label for="loja-select">Selecione a Loja:</label>
+            <select id="loja-select">
+                <option value="">Selecione uma loja</option>
+            </select>
+
+            <label for="atendente-select">Selecione o Atendente:</label>
+            <select id="atendente-select" disabled>
+                <option value="">Selecione um atendente</option>
+            </select>
+
+            <label>Salário atual: <span id="salario-atual">R$ 0,00</span></label>
+
+            <label for="novo-salario">Novo Salário:</label>
+            <div class="input-group">
+                <span class="input-prefix">R$</span>
+                <input type="text" id="novo-salario" placeholder="2.000,00">
+            </div>
+
+            <button type="submit">Atualizar</button>
+        </form>
+        <div id="mensagem"></div>
+    </div>
+
+    <script src="/js/update-salario.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

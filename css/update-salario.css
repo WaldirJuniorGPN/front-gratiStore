@@ -1,0 +1,113 @@
+/* Estilos gerais semelhantes às outras páginas de formulário */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+    margin-top: 20px;
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #3366cc;
+}
+
+form input[type="text"],
+form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+form button:hover {
+    background-color: #285a99;
+}
+
+#mensagem {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #3366cc;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.input-prefix {
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    padding: 10px 14px;
+    color: #555;
+    font-size: 15px;
+    font-weight: 600;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+.input-group input[type="text"] {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+    margin-bottom: 0;
+    height: 40px;
+    font-size: 15px;
+    padding-left: 10px;
+    text-align: center;
+}
+.input-group input[type="text"]::placeholder {
+    color: #bdbdbd;
+    font-size: 15px;
+    text-align: center;
+    text-shadow: 1px 1px 2px #e0e0e0;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+#salario-atual {
+    font-weight: bold;
+    color: #333;
+}
