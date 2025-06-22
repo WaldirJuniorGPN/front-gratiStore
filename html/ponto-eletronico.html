@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto Eletrônico</title>
+    <link rel="stylesheet" href="/css/ponto.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Ponto Eletrônico</h1>
+
+        <form id="formPonto">
+            <label for="data">Data:</label>
+            <input type="date" id="data" required>
+
+            <label for="entrada">Entrada:</label>
+            <input type="time" id="entrada" required>
+
+            <label for="inicioAlmoco">Início do Almoço:</label>
+            <input type="time" id="inicioAlmoco" required>
+
+            <label for="fimAlmoco">Fim do Almoço:</label>
+            <input type="time" id="fimAlmoco" required>
+
+            <label for="saida">Saída:</label>
+            <input type="time" id="saida" required>
+
+            <label for="atendenteId">ID do Atendente:</label>
+            <input type="number" id="atendenteId" required>
+
+            <button type="submit">Salvar</button>
+        </form>
+
+        <div class="filtro">
+            <label for="mes">Histórico do mês:</label>
+            <input type="month" id="mes">
+        </div>
+
+        <table id="historico">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Entrada</th>
+                    <th>Início Almoço</th>
+                    <th>Fim Almoço</th>
+                    <th>Saída</th>
+                    <th>Atendente</th>
+                </tr>
+            </thead>
+            <tbody id="historicoBody"></tbody>
+        </table>
+    </div>
+
+    <script src="/js/ponto-eletronico.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
