@@ -1,0 +1,143 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #3366cc;
+}
+
+.store-selection,
+.date-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.store-selection select,
+.date-selection input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.atendentes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.attendee-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.attendee-row label {
+    flex: 1;
+    font-weight: bold;
+}
+
+.attendee-row input[type="time"] {
+    width: 100px;
+    padding: 5px;
+}
+
+.save-button {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.save-button button {
+    padding: 10px 20px;
+    background-color: #3366cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.save-button button:hover {
+    background-color: #285a99;
+}
+
+.attendee-row.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* Novo layout em formato de calendário */
+.attendant-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.attendant-selection select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.calendario-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.dia-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dia-card label {
+    font-weight: bold;
+    color: #3366cc;
+}
+
+.dia-card input[type="time"],
+.dia-card select {
+    padding: 5px;
+}
+
+.dia-card.feriado {
+    background-color: #ffe6e6;
+}
+
+.tabela-pontos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tabela-pontos th,
+.tabela-pontos td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.tabela-pontos th {
+    background-color: #f1f1f1;
+    color: #3366cc;
+}
+
+.tabela-pontos .feriado {
+    background-color: #ffe6e6;
+}
