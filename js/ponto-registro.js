@@ -74,10 +74,14 @@ function criarCardDia(dataIso, registro) {
 
     const [ano, mes, dia] = dataIso.split('-');
     card.innerHTML = `
-        <label>${dia}/${mes}</label>
+        <label class="dia-label">${dia}/${mes}</label>
+        <label class="campo-label">Entrada:</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
+        <label class="campo-label">Início do Almoço:</label>
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
+        <label class="campo-label">Fim do Almoço:</label>
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
+        <label class="campo-label">Saída:</label>
         <input type="time" class="saida" value="${registro?.saida || ''}">
         <label class="feriado-label" title="Dia é feriado?">Feriado?</label>
         <select class="feriado">
