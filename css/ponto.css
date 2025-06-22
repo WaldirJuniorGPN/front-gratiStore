@@ -16,6 +16,18 @@ h1 {
     color: #3366cc;
 }
 
+.store-selection,
+.atendente-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.store-selection select,
+.atendente-selection select {
+    padding: 10px;
+    font-size: 16px;
+}
+
 form {
     max-width: 600px;
     margin: 0 auto 30px;
