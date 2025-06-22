@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponto Eletrônico</title>
+    <link rel="stylesheet" href="/css/ponto.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Ponto Eletrônico</h1>
+
+        <div class="store-selection">
+            <label for="lojaSelect">Selecione a loja:</label>
+            <select id="lojaSelect">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+
+        <div class="date-selection">
+            <label for="data">Data:</label>
+            <input type="date" id="data">
+        </div>
+
+        <div id="atendentesContainer" class="atendentes-container"></div>
+
+        <div class="save-button">
+            <button id="salvarRegistros">Salvar</button>
+        </div>
+    </div>
+
+    <script src="/js/ponto-eletronico.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
