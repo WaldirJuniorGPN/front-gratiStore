@@ -18,50 +18,16 @@
             </select>
         </div>
 
-        <div class="atendente-selection">
-            <label for="atendenteSelect">Selecione o atendente:</label>
-            <select id="atendenteSelect" disabled>
-                <option value="">Selecione uma loja primeiro</option>
-            </select>
-        </div>
-
-        <form id="formPonto">
+        <div class="date-selection">
             <label for="data">Data:</label>
-            <input type="date" id="data" required>
-
-            <label for="entrada">Entrada:</label>
-            <input type="time" id="entrada" required>
-
-            <label for="inicioAlmoco">Início do Almoço:</label>
-            <input type="time" id="inicioAlmoco" required>
-
-            <label for="fimAlmoco">Fim do Almoço:</label>
-            <input type="time" id="fimAlmoco" required>
-
-            <label for="saida">Saída:</label>
-            <input type="time" id="saida" required>
-
-            <button type="submit">Salvar</button>
-        </form>
-
-        <div class="filtro">
-            <label for="mes">Histórico do mês:</label>
-            <input type="month" id="mes">
+            <input type="date" id="data">
         </div>
 
-        <table id="historico">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Entrada</th>
-                    <th>Início Almoço</th>
-                    <th>Fim Almoço</th>
-                    <th>Saída</th>
-                    <th>Atendente</th>
-                </tr>
-            </thead>
-            <tbody id="historicoBody"></tbody>
-        </table>
+        <div id="atendentesContainer" class="atendentes-container"></div>
+
+        <div class="save-button">
+            <button id="salvarRegistros">Salvar</button>
+        </div>
     </div>
 
     <script src="/js/ponto-eletronico.js"></script>
