@@ -67,7 +67,7 @@ function renderizarTabela(registros) {
         return;
     }
     const header = document.createElement('tr');
-    header.innerHTML = '<th>Data</th><th>Entrada</th><th>Início Almoço</th><th>Fim Almoço</th><th>Saída</th><th>Feriado</th>';
+    header.innerHTML = '<th>Data</th><th>Entrada</th><th>Início Almoço</th><th>Fim Almoço</th><th>Saída</th><th>Feriado?</th>';
     tabela.appendChild(header);
     registros.forEach(r => {
         const tr = document.createElement('tr');

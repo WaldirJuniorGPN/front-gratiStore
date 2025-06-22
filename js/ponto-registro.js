@@ -79,6 +79,7 @@ function criarCardDia(dataIso, registro) {
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
         <input type="time" class="saida" value="${registro?.saida || ''}">
+        <label class="feriado-label" title="Dia é feriado?">Feriado?</label>
         <select class="feriado">
             <option value="NAO">Não</option>
             <option value="SIM">Sim</option>

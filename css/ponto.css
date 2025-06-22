@@ -91,6 +91,19 @@ h1 {
 
 .calendario-container {
   display: grid;
+.dia-card .feriado-label {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #cc3333;
+}
+
+.info-feriado {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+}
+
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
   margin-top: 20px;
