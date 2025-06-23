@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Pontos</title>
+    <link rel="stylesheet" href="/css/ponto.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Consultar Pontos</h1>
+        <div class="date-selection">
+            <label for="mesAnoConsulta">Mês/Ano:</label>
+            <input type="month" id="mesAnoConsulta">
+        </div>
+        <div class="store-selection">
+            <label for="lojaSelectConsulta">Loja:</label>
+            <select id="lojaSelectConsulta">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="attendant-selection">
+            <label for="atendenteSelectConsulta">Atendente:</label>
+            <select id="atendenteSelectConsulta">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <p class="info-feriado">Coluna <strong>Feriado?</strong> indica se o dia foi marcado como feriado.</p>
+        <div class="search-button">
+            <button id="buscarPontos">Buscar</button>
+        </div>
+        <table id="tabelaPontos" class="tabela-pontos"></table>
+    </div>
+    <script src="/js/ponto-consulta.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

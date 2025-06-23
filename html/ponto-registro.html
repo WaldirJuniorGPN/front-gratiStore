@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Ponto</title>
+    <link rel="stylesheet" href="/css/ponto.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Registrar Ponto</h1>
+        <div class="date-selection">
+            <label for="mesAno">Mês/Ano:</label>
+            <input type="month" id="mesAno">
+        </div>
+        <div class="store-selection">
+            <label for="lojaSelect">Loja:</label>
+            <select id="lojaSelect">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <div class="attendant-selection">
+            <label for="atendenteSelect">Atendente:</label>
+            <select id="atendenteSelect">
+                <option value="">Selecione</option>
+            </select>
+        </div>
+        <p class="info-feriado">Use o campo <strong>Feriado?</strong> para indicar se o dia &eacute; feriado.</p>
+        <div id="calendarioContainer" class="calendario-container"></div>
+        <div class="save-button">
+            <button id="salvarRegistros">Salvar</button>
+        </div>
+    </div>
+    <script src="/js/ponto-registro.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
