@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Ponto</title>
+    <link rel="stylesheet" href="/css/ponto-editar.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Editar Ponto</h1>
+        <form id="formEditarPonto">
+            <label for="data">Data:</label>
+            <input type="date" id="data" disabled>
+
+            <label for="entrada">Entrada:</label>
+            <input type="time" id="entrada" required>
+
+            <label for="inicioAlmoco">Início do almoço:</label>
+            <input type="time" id="inicioAlmoco" required>
+
+            <label for="fimAlmoco">Fim do almoço:</label>
+            <input type="time" id="fimAlmoco" required>
+
+            <label for="saida">Saída:</label>
+            <input type="time" id="saida" required>
+
+            <label for="feriado">Feriado?</label>
+            <select id="feriado">
+                <option value="NAO">Não</option>
+                <option value="SIM">Sim</option>
+            </select>
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </div>
+    <script src="/js/ponto-editar.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

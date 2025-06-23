@@ -6,8 +6,6 @@ const atendenteSelect = document.getElementById('atendenteSelectConsulta');
 const buscarButton = document.getElementById('buscarPontos');
 const tabela = document.getElementById('tabelaPontos');
 
-let registrosCarregados = [];
-
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
@@ -102,7 +100,6 @@ async function buscarPontos() {
     const [ano, mes] = mesAno.split('-');
     const historico = await carregarHistorico();
     const registros = historico.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
-    registrosCarregados = registros;
     renderizarTabela(registros);
 }
 
@@ -111,47 +108,8 @@ buscarButton.addEventListener('click', buscarPontos);
 
 document.addEventListener('DOMContentLoaded', carregarLojas);
 
-async function editarPonto(id) {
-    const registro = registrosCarregados.find(r => r.id === id);
-    if (!registro) return;
-
-    const entrada = prompt('Entrada', registro.entrada || '');
-    if (entrada === null) return;
-    const inicioAlmoco = prompt('Início do almoço', registro.inicioAlmoco || '');
-    if (inicioAlmoco === null) return;
-    const fimAlmoco = prompt('Fim do almoço', registro.fimAlmoco || '');
-    if (fimAlmoco === null) return;
-    const saida = prompt('Saída', registro.saida || '');
-    if (saida === null) return;
-    const feriado = prompt('Feriado? (SIM/NAO)', registro.feriado || 'NAO');
-    if (feriado === null) return;
-
-    const payload = {
-        data: registro.data,
-        entrada,
-        inicioAlmoco,
-        fimAlmoco,
-        saida,
-        feriado,
-        atendenteId: registro.atendenteId
-    };
-
-    try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (resp.ok) {
-            alert('Registro atualizado com sucesso!');
-            buscarPontos();
-        } else {
-            alert('Erro ao atualizar registro.');
-        }
-    } catch (err) {
-        console.error('Erro ao atualizar ponto:', err);
-        alert('Erro ao atualizar ponto.');
-    }
+function editarPonto(id) {
+    window.location.href = `/html/ponto-editar.html?id=${id}`;
 }
 
 async function excluirPonto(id) {
