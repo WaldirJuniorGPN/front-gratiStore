@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horas Extras</title>
+    <link rel="stylesheet" href="/css/horas-extras.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="container">
+        <h1>Horas Extras</h1>
+        <form id="filtro-form">
+            <label for="mes-ano">Mês/Ano:</label>
+            <input type="month" id="mes-ano" required>
+
+            <label for="loja-select">Selecione a Loja:</label>
+            <select id="loja-select" required>
+                <option value="">Selecione</option>
+            </select>
+
+            <div class="actions">
+                <button type="button" id="calcular-btn">Calcular</button>
+                <button type="button" id="buscar-btn">Buscar</button>
+            </div>
+        </form>
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <table id="tabela-resultados" class="tabela-resultados">
+            <thead>
+                <tr>
+                    <th>Atendente</th>
+                    <th>Horas Extras</th>
+                    <th>Valor a Receber</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="/js/horas-extras.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
