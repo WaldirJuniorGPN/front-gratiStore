@@ -13,6 +13,18 @@ function formatarMoeda(valor) {
     }).format(valor);
 }
 
+function formatarDuracao(str) {
+    if (typeof str === 'string' && str.startsWith('PT')) {
+        const match = str.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+        if (match) {
+            const h = match[1] ? match[1].padStart(2, '0') : '00';
+            const m = match[2] ? match[2].padStart(2, '0') : '00';
+            return `${h}:${m}`;
+        }
+    }
+    return str || '';
+}
+
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
@@ -51,13 +63,15 @@ async function calcularHorasExtras() {
         const params = new URLSearchParams(filtro).toString();
         const consulta = await fetch(`${API_BASE_URL}/horas-extras?${params}`);
 
-        if (consulta.ok) {
-            const existentes = await consulta.json();
-            if (existentes && existentes.length > 0) {
-                mensagemDiv.textContent = 'Horas extras já calculadas para esse período.';
-                renderizarTabela(existentes);
-                return;
-            }
+        let existentes = [];
+        if (consulta.ok && consulta.status !== 204) {
+            existentes = await consulta.json();
+        }
+
+        if (existentes.length > 0) {
+            mensagemDiv.textContent = 'Horas extras já calculadas para esse período.';
+            renderizarTabela(existentes);
+            return;
         }
 
         const resp = await fetch(`${API_BASE_URL}/horas-extras/calcular`, {
@@ -87,9 +101,14 @@ async function buscarResultados() {
     try {
         const params = new URLSearchParams(filtro).toString();
         const resp = await fetch(`${API_BASE_URL}/horas-extras?${params}`);
-        if (resp.ok) {
+
+        if (resp.ok && resp.status !== 204) {
             const resultados = await resp.json();
             renderizarTabela(resultados);
+            mensagemDiv.textContent = '';
+        } else if (resp.status === 204 || resp.status === 404 || resp.status === 400) {
+            renderizarTabela([]);
+            mensagemDiv.textContent = 'Nenhum resultado encontrado.';
         } else {
             mensagemDiv.textContent = 'Erro ao buscar resultados.';
         }
@@ -117,7 +136,8 @@ function renderizarTabela(dados) {
         nomeTd.textContent = item.nomeAtendente || item.nome || item.atendente || '';
 
         const horasTd = document.createElement('td');
-        horasTd.textContent = item.totalHorasExtras || item.horasExtras || item.horas || '';
+        const duracao = item.totalHorasExtras || item.horasExtras || item.horas;
+        horasTd.textContent = formatarDuracao(duracao);
 
         const valorTd = document.createElement('td');
         const valor = item.valorAReceber || item.valor || item.total;
