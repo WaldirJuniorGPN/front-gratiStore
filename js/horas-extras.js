@@ -46,13 +46,27 @@ async function calcularHorasExtras() {
         alert('Preencha mês/ano e loja.');
         return;
     }
+
     try {
+        const params = new URLSearchParams(filtro).toString();
+        const consulta = await fetch(`${API_BASE_URL}/horas-extras?${params}`);
+
+        if (consulta.ok) {
+            const existentes = await consulta.json();
+            if (existentes && existentes.length > 0) {
+                mensagemDiv.textContent = 'Horas extras já calculadas para esse período.';
+                renderizarTabela(existentes);
+                return;
+            }
+        }
+
         const resp = await fetch(`${API_BASE_URL}/horas-extras/calcular`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(filtro)
         });
-        if (resp.ok) {
+
+        if (resp.ok || resp.status === 204) {
             mensagemDiv.textContent = 'Cálculo realizado com sucesso!';
             await buscarResultados();
         } else {
