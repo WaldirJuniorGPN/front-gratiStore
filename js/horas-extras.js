@@ -71,11 +71,8 @@ async function buscarResultados() {
         return;
     }
     try {
-        const resp = await fetch(`${API_BASE_URL}/horas-extras`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filtro)
-        });
+        const params = new URLSearchParams(filtro).toString();
+        const resp = await fetch(`${API_BASE_URL}/horas-extras?${params}`);
         if (resp.ok) {
             const resultados = await resp.json();
             renderizarTabela(resultados);
@@ -101,13 +98,17 @@ function renderizarTabela(dados) {
     }
     dados.forEach(item => {
         const tr = document.createElement('tr');
+
         const nomeTd = document.createElement('td');
-        nomeTd.textContent = item.nome || item.atendente || '';
+        nomeTd.textContent = item.nomeAtendente || item.nome || item.atendente || '';
+
         const horasTd = document.createElement('td');
-        horasTd.textContent = item.horasExtras || item.horas || '';
+        horasTd.textContent = item.totalHorasExtras || item.horasExtras || item.horas || '';
+
         const valorTd = document.createElement('td');
         const valor = item.valorAReceber || item.valor || item.total;
         valorTd.textContent = formatarMoeda(valor);
+
         tr.appendChild(nomeTd);
         tr.appendChild(horasTd);
         tr.appendChild(valorTd);
