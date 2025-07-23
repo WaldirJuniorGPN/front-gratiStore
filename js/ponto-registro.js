@@ -72,6 +72,10 @@ function criarCardDia(dataIso, registro) {
     card.className = 'dia-card';
     card.dataset.data = dataIso;
 
+    if (registro && registro.id) {
+        card.dataset.id = registro.id;
+    }
+
     const [ano, mes, dia] = dataIso.split('-');
     card.innerHTML = `
         <label>${dia}/${mes}</label>
@@ -85,6 +89,19 @@ function criarCardDia(dataIso, registro) {
             <option value="SIM">Sim</option>
         </select>
     `;
+
+    if (registro && registro.id) {
+        const actions = document.createElement('div');
+        actions.className = 'acoes-ponto';
+        actions.innerHTML = `
+            <button class="btn-editar">Atualizar</button>
+            <button class="btn-excluir">Deletar</button>
+        `;
+        const [btnAtualizar, btnDeletar] = actions.querySelectorAll('button');
+        btnAtualizar.addEventListener('click', () => atualizarPonto(registro.id, card));
+        btnDeletar.addEventListener('click', () => deletarPonto(registro.id, card));
+        card.appendChild(actions);
+    }
     const feriadoSelect = card.querySelector('.feriado');
     feriadoSelect.value = registro?.feriado || 'NAO';
     if (feriadoSelect.value === 'SIM') card.classList.add('feriado');
@@ -147,6 +164,49 @@ async function salvarPontos() {
     }
     salvarButton.disabled = false;
     alert(`Registros salvos: ${sucesso}`);
+}
+
+async function atualizarPonto(id, card) {
+    const payload = {
+        data: card.dataset.data,
+        entrada: card.querySelector('.entrada').value,
+        inicioAlmoco: card.querySelector('.inicio-almoco').value,
+        fimAlmoco: card.querySelector('.fim-almoco').value,
+        saida: card.querySelector('.saida').value,
+        feriado: card.querySelector('.feriado').value,
+        atendenteId: parseInt(atendenteSelect.value)
+    };
+    try {
+        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+            alert('Ponto atualizado com sucesso');
+            card.classList.add('success');
+        } else {
+            alert('Erro ao atualizar ponto');
+        }
+    } catch (err) {
+        console.error('Erro ao atualizar ponto:', err);
+    }
+}
+
+async function deletarPonto(id, card) {
+    if (!confirm('Deseja realmente excluir este ponto?')) return;
+    try {
+        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
+            method: 'DELETE'
+        });
+        if (resp.ok) {
+            card.remove();
+        } else {
+            alert('Erro ao excluir ponto');
+        }
+    } catch (err) {
+        console.error('Erro ao excluir ponto:', err);
+    }
 }
 
 lojaSelect.addEventListener('change', e => carregarAtendentes(e.target.value));

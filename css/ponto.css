@@ -154,3 +154,35 @@ h1 {
 .tabela-pontos .feriado {
   background-color: #ffe6e6;
 }
+
+/* Ações de ponto */
+.acoes-ponto {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.acoes-ponto button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+}
+
+.acoes-ponto .btn-editar {
+  background-color: #4CAF50;
+}
+
+.acoes-ponto .btn-editar:hover {
+  background-color: #3d8b40;
+}
+
+.acoes-ponto .btn-excluir {
+  background-color: #dc3545;
+}
+
+.acoes-ponto .btn-excluir:hover {
+  background-color: #c82333;
+}
