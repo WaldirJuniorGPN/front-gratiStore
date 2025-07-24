@@ -13,6 +13,15 @@ function formatarMoeda(valor) {
     }).format(valor);
 }
 
+function formatarDuracao(isoDuration) {
+    if (!isoDuration) return '';
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+    if (!match) return isoDuration;
+    const horas = parseInt(match[1] || '0', 10);
+    const minutos = parseInt(match[2] || '0', 10);
+    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+}
+
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
@@ -70,11 +79,16 @@ async function buscarResultados() {
         alert('Preencha mês/ano e loja.');
         return;
     }
+
+    const params = new URLSearchParams({
+        mes: filtro.mes,
+        ano: filtro.ano,
+        lojaId: filtro.lojaId
+    });
+
     try {
-        const resp = await fetch(`${API_BASE_URL}/horas-extras`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filtro)
+        const resp = await fetch(`${API_BASE_URL}/horas-extras?${params.toString()}`, {
+            method: 'GET'
         });
         if (resp.ok) {
             const resultados = await resp.json();
@@ -101,16 +115,22 @@ function renderizarTabela(dados) {
     }
     dados.forEach(item => {
         const tr = document.createElement('tr');
+
         const nomeTd = document.createElement('td');
-        nomeTd.textContent = item.nome || item.atendente || '';
+        nomeTd.textContent = item.nomeAtendente || item.nome || item.atendente || '';
+
         const horasTd = document.createElement('td');
-        horasTd.textContent = item.horasExtras || item.horas || '';
+        const duracao = item.totalHorasExtras || item.horasExtras || item.horas;
+        horasTd.textContent = formatarDuracao(duracao);
+
         const valorTd = document.createElement('td');
         const valor = item.valorAReceber || item.valor || item.total;
         valorTd.textContent = formatarMoeda(valor);
+
         tr.appendChild(nomeTd);
         tr.appendChild(horasTd);
         tr.appendChild(valorTd);
+
         tabelaBody.appendChild(tr);
     });
 }
