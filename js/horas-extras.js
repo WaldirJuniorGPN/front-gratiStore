@@ -14,25 +14,32 @@ function formatarMoeda(valor) {
 }
 
 function formatarDuracao(duracao) {
-    if (duracao === null || duracao === undefined || duracao === '') return '';
+    if (duracao === null || duracao === undefined || duracao === '') {
+        return '';
+    }
 
-    const numDur = typeof duracao === 'number' || !isNaN(Number(duracao))
-        ? Number(duracao)
-        : NaN;
-
-    if (!isNaN(numDur)) {
-        const sign = numDur < 0 ? '-' : '';
-        const totalMinutes = Math.floor(Math.abs(numDur) / 60000000000);
+    const numeric = Number(duracao);
+    if (!Number.isNaN(numeric)) {
+        const sign = numeric < 0 ? '-' : '';
+        const totalMinutes = Math.floor(Math.abs(numeric) / 60000000000);
         const horas = Math.floor(totalMinutes / 60);
         const minutos = totalMinutes % 60;
         return `${sign}${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
     }
 
-    const match = duracao.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-    if (!match) return duracao;
-    const horas = parseInt(match[1] || '0', 10);
-    const minutos = parseInt(match[2] || '0', 10);
-    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+    if (typeof duracao === 'string') {
+        const trimmed = duracao.trim();
+        const neg = trimmed.startsWith('-');
+        const match = trimmed.replace(/^-/, '').match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+        if (match) {
+            const horas = parseInt(match[1] || '0', 10);
+            const minutos = parseInt(match[2] || '0', 10);
+            const sign = neg ? '-' : '';
+            return `${sign}${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+        }
+    }
+
+    return duracao;
 }
 
 async function carregarLojas() {
