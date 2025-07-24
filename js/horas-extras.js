@@ -70,11 +70,16 @@ async function buscarResultados() {
         alert('Preencha mês/ano e loja.');
         return;
     }
+
+    const params = new URLSearchParams({
+        mes: filtro.mes,
+        ano: filtro.ano,
+        lojaId: filtro.lojaId
+    });
+
     try {
-        const resp = await fetch(`${API_BASE_URL}/horas-extras`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filtro)
+        const resp = await fetch(`${API_BASE_URL}/horas-extras?${params.toString()}`, {
+            method: 'GET'
         });
         if (resp.ok) {
             const resultados = await resp.json();
