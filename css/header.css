@@ -72,5 +72,37 @@ header nav ul li a:hover {
 .dropdown > a::after {
     content: " ▼";
     font-size: 0.8em;
+
     margin-left: 5px;
+}
+#config-button {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#config-panel {
+    position: fixed;
+    top: 45px;
+    right: 5px;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    display: none;
+    z-index: 1000;
+}
+
+#config-panel input {
+    width: 120px;
+    margin-right: 4px;
 }
