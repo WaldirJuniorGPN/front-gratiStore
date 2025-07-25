@@ -16,7 +16,7 @@
         return originalFetch(url, options);
     };
 
-    window.addEventListener('DOMContentLoaded', () => {
+    function attachHandlers() {
         const button = document.getElementById('config-button');
         const panel = document.getElementById('config-panel');
         const save = document.getElementById('save-ip');
@@ -37,6 +37,21 @@
                 }
                 panel.style.display = 'none';
             });
+
+            return true;
         }
+        return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (attachHandlers()) return;
+
+        const observer = new MutationObserver(() => {
+            if (attachHandlers()) {
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
     });
 })();
