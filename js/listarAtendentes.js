@@ -23,7 +23,7 @@ export async function carregarAtendentes(lojaId = null) {
     }
 }
 
-function exibirListaAtendentes(atendentes) {
+async function exibirListaAtendentes(atendentes) {
     const lista = document.getElementById("listaAtendentes");
     lista.innerHTML = ""; // Limpar lista antes de renderizar
     
