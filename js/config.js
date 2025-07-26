@@ -1,57 +1,58 @@
 // Configuração de IP do servidor e ajuste de endpoints
-(function() {
-    const DEFAULT_IP = 'localhost';
+(function () {
+  const DEFAULT_IP = "172.16.222.65";
 
-    function getServerIp() {
-        return localStorage.getItem('server_ip') || DEFAULT_IP;
+  function getServerIp() {
+    return localStorage.getItem("server_ip") || DEFAULT_IP;
+  }
+
+  const originalFetch = window.fetch;
+  window.fetch = function (url, options) {
+    if (typeof url === "string") {
+      url = url.replace("172.16.222.65", getServerIp());
+    } else if (url && url.url) {
+      url = new Request(url.url.replace("172.16.222.65", getServerIp()), url);
     }
+    return originalFetch(url, options);
+  };
 
-    const originalFetch = window.fetch;
-    window.fetch = function(url, options) {
-        if (typeof url === 'string') {
-            url = url.replace('localhost', getServerIp());
-        } else if (url && url.url) {
-            url = new Request(url.url.replace('localhost', getServerIp()), url);
+  function attachHandlers() {
+    const button = document.getElementById("config-button");
+    const panel = document.getElementById("config-panel");
+    const save = document.getElementById("save-ip");
+    const ipInput = document.getElementById("server-ip");
+
+    if (button && panel && save && ipInput) {
+      button.addEventListener("click", () => {
+        panel.style.display =
+          panel.style.display === "block" ? "none" : "block";
+        ipInput.value = localStorage.getItem("server_ip") || "";
+      });
+
+      save.addEventListener("click", () => {
+        const ip = ipInput.value.trim();
+        if (ip) {
+          localStorage.setItem("server_ip", ip);
+        } else {
+          localStorage.removeItem("server_ip");
         }
-        return originalFetch(url, options);
-    };
+        panel.style.display = "none";
+      });
 
-    function attachHandlers() {
-        const button = document.getElementById('config-button');
-        const panel = document.getElementById('config-panel');
-        const save = document.getElementById('save-ip');
-        const ipInput = document.getElementById('server-ip');
-
-        if (button && panel && save && ipInput) {
-            button.addEventListener('click', () => {
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                ipInput.value = localStorage.getItem('server_ip') || '';
-            });
-
-            save.addEventListener('click', () => {
-                const ip = ipInput.value.trim();
-                if (ip) {
-                    localStorage.setItem('server_ip', ip);
-                } else {
-                    localStorage.removeItem('server_ip');
-                }
-                panel.style.display = 'none';
-            });
-
-            return true;
-        }
-        return false;
+      return true;
     }
+    return false;
+  }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        if (attachHandlers()) return;
+  window.addEventListener("DOMContentLoaded", () => {
+    if (attachHandlers()) return;
 
-        const observer = new MutationObserver(() => {
-            if (attachHandlers()) {
-                observer.disconnect();
-            }
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
+    const observer = new MutationObserver(() => {
+      if (attachHandlers()) {
+        observer.disconnect();
+      }
     });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
 })();

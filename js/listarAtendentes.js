@@ -1,6 +1,6 @@
 export async function carregarAtendentes(lojaId = null) {
     try {
-        let url = 'http://localhost:8080/lojas';
+        let url = 'http://172.16.222.65:8080/lojas';
         if (lojaId) {
             url = `${url}/${lojaId}/atendentes`;
         } else {
@@ -60,7 +60,7 @@ function exibirListaAtendentes(atendentes) {
 
 async function obterSalario(id) {
     try {
-        const response = await fetch(`http://localhost:8080/atendentes/salario/${id}`);
+        const response = await fetch(`http://172.16.222.65:8080/atendentes/salario/${id}`);
         if (response.ok) {
             const data = await response.json();
             return data.salario;
@@ -85,7 +85,7 @@ export async function excluirAtendente(id) {
     }
 
     try {
-        const response = await fetch(`http://localhost:8080/atendentes/${id}`, {
+        const response = await fetch(`http://172.16.222.65:8080/atendentes/${id}`, {
             method: 'DELETE'
         });
         if (response.ok) {
