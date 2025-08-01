@@ -54,17 +54,24 @@ function gerarDiasDoMes(mes, ano) {
 }
 
 async function carregarHistorico(atendenteId, ano, mes) {
-    try {
-        const resp = await fetch(`${API_BASE_URL}/ponto?page=0&size=1000`);
-        if (resp.ok) {
+    const registros = [];
+    let page = 0;
+    while (true) {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/ponto?page=${page}&size=1000`);
+            if (!resp.ok) break;
             const data = await resp.json();
             const lista = data.content || data;
-            return lista.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
+            if (!Array.isArray(lista) || lista.length === 0) break;
+            registros.push(...lista);
+            if (data.totalPages && page >= data.totalPages - 1) break;
+            page++;
+        } catch (err) {
+            console.error('Erro ao buscar histórico:', err);
+            break;
         }
-    } catch (err) {
-        console.error('Erro ao buscar histórico:', err);
     }
-    return [];
+    return registros.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
 }
 
 function criarCardDia(dataIso, registro) {
