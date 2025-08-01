@@ -77,8 +77,11 @@ function criarCardDia(dataIso, registro) {
     }
 
     const [ano, mes, dia] = dataIso.split('-');
+    const dataObj = new Date(dataIso + 'T00:00:00');
+    const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+    const diaSemanaFormatado = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
     card.innerHTML = `
-        <label>${dia}/${mes}</label>
+        <label>${dia}/${mes} - ${diaSemanaFormatado}</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
