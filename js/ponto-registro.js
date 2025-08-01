@@ -87,7 +87,8 @@ function criarCardDia(dataIso, registro) {
     }
 
     const [ano, mes, dia] = dataIso.split('-');
-    const diaSemana = diasDaSemana[new Date(dataIso).getDay()];
+    const [a, m, dNum] = [parseInt(ano), parseInt(mes), parseInt(dia)];
+    const diaSemana = diasDaSemana[new Date(a, m - 1, dNum).getDay()];
     card.innerHTML = `
         <label>${dia}/${mes} - ${diaSemana}</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
