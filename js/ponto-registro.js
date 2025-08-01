@@ -6,6 +6,16 @@ const atendenteSelect = document.getElementById('atendenteSelect');
 const calendarioContainer = document.getElementById('calendarioContainer');
 const salvarButton = document.getElementById('salvarRegistros');
 
+const diasDaSemana = [
+    'Domingo',
+    'Segunda-Feira',
+    'Terça-Feira',
+    'Quarta-Feira',
+    'Quinta-Feira',
+    'Sexta-Feira',
+    'Sábado'
+];
+
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
@@ -77,8 +87,9 @@ function criarCardDia(dataIso, registro) {
     }
 
     const [ano, mes, dia] = dataIso.split('-');
+    const diaSemana = diasDaSemana[new Date(dataIso).getDay()];
     card.innerHTML = `
-        <label>${dia}/${mes}</label>
+        <label>${dia}/${mes} - ${diaSemana}</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
