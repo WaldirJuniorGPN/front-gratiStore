@@ -1,8 +1,9 @@
-# Use a imagem base do Nginx
 FROM nginx:alpine
 
-# Copie os arquivos da pasta para o diretório padrão do Nginx
+# Copia os arquivos estáticos para o Nginx
 COPY . /usr/share/nginx/html
 
-# Exponha a porta 80 para acessar o projeto
+# Substitui a configuração padrão pelo nosso nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
