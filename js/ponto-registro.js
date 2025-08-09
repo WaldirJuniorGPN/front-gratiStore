@@ -93,8 +93,23 @@ function criarCardDia(dataIso, registro) {
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
         <input type="time" class="saida" value="${registro?.saida || ''}">
-        <label class="feriado-label" title="Dia é feriado?">Feriado?</label>
+        <label class="status-label" title="Dia é feriado?">Feriado?</label>
         <select class="feriado">
+            <option value="NAO">Não</option>
+            <option value="SIM">Sim</option>
+        </select>
+        <label class="status-label" title="Dia possui atestado?">Atestado?</label>
+        <select class="atestado">
+            <option value="NAO">Não</option>
+            <option value="SIM">Sim</option>
+        </select>
+        <label class="status-label" title="Dia é folga?">Folga?</label>
+        <select class="folga">
+            <option value="NAO">Não</option>
+            <option value="SIM">Sim</option>
+        </select>
+        <label class="status-label" title="Descontar em horas?">Descontar em Horas?</label>
+        <select class="descontar-em-horas">
             <option value="NAO">Não</option>
             <option value="SIM">Sim</option>
         </select>
@@ -118,6 +133,15 @@ function criarCardDia(dataIso, registro) {
     feriadoSelect.addEventListener('change', e => {
         card.classList.toggle('feriado', e.target.value === 'SIM');
     });
+
+    const atestadoSelect = card.querySelector('.atestado');
+    atestadoSelect.value = registro?.atestado || 'NAO';
+
+    const folgaSelect = card.querySelector('.folga');
+    folgaSelect.value = registro?.folga || 'NAO';
+
+    const descontarSelect = card.querySelector('.descontar-em-horas');
+    descontarSelect.value = registro?.descontarEmHoras || 'NAO';
     return card;
 }
 
@@ -153,6 +177,9 @@ async function salvarPontos() {
             fimAlmoco: card.querySelector('.fim-almoco').value,
             saida: card.querySelector('.saida').value,
             feriado: card.querySelector('.feriado').value,
+            atestado: card.querySelector('.atestado').value,
+            folga: card.querySelector('.folga').value,
+            descontarEmHoras: card.querySelector('.descontar-em-horas').value,
             atendenteId: parseInt(atendenteSelect.value)
         };
         if (!payload.entrada || !payload.inicioAlmoco || !payload.fimAlmoco || !payload.saida) {
@@ -184,6 +211,9 @@ async function atualizarPonto(id, card) {
         fimAlmoco: card.querySelector('.fim-almoco').value,
         saida: card.querySelector('.saida').value,
         feriado: card.querySelector('.feriado').value,
+        atestado: card.querySelector('.atestado').value,
+        folga: card.querySelector('.folga').value,
+        descontarEmHoras: card.querySelector('.descontar-em-horas').value,
         atendenteId: parseInt(atendenteSelect.value)
     };
     try {
