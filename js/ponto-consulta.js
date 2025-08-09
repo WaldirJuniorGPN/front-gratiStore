@@ -68,14 +68,14 @@ function renderizarTabela(registros) {
     if (registros.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 7;
+        td.colSpan = 10;
         td.textContent = 'Nenhum registro encontrado';
         tr.appendChild(td);
         tabela.appendChild(tr);
         return;
     }
     const header = document.createElement('tr');
-    header.innerHTML = '<th>Data</th><th>Entrada</th><th>Início Almoço</th><th>Fim Almoço</th><th>Saída</th><th>Feriado?</th><th>Ações</th>';
+    header.innerHTML = '<th>Data</th><th>Entrada</th><th>Início Almoço</th><th>Fim Almoço</th><th>Saída</th><th>Feriado?</th><th>Atestado?</th><th>Folga?</th><th>Descontar em Horas?</th><th>Ações</th>';
     tabela.appendChild(header);
     registros.forEach(r => {
         const tr = document.createElement('tr');
@@ -87,6 +87,9 @@ function renderizarTabela(registros) {
         tr.dataset.fimAlmoco = r.fimAlmoco || '';
         tr.dataset.saida = r.saida || '';
         tr.dataset.feriado = r.feriado;
+        tr.dataset.atestado = r.atestado || 'NAO';
+        tr.dataset.folga = r.folga || 'NAO';
+        tr.dataset.descontarEmHoras = r.descontarEmHoras || r.descontarEmHorasUtils || 'NAO';
         if (r.feriado === 'SIM') {
             tr.classList.add('feriado');
         }
@@ -97,6 +100,9 @@ function renderizarTabela(registros) {
             <td>${r.fimAlmoco || ''}</td>
             <td>${r.saida || ''}</td>
             <td>${r.feriado}</td>
+            <td>${r.atestado || 'NAO'}</td>
+            <td>${r.folga || 'NAO'}</td>
+            <td>${r.descontarEmHoras || r.descontarEmHorasUtils || 'NAO'}</td>
             <td class="acoes-ponto">
                 <button class="btn-editar">Atualizar</button>
                 <button class="btn-excluir">Deletar</button>
@@ -136,7 +142,10 @@ function editarLinha(tr) {
             inicioAlmoco: tr.dataset.inicioAlmoco,
             fimAlmoco: tr.dataset.fimAlmoco,
             saida: tr.dataset.saida,
-            feriado: tr.dataset.feriado
+            feriado: tr.dataset.feriado,
+            atestado: tr.dataset.atestado,
+            folga: tr.dataset.folga,
+            descontarEmHoras: tr.dataset.descontarEmHoras
         };
         tr.cells[0].innerHTML = `<input type="date" class="edit-data" value="${valores.data}">`;
         tr.cells[1].innerHTML = `<input type="time" class="edit-entrada" value="${valores.entrada}">`;
@@ -145,6 +154,12 @@ function editarLinha(tr) {
         tr.cells[4].innerHTML = `<input type="time" class="edit-saida" value="${valores.saida}">`;
         tr.cells[5].innerHTML = `<select class="edit-feriado"><option value="NAO">Não</option><option value="SIM">Sim</option></select>`;
         tr.cells[5].querySelector('select').value = valores.feriado;
+        tr.cells[6].innerHTML = `<select class="edit-atestado"><option value="NAO">Não</option><option value="SIM">Sim</option></select>`;
+        tr.cells[6].querySelector('select').value = valores.atestado;
+        tr.cells[7].innerHTML = `<select class="edit-folga"><option value="NAO">Não</option><option value="SIM">Sim</option></select>`;
+        tr.cells[7].querySelector('select').value = valores.folga;
+        tr.cells[8].innerHTML = `<select class="edit-descontar"><option value="NAO">Não</option><option value="SIM">Sim</option></select>`;
+        tr.cells[8].querySelector('select').value = valores.descontarEmHoras;
         btnEditar.textContent = 'Salvar';
         const btnCancelar = document.createElement('button');
         btnCancelar.textContent = 'Cancelar';
@@ -173,6 +188,9 @@ function cancelarEdicao(tr) {
     tr.cells[3].textContent = tr.dataset.fimAlmoco;
     tr.cells[4].textContent = tr.dataset.saida;
     tr.cells[5].textContent = tr.dataset.feriado;
+    tr.cells[6].textContent = tr.dataset.atestado;
+    tr.cells[7].textContent = tr.dataset.folga;
+    tr.cells[8].textContent = tr.dataset.descontarEmHoras;
 }
 
 async function atualizarPonto(id, tr) {
@@ -183,6 +201,9 @@ async function atualizarPonto(id, tr) {
         fimAlmoco: tr.querySelector('.edit-fim-almoco').value,
         saida: tr.querySelector('.edit-saida').value,
         feriado: tr.querySelector('.edit-feriado').value,
+        atestado: tr.querySelector('.edit-atestado').value,
+        folga: tr.querySelector('.edit-folga').value,
+        descontarEmHoras: tr.querySelector('.edit-descontar').value,
         atendenteId: parseInt(tr.dataset.atendenteId)
     };
     try {
@@ -198,12 +219,18 @@ async function atualizarPonto(id, tr) {
             tr.dataset.fimAlmoco = payload.fimAlmoco;
             tr.dataset.saida = payload.saida;
             tr.dataset.feriado = payload.feriado;
+            tr.dataset.atestado = payload.atestado;
+            tr.dataset.folga = payload.folga;
+            tr.dataset.descontarEmHoras = payload.descontarEmHoras;
             tr.cells[0].textContent = payload.data;
             tr.cells[1].textContent = payload.entrada;
             tr.cells[2].textContent = payload.inicioAlmoco;
             tr.cells[3].textContent = payload.fimAlmoco;
             tr.cells[4].textContent = payload.saida;
             tr.cells[5].textContent = payload.feriado;
+            tr.cells[6].textContent = payload.atestado;
+            tr.cells[7].textContent = payload.folga;
+            tr.cells[8].textContent = payload.descontarEmHoras;
             tr.classList.toggle('feriado', payload.feriado === 'SIM');
             tr.querySelector('.btn-editar').textContent = 'Atualizar';
             const btnCancelar = tr.querySelector('.btn-cancelar');
