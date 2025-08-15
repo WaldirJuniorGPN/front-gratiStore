@@ -90,28 +90,19 @@ function criarCardDia(dataIso, registro) {
     card.innerHTML = `
         <label>${dia}/${mes} - ${diaSemanaFormatado}</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
-        <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || ''}">
+        <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || registro?.incioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
         <input type="time" class="saida" value="${registro?.saida || ''}">
-        <label class="status-label" title="Dia é feriado?">Feriado?</label>
-        <select class="feriado">
-            <option value="NAO">Não</option>
-            <option value="SIM">Sim</option>
-        </select>
-        <label class="status-label" title="Dia possui atestado?">Atestado?</label>
-        <select class="atestado">
-            <option value="NAO">Não</option>
-            <option value="SIM">Sim</option>
-        </select>
-        <label class="status-label" title="Dia é folga?">Folga?</label>
-        <select class="folga">
-            <option value="NAO">Não</option>
-            <option value="SIM">Sim</option>
-        </select>
-        <label class="status-label" title="Descontar em horas?">Descontar em Horas?</label>
-        <select class="descontar-em-horas">
-            <option value="NAO">Não</option>
-            <option value="SIM">Sim</option>
+        <label class="status-label">Status</label>
+        <select class="status">
+            <option value="COMUM">Comum</option>
+            <option value="FERIADO">Feriado</option>
+            <option value="ATESTADO_INTEGRAL">Atestado Integral</option>
+            <option value="ATESTADO_MATUTINO">Atestado Matutino</option>
+            <option value="ATESTADO_VESPERTINO">Atestado Vespertino</option>
+            <option value="FOLGA">Folga</option>
+            <option value="FALTA">Falta</option>
+            <option value="DESCONTAR_EM_HORAS">Descontar em Horas</option>
         </select>
     `;
 
@@ -127,21 +118,12 @@ function criarCardDia(dataIso, registro) {
         btnDeletar.addEventListener('click', () => deletarPonto(registro.id, card));
         card.appendChild(actions);
     }
-    const feriadoSelect = card.querySelector('.feriado');
-    feriadoSelect.value = registro?.feriado || 'NAO';
-    if (feriadoSelect.value === 'SIM') card.classList.add('feriado');
-    feriadoSelect.addEventListener('change', e => {
-        card.classList.toggle('feriado', e.target.value === 'SIM');
+    const statusSelect = card.querySelector('.status');
+    statusSelect.value = registro?.status || 'COMUM';
+    card.classList.toggle('feriado', statusSelect.value === 'FERIADO');
+    statusSelect.addEventListener('change', e => {
+        card.classList.toggle('feriado', e.target.value === 'FERIADO');
     });
-
-    const atestadoSelect = card.querySelector('.atestado');
-    atestadoSelect.value = registro?.atestado || 'NAO';
-
-    const folgaSelect = card.querySelector('.folga');
-    folgaSelect.value = registro?.folga || 'NAO';
-
-    const descontarSelect = card.querySelector('.descontar-em-horas');
-    descontarSelect.value = registro?.descontarEmHoras || 'NAO';
     return card;
 }
 
@@ -176,10 +158,7 @@ async function salvarPontos() {
             inicioAlmoco: card.querySelector('.inicio-almoco').value,
             fimAlmoco: card.querySelector('.fim-almoco').value,
             saida: card.querySelector('.saida').value,
-            feriado: card.querySelector('.feriado').value,
-            atestado: card.querySelector('.atestado').value,
-            folga: card.querySelector('.folga').value,
-            descontarEmHoras: card.querySelector('.descontar-em-horas').value,
+            status: card.querySelector('.status').value,
             atendenteId: parseInt(atendenteSelect.value)
         };
         if (!payload.entrada || !payload.inicioAlmoco || !payload.fimAlmoco || !payload.saida) {
@@ -210,10 +189,7 @@ async function atualizarPonto(id, card) {
         inicioAlmoco: card.querySelector('.inicio-almoco').value,
         fimAlmoco: card.querySelector('.fim-almoco').value,
         saida: card.querySelector('.saida').value,
-        feriado: card.querySelector('.feriado').value,
-        atestado: card.querySelector('.atestado').value,
-        folga: card.querySelector('.folga').value,
-        descontarEmHoras: card.querySelector('.descontar-em-horas').value,
+        status: card.querySelector('.status').value,
         atendenteId: parseInt(atendenteSelect.value)
     };
     try {
