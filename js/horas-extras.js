@@ -107,7 +107,7 @@ function renderizarTabela(dados) {
     if (!dados || dados.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 3;
+        td.colSpan = 4;
         td.textContent = 'Nenhum resultado encontrado';
         tr.appendChild(td);
         tabelaBody.appendChild(tr);
@@ -123,13 +123,18 @@ function renderizarTabela(dados) {
         const duracao = item.totalHorasExtras || item.horasExtras || item.horas;
         horasTd.textContent = formatarDuracao(duracao);
 
-        const valorTd = document.createElement('td');
-        const valor = item.valorAReceber || item.valor || item.total;
-        valorTd.textContent = formatarMoeda(valor);
+        const valor50Td = document.createElement('td');
+        const valor50 = item.valorAReceber50PorCento ?? item.valor50 ?? 0;
+        valor50Td.textContent = formatarMoeda(valor50);
+
+        const valor100Td = document.createElement('td');
+        const valor100 = item.valorAReceber100PorCento ?? item.valor100 ?? 0;
+        valor100Td.textContent = formatarMoeda(valor100);
 
         tr.appendChild(nomeTd);
         tr.appendChild(horasTd);
-        tr.appendChild(valorTd);
+        tr.appendChild(valor50Td);
+        tr.appendChild(valor100Td);
 
         tabelaBody.appendChild(tr);
     });
