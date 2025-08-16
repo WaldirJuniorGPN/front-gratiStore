@@ -152,18 +152,32 @@ async function salvarPontos() {
     salvarButton.disabled = true;
     let sucesso = 0;
     for (const card of cards) {
+        const entradaVal = card.querySelector('.entrada').value;
+        const inicioVal = card.querySelector('.inicio-almoco').value;
+        const fimVal = card.querySelector('.fim-almoco').value;
+        const saidaVal = card.querySelector('.saida').value;
+        const statusVal = card.querySelector('.status').value;
+
+        const allEmpty = !entradaVal && !inicioVal && !fimVal && !saidaVal;
+        if (statusVal === 'COMUM') {
+            if (allEmpty) {
+                continue; // usuário não interagiu com este dia
+            }
+            if (!entradaVal || !inicioVal || !fimVal || !saidaVal) {
+                continue; // horários incompletos para status comum
+            }
+        }
+
         const payload = {
             data: card.dataset.data,
-            entrada: card.querySelector('.entrada').value,
-            inicioAlmoco: card.querySelector('.inicio-almoco').value,
-            fimAlmoco: card.querySelector('.fim-almoco').value,
-            saida: card.querySelector('.saida').value,
-            status: card.querySelector('.status').value,
+            entrada: entradaVal || null,
+            inicioAlmoco: inicioVal || null,
+            fimAlmoco: fimVal || null,
+            saida: saidaVal || null,
+            status: statusVal,
             atendenteId: parseInt(atendenteSelect.value)
         };
-        if (!payload.entrada || !payload.inicioAlmoco || !payload.fimAlmoco || !payload.saida) {
-            continue;
-        }
+
         try {
             const resp = await fetch(`${API_BASE_URL}/ponto`, {
                 method: 'POST',
@@ -185,10 +199,10 @@ async function salvarPontos() {
 async function atualizarPonto(id, card) {
     const payload = {
         data: card.dataset.data,
-        entrada: card.querySelector('.entrada').value,
-        inicioAlmoco: card.querySelector('.inicio-almoco').value,
-        fimAlmoco: card.querySelector('.fim-almoco').value,
-        saida: card.querySelector('.saida').value,
+        entrada: card.querySelector('.entrada').value || null,
+        inicioAlmoco: card.querySelector('.inicio-almoco').value || null,
+        fimAlmoco: card.querySelector('.fim-almoco').value || null,
+        saida: card.querySelector('.saida').value || null,
         status: card.querySelector('.status').value,
         atendenteId: parseInt(atendenteSelect.value)
     };
