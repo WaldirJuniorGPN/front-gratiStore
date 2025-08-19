@@ -107,7 +107,7 @@ function renderizarTabela(dados) {
     if (!dados || dados.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 4;
+        td.colSpan = 5;
         td.textContent = 'Nenhum resultado encontrado';
         tr.appendChild(td);
         tabelaBody.appendChild(tr);
@@ -119,21 +119,26 @@ function renderizarTabela(dados) {
         const nomeTd = document.createElement('td');
         nomeTd.textContent = item.nomeAtendente || item.nome || item.atendente || '';
 
-        const horasTd = document.createElement('td');
-        const duracao = item.totalHorasExtras || item.horasExtras || item.horas;
-        horasTd.textContent = formatarDuracao(duracao);
+        const horas50Td = document.createElement('td');
+        const duracao50 = item.totalHorasExtras50PorCento ?? item.totalHorasExtras ?? item.horasExtras50 ?? item.horas50;
+        horas50Td.textContent = formatarDuracao(duracao50);
 
         const valor50Td = document.createElement('td');
         const valor50 = item.valorAReceber50PorCento ?? item.valor50 ?? 0;
         valor50Td.textContent = formatarMoeda(valor50);
+
+        const horas100Td = document.createElement('td');
+        const duracao100 = item.totalHorasExtras100PorCento ?? item.horasExtras100 ?? item.horas100;
+        horas100Td.textContent = formatarDuracao(duracao100);
 
         const valor100Td = document.createElement('td');
         const valor100 = item.valorAReceber100PorCento ?? item.valor100 ?? 0;
         valor100Td.textContent = formatarMoeda(valor100);
 
         tr.appendChild(nomeTd);
-        tr.appendChild(horasTd);
+        tr.appendChild(horas50Td);
         tr.appendChild(valor50Td);
+        tr.appendChild(horas100Td);
         tr.appendChild(valor100Td);
 
         tabelaBody.appendChild(tr);
