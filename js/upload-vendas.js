@@ -39,7 +39,7 @@ function generateWeekFields() {
 
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.accept=".xlsx";
+        fileInput.accept=".xlsx, .xls";
         weekDiv.appendChild(fileInput);
 
         const button = document.createElement("button");
