@@ -10,7 +10,7 @@
 }
 
 body {
-    font-family: 'Open Sans', sans-serif; /* Nova fonte */
+    font-family: 'Open Sans', sans-serif;
     background-color: var(--background-light);
     margin: 0;
     padding: 0;
@@ -19,7 +19,8 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1400px; /* Aumentado para acomodar melhor o calendário */
+    width: 95%;
     margin: 30px auto;
     padding: 25px;
     background-color: #fff;
@@ -35,16 +36,23 @@ h1 {
     font-size: 2.5em;
 }
 
+/* Seletores do topo */
+.top-selectors {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
 .store-selection, .date-selection, .attendant-selection {
-    text-align: center;
-    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 10px;
 }
 
 .store-selection label, .date-selection label, .attendant-selection label {
-    margin-bottom: 10px;
     font-weight: 600;
     color: var(--text-dark);
     font-size: 1.1em;
@@ -55,8 +63,7 @@ h1 {
     font-size: 1em;
     border: 1px solid var(--secondary-light);
     border-radius: 6px;
-    width: 100%;
-    max-width: 300px; /* Limitar largura para melhor visual */
+    width: 250px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -66,114 +73,33 @@ h1 {
     box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.2);
 }
 
-.atendentes-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.attendee-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background-color: #ffffff;
-    border: 1px solid var(--secondary-light);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.attendee-row label {
-    flex: 1;
-    font-weight: 600;
-    color: var(--text-dark);
-    font-size: 1.05em;
-}
-
-.attendee-row input[type="time"] {
-    width: 120px;
-    padding: 8px;
-    border: 1px solid var(--secondary-light);
-    border-radius: 6px;
-    font-size: 1em;
-}
-
-.save-button {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.save-button button,
-.search-button button {
-    padding: 14px 30px;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.save-button button:hover,
-.search-button button:hover {
-    background-color: #5A7B9C;
-    transform: translateY(-2px);
-}
-
-.attendee-row.success {
-    background-color: #e6ffed;
-    border-color: #b2dfc9;
-}
-
-/* Novo layout em formato de calendário */
+/* Layout do Calendário */
 .calendario-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Espaçamento entre as semanas */
+    width: 100%;
+    overflow-x: auto; /* Chave para a responsividade: adiciona scroll horizontal */
     margin-top: 30px;
+    padding-bottom: 15px; /* Evita que a barra de scroll cubra o conteúdo */
+}
+
+.week-header-row, .week-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    min-width: 900px; /* Força uma largura mínima, ativando o scroll no container pai */
 }
 
 .week-header-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    padding: 10px 0;
     background-color: var(--primary-blue);
     color: white;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px;
+    padding: 10px;
     font-weight: 600;
     text-align: center;
-}
-
-.day-header {
-    padding: 5px;
+    margin-bottom: 5px;
 }
 
 .week-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-}
-
-.dia-card .status-label {
-    margin-top: 8px;
-    font-size: 0.9em;
-    color: var(--error-red);
-    font-weight: 500;
-}
-
-.info-feriado {
-    margin: 20px 0;
-    font-size: 0.95em;
-    color: #666;
-    text-align: center;
-    background-color: #f0f4f8;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--secondary-light);
+    margin-bottom: 10px;
 }
 
 .dia-card {
@@ -183,10 +109,10 @@ h1 {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     transition: box-shadow 0.3s ease, transform 0.2s ease;
-    min-height: 180px; /* Garante altura mínima para cards vazios */
+    min-height: 240px;
 }
 
 .dia-card:hover {
@@ -200,6 +126,13 @@ h1 {
     font-size: 1.1em;
 }
 
+.dia-card .status-label {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
 .dia-card input[type="time"],
 .dia-card select {
     padding: 8px;
@@ -211,77 +144,58 @@ h1 {
 }
 
 .dia-card.feriado {
-    background-color: #ffe6e6;
+    background-color: #fff0f0;
     border-color: #f5c6cb;
 }
 
 .dia-card.dia-fora-mes {
-    background-color: var(--secondary-light);
-    color: #999;
-    opacity: 0.7;
-    pointer-events: none; /* Desabilita interação com dias fora do mês */
+    background-color: #f8f9fa;
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 .dia-card.dia-fora-mes label {
-    color: #777;
+    color: #999;
 }
 
-.tabela-pontos {
-    width: 100%;
-    border-collapse: collapse;
+.save-button {
+    text-align: center;
     margin-top: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    border-radius: 8px;
-    overflow: hidden; /* Para bordas arredondadas funcionarem com thead/tbody */
 }
 
-.tabela-pontos thead {
+.save-button button {
+    padding: 14px 30px;
     background-color: var(--primary-blue);
     color: white;
-}
-
-.tabela-pontos th {
-    padding: 15px;
-    text-align: left;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
     font-weight: 600;
-    font-size: 1.05em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.tabela-pontos tbody tr {
-    background-color: #fff;
-    border-bottom: 1px solid var(--secondary-light);
-    transition: background-color 0.2s ease;
+.save-button button:hover {
+    background-color: #5A7B9C;
+    transform: translateY(-2px);
 }
 
-.tabela-pontos tbody tr:last-child {
-    border-bottom: none;
-}
-
-.tabela-pontos tbody tr:hover {
-    background-color: #f0f4f8;
-}
-
-.tabela-pontos td {
-    padding: 15px;
-    vertical-align: middle;
-    color: var(--text-dark);
-}
-
-/* Ações de ponto */
+/* Ações de ponto (Editar/Deletar) */
 .acoes-ponto {
-    margin-top: 10px;
+    margin-top: auto;
+    padding-top: 10px;
     display: flex;
     gap: 10px;
     justify-content: flex-end;
 }
 
 .acoes-ponto button {
-    padding: 8px 15px;
+    padding: 6px 12px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     color: #fff;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: 600;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -292,7 +206,6 @@ h1 {
 
 .acoes-ponto .btn-editar:hover {
     background-color: #8CC4C6;
-    transform: translateY(-1px);
 }
 
 .acoes-ponto .btn-excluir {
@@ -301,111 +214,35 @@ h1 {
 
 .acoes-ponto .btn-excluir:hover {
     background-color: #C02C3C;
-    transform: translateY(-1px);
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-        margin: 20px auto;
-    }
-
-    h1 {
-        font-size: 2em;
-    }
-
-    .store-selection select, .date-selection input, .attendant-selection select {
-        max-width: 100%;
-    }
-
-    .attendee-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .attendee-row label {
-        width: 100%;
-    }
-
-    .attendee-row input[type="time"] {
-        width: 100%;
-    }
-
-    .calendario-container {
-        gap: 5px;
-    }
-
+@media (max-width: 992px) {
     .week-header-row, .week-row {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
+        min-width: 750px; /* Reduz a largura mínima em tablets */
     }
+}
 
+@media (max-width: 768px) {
+    .top-selectors {
+        flex-direction: column;
+        align-items: center;
+    }
+    .store-selection select, .date-selection input, .attendant-selection select {
+        width: 100%;
+        max-width: 350px;
+    }
     .dia-card {
-        min-height: 150px;
         padding: 10px;
         gap: 5px;
+        min-height: auto;
     }
-
     .dia-card label {
-        font-size: 0.9em;
+        font-size: 1em;
     }
-
     .dia-card input[type="time"],
     .dia-card select {
-        font-size: 0.8em;
-        padding: 5px;
-    }
-
-    .tabela-pontos, .tabela-pontos thead, .tabela-pontos tbody, .tabela-pontos th, .tabela-pontos td, .tabela-pontos tr {
-        display: block;
-    }
-
-    .tabela-pontos thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .tabela-pontos tr {
-        margin-bottom: 15px;
-        border: 1px solid var(--secondary-light);
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .tabela-pontos td {
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 50%;
-        text-align: right;
-    }
-
-    .tabela-pontos td:before {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 45%;
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: 600;
-        color: var(--primary-blue);
-    }
-
-    /* Ajustar conforme as colunas da tabela de pontos */
-    .tabela-pontos td:nth-of-type(1):before { content: "Data:"; }
-    .tabela-pontos td:nth-of-type(2):before { content: "Entrada:"; }
-    .tabela-pontos td:nth-of-type(3):before { content: "Saída Almoço:"; }
-    .tabela-pontos td:nth-of-type(4):before { content: "Retorno Almoço:"; }
-    .tabela-pontos td:nth-of-type(5):before { content: "Saída:"; }
-    .tabela-pontos td:nth-of-type(6):before { content: "Status:"; }
-    .tabela-pontos td:nth-of-type(7):before { content: "Ações:"; }
-
-    .tabela-pontos tbody tr:hover {
-        background-color: #fff;
+        font-size: 0.9em;
     }
 }
 
