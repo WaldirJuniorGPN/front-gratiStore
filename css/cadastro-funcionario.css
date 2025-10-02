@@ -1,9 +1,22 @@
+/* Variáveis de Cores */
+:root {
+    --primary-blue: #6A8EAE;
+    --secondary-light: #DCE2E8;
+    --accent-green: #A8DADC;
+    --text-dark: #333333;
+    --background-light: #F8F9FA;
+    --error-red: #dc3545;
+    --success-green: #28a745;
+}
+
 /* Estilo geral */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    font-family: 'Open Sans', sans-serif; /* Nova fonte */
+    background-color: var(--background-light);
     margin: 0;
     padding: 0;
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
 .container {
@@ -13,119 +26,129 @@ body {
 }
 
 main {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 900px; /* Aumentar largura máxima para um layout mais aberto */
+    margin: 30px auto;
     padding: 20px;
+    background-color: #fff;
+    border-radius: 10px; /* Bordas mais arredondadas para o container principal */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* Sombra mais pronunciada e suave */
 }
 
 h1, h2 {
     text-align: center;
-    color: #3366cc;
+    color: var(--primary-blue);
     margin-top: 20px;
+    font-weight: 600;
 }
 
 h1 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 2.5em;
 }
 
 h2 {
     margin-bottom: 30px;
+    font-size: 1.8em;
+    color: var(--text-dark);
 }
 
 /* Estilos para o formulário */
 form {
-    max-width: 600px;
-    margin: 0 auto 30px;
+    max-width: 700px;
+    margin: 0 auto 40px;
     background-color: #ffffff;
-    padding: 25px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 30px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
 form label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-dark);
+    font-size: 1.1em;
 }
 
 form input[type="text"],
 form select,
 .filtro-loja select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
+    width: calc(100% - 20px); /* Ajuste para padding */
+    padding: 12px 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 form input[type="text"]:focus,
 form select:focus,
 .filtro-loja select:focus {
-    border-color: #3366cc;
+    border-color: var(--primary-blue);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(51, 102, 204, 0.1);
+    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.2);
 }
 
 form button {
     width: 100%;
-    padding: 12px;
-    background-color: #3366cc;
+    padding: 14px;
+    background-color: var(--primary-blue);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1.1em;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 form button:hover {
-    background-color: #254e99;
+    background-color: #5A7B9C; /* Tom mais escuro do azul primário */
+    transform: translateY(-2px);
 }
 
 /* Estilo para mensagens */
 #mensagem {
-    max-width: 600px;
-    margin: 15px auto;
-    padding: 12px;
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 15px;
     text-align: center;
     font-weight: 600;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1.05em;
 }
 
 #mensagem.sucesso {
-    color: #28a745;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
+    color: var(--success-green);
+    background-color: #e6ffed; /* Fundo mais claro para sucesso */
+    border: 1px solid #b2dfc9;
 }
 
 #mensagem.erro {
-    color: #dc3545;
-    background-color: #f8d7da;
+    color: var(--error-red);
+    background-color: #ffe6e6; /* Fundo mais claro para erro */
     border: 1px solid #f5c6cb;
 }
 
 /* Filtro de loja */
 .filtro-loja {
-    max-width: 600px;
+    max-width: 700px;
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
 .filtro-loja label {
     display: block;
     margin-bottom: 10px;
     font-weight: 600;
-    color: #333;
-    font-size: 16px;
+    color: var(--text-dark);
+    font-size: 1.1em;
 }
 
 .filtro-wrapper {
@@ -137,7 +160,7 @@ form button:hover {
     font-size: 12px;
     color: #666;
     position: absolute;
-    right: 12px;
+    right: 20px; /* Ajustado para melhor alinhamento */
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
@@ -145,7 +168,7 @@ form button:hover {
 
 /* Lista de atendentes */
 #listaAtendentes {
-    max-width: 600px;
+    max-width: 700px;
     margin: 20px auto;
     padding: 0;
     list-style: none;
@@ -155,132 +178,168 @@ form button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
     background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+#listaAtendentes li:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
 }
 
 .atendente-info {
     flex-grow: 1;
+    margin-right: 20px;
 }
 
 .atendente-info strong {
-    font-size: 16px;
-    color: #333;
+    font-size: 1.2em;
+    color: var(--primary-blue);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.atendente-info span {
+    color: #666;
+    font-size: 0.95em;
 }
 
 .acoes-atendente {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .acoes-atendente button {
-    padding: 8px 16px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 0.95em;
     color: white;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-editar {
-    background-color: #4CAF50;
+    background-color: var(--accent-green);
 }
 
 .btn-excluir {
-    background-color: #dc3545;
-}
-
-.btn-editar:hover {
-    background-color: #3d8b40;
-}
-
-.btn-excluir:hover {
-    background-color: #c82333;
+    background-color: var(--error-red);
 }
 
 .btn-salario {
-    background-color: #007bff;
+    background-color: var(--primary-blue);
+}
+
+.btn-editar:hover {
+    background-color: #8CC4C6;
+    transform: translateY(-1px);
+}
+
+.btn-excluir:hover {
+    background-color: #C02C3C;
+    transform: translateY(-1px);
 }
 
 .btn-salario:hover {
-    background-color: #0069d9;
+    background-color: #5A7B9C;
+    transform: translateY(-1px);
 }
 
 .salario {
     margin-left: 8px;
-    color: #555;
-    font-size: 14px;
+    color: var(--text-dark);
+    font-size: 1em;
+    font-weight: 600;
 }
 
 /* Mensagens de estado */
-.erro {
-    color: #dc3545;
+.mensagem-inicial {
     text-align: center;
-    padding: 15px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    margin: 10px 0;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    main, form, .filtro-loja, #listaAtendentes {
-        width: 90%;
-        margin: 20px auto;
-    }
-    
-    .acoes-atendente {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .acoes-atendente button {
-        width: 100%;
-    }
+    color: #666;
+    padding: 20px;
+    font-style: italic;
 }
 
 /* Grupo de input com prefixo (ex: R$) */
 .input-group {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* Aumentar margem para consistência */
 }
 .input-prefix {
-    background: #f0f0f0;
-    border: 1px solid #e0e0e0;
+    background: var(--secondary-light);
+    border: 1px solid var(--secondary-light);
     border-right: none;
-    border-radius: 4px 0 0 4px;
-    padding: 10px 14px;
-    color: #555;
-    font-size: 15px;
+    border-radius: 6px 0 0 6px;
+    padding: 12px 14px;
+    color: var(--text-dark);
+    font-size: 1em;
     font-weight: 600;
-    height: 40px;
+    height: 44px; /* Ajustar altura para alinhar com input */
     display: flex;
     align-items: center;
 }
-.input-group input[type="number"] {
-    border-radius: 0 4px 4px 0;
+.input-group input[type="text"] {
+    border-radius: 0 6px 6px 0;
     border-left: none;
     margin-bottom: 0;
-    height: 40px;
-    font-size: 15px;
+    height: 44px; /* Ajustar altura para alinhar com prefixo */
+    font-size: 1em;
     padding-left: 10px;
-    text-align: center;
+    text-align: left; /* Alinhar texto à esquerda */
 }
-.input-group input[type="number"]::placeholder {
+.input-group input[type="text"]::placeholder {
     color: #bdbdbd;
-    font-size: 15px;
-    text-align: center;
-    text-shadow: 1px 1px 2px #e0e0e0;
-    font-style: italic;
-    font-weight: 500;
-    letter-spacing: 1px;
-    /* Sombra para o valor exemplo */
+    font-size: 1em;
+    text-align: left;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: normal;
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+    main, form, .filtro-loja, #listaAtendentes {
+        width: 95%;
+        margin: 20px auto;
+        padding: 15px;
+    }
+    
+    form input[type="text"],
+    form select,
+    .filtro-loja select {
+        width: calc(100% - 20px);
+    }
+
+    .loja-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .atendente-info {
+        margin-bottom: 15px;
+        margin-right: 0;
+    }
+
+    .acoes-atendente {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .acoes-atendente button {
+        flex: 1;
+    }
+
+    .input-group input[type="text"] {
+        width: calc(100% - 20px - 40px); /* Ajuste para prefixo */
+    }
+}
+

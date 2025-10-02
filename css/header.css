@@ -1,71 +1,75 @@
-header {
-    background-color: #3366cc;
-    color: white;
-    padding: 10px 0;
+/* Variáveis de Cores (redefinidas para consistência, se necessário) */
+:root {
+    --primary-blue: #6A8EAE;
+    --secondary-light: #DCE2E8;
+    --accent-green: #A8DADC;
+    --text-dark: #333333;
+    --background-light: #F8F9FA;
 }
 
-header nav ul {
+header {
+    background-color: var(--primary-blue); /* Cor de fundo do cabeçalho */
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+nav ul {
     list-style: none;
+    margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    margin: 0;
+    align-items: center;
 }
 
-header nav ul li {
+nav ul li {
+    position: relative;
     margin: 0 15px;
 }
 
-header nav ul li a {
-    color: white;
+nav ul li a {
+    color: #fff; /* Texto branco para contraste com o azul primário */
     text-decoration: none;
-    font-weight: bold;
+    padding: 10px 15px;
+    display: block;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 5px;
 }
 
-header nav ul li a:hover {
-    text-decoration: underline;
+nav ul li a:hover {
+    background-color: rgba(255,255,255,0.2); /* Efeito hover suave */
+    color: #fff;
 }
 
-@media (max-width: 768px) {
-    header nav ul {
-        flex-direction: column;
-    }
-
-    header nav ul li {
-        margin: 10px 0;
-    }
-}
-
-/* Dropdown styles */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
+/* Dropdown */
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 200px;
+    background-color: #fff; /* Fundo branco para o dropdown */
+    min-width: 180px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
-    border-radius: 4px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px; /* Espaçamento entre o item pai e o dropdown */
 }
 
 .dropdown-content a {
-    color: black;
+    color: var(--text-dark); /* Cor do texto do dropdown */
     padding: 12px 16px;
     text-decoration: none;
     display: block;
     text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--secondary-light); /* Cor de hover para itens do dropdown */
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
 }
 
 /* Adicionar seta para baixo no menu dropdown */
@@ -74,3 +78,27 @@ header nav ul li a:hover {
     font-size: 0.8em;
     margin-left: 5px;
 }
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav ul li {
+        margin: 10px 0;
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        border-top: 1px solid var(--secondary-light);
+        margin-top: 0;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: flex;
+        flex-direction: column;
+    }
+}
+

@@ -1,9 +1,20 @@
+/* Variáveis de Cores */
+:root {
+    --primary-blue: #6A8EAE;
+    --secondary-light: #DCE2E8;
+    --accent-green: #A8DADC;
+    --text-dark: #333333;
+    --background-light: #F8F9FA;
+}
+
 /* Estilo geral */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    font-family: 'Open Sans', sans-serif; /* Nova fonte */
+    background-color: var(--background-light);
     margin: 0;
     padding: 0;
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
 .container {
@@ -16,14 +27,18 @@ h1, h2 {
     text-align: center;
     color: var(--primary-blue);
     margin-top: 20px;
+    font-weight: 600;
 }
 
 h1 {
     margin-bottom: 10px;
+    font-size: 2.5em;
 }
 
 h2 {
     margin-bottom: 30px;
+    font-size: 1.8em;
+    color: var(--text-dark);
 }
 
 /* Estilo para a lista de lojas */
@@ -36,27 +51,46 @@ h2 {
 .loja-item {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 15px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 10px;
-    border-radius: 4px;
+    align-items: center; /* Alinhar itens ao centro verticalmente */
+    padding: 20px;
+    border: 1px solid var(--secondary-light);
+    margin-bottom: 15px;
+    border-radius: 8px; /* Bordas mais arredondadas */
     background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Sombra mais suave */
+    transition: transform 0.2s ease-in-out;
+}
+
+.loja-item:hover {
+    transform: translateY(-5px); /* Efeito sutil ao passar o mouse */
 }
 
 .loja-info {
     flex: 1;
+    font-size: 1.1em;
+}
+
+.loja-info h3 {
+    margin: 0 0 5px 0;
+    color: var(--primary-blue);
+    font-size: 1.4em;
+}
+
+.loja-info p {
+    margin: 0;
+    color: #666;
 }
 
 .loja-total {
-    min-width: 150px;
+    min-width: 180px; /* Aumentar largura mínima */
     text-align: right;
-    font-size: 1.1em;
-    color: #1a237e;
+    font-size: 1.3em; /* Aumentar tamanho da fonte */
+    color: var(--primary-blue);
     font-weight: bold;
 }
 
 .loja-total .valor {
-    color: #28a745;
+    color: var(--accent-green); /* Usar cor de destaque */
+    font-size: 1.4em;
 }
+
