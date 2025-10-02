@@ -52,7 +52,9 @@ nav ul li a:hover {
     z-index: 1;
     border-radius: 5px;
     overflow: hidden;
-    margin-top: 10px; /* Espaçamento entre o item pai e o dropdown */
+    top: 100%; /* Posicionar o dropdown imediatamente abaixo do item pai */
+    margin-top: 0; /* Garantir que não há margem extra */
+    padding-top: 5px; /* Pequeno padding para criar uma área de transição */
 }
 
 .dropdown-content a {

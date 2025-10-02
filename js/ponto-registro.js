@@ -43,14 +43,24 @@ async function carregarAtendentes(lojaId) {
     }
 }
 
-function gerarDiasDoMes(mes, ano) {
-    const dias = [];
-    const date = new Date(ano, mes - 1, 1);
-    while (date.getMonth() === mes - 1) {
-        dias.push(new Date(date));
-        date.setDate(date.getDate() + 1);
+function getDaysInMonthGroupedByWeek(mes, ano) {
+    const weeks = [];
+    const firstDayOfMonth = new Date(ano, mes - 1, 1);
+    const lastDayOfMonth = new Date(ano, mes, 0);
+
+    // Ajustar o primeiro dia da semana para domingo (0)
+    let currentDay = new Date(firstDayOfMonth);
+    currentDay.setDate(currentDay.getDate() - currentDay.getDay()); // Retrocede para o domingo da primeira semana
+
+    while (currentDay <= lastDayOfMonth || currentDay.getDay() !== 0) {
+        const week = [];
+        for (let i = 0; i < 7; i++) {
+            week.push(new Date(currentDay));
+            currentDay.setDate(currentDay.getDate() + 1);
+        }
+        weeks.push(week);
     }
-    return dias;
+    return weeks;
 }
 
 async function carregarHistorico(atendenteId, ano, mes) {
@@ -74,21 +84,28 @@ async function carregarHistorico(atendenteId, ano, mes) {
     return registros.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
 }
 
-function criarCardDia(dataIso, registro) {
+function criarCardDia(dataObj, registro, mesAtual) {
     const card = document.createElement('div');
     card.className = 'dia-card';
+
+    const dataIso = dataObj.toISOString().split('T')[0];
     card.dataset.data = dataIso;
 
     if (registro && registro.id) {
         card.dataset.id = registro.id;
     }
 
-    const [ano, mes, dia] = dataIso.split('-');
-    const dataObj = new Date(dataIso + 'T00:00:00');
-    const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
-    const diaSemanaFormatado = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+    const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'short' });
+    const diaFormatado = dataObj.getDate();
+    const mesDoDia = dataObj.getMonth() + 1;
+
+    // Adicionar classe para dias fora do mês atual
+    if (mesDoDia !== mesAtual) {
+        card.classList.add('dia-fora-mes');
+    }
+
     card.innerHTML = `
-        <label>${dia}/${mes} - ${diaSemanaFormatado}</label>
+        <label>${diaFormatado} ${diaSemana}</label>
         <input type="time" class="entrada" value="${registro?.entrada || ''}">
         <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || registro?.incioAlmoco || ''}">
         <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
@@ -101,7 +118,7 @@ function criarCardDia(dataIso, registro) {
             <option value="ATESTADO_MATUTINO">Atestado Matutino</option>
             <option value="ATESTADO_VESPERTINO">Atestado Vespertino</option>
             <option value="FOLGA">Folga</option>
-            <option value="FALTA">Falta</option>
+            <option value="FALTA">Falta</n>
             <option value="DESCONTAR_EM_HORAS">Descontar em Horas</option>
         </select>
     `;
@@ -132,21 +149,43 @@ async function exibirCalendario() {
     const mesAno = mesAnoInput.value;
     const atendenteId = parseInt(atendenteSelect.value);
     if (!mesAno || !atendenteId) return;
-    const [ano, mes] = mesAno.split('-');
-    const dias = gerarDiasDoMes(parseInt(mes), parseInt(ano));
-    const historico = await carregarHistorico(atendenteId, ano, mes);
-    dias.forEach(d => {
-        const dataIso = d.toISOString().split('T')[0];
-        const registro = historico.find(h => h.data === dataIso);
-        const card = criarCardDia(dataIso, registro);
-        calendarioContainer.appendChild(card);
+
+    const [anoStr, mesStr] = mesAno.split('-');
+    const ano = parseInt(anoStr);
+    const mes = parseInt(mesStr);
+
+    const weeks = getDaysInMonthGroupedByWeek(mes, ano);
+    const historico = await carregarHistorico(atendenteId, anoStr, mesStr);
+
+    const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'week-header-row';
+    diasDaSemana.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-header';
+        dayHeader.textContent = day;
+        headerRow.appendChild(dayHeader);
+    });
+    calendarioContainer.appendChild(headerRow);
+
+    weeks.forEach(week => {
+        const weekRow = document.createElement('div');
+        weekRow.className = 'week-row';
+        week.forEach(day => {
+            const dataIso = day.toISOString().split('T')[0];
+            const registro = historico.find(h => h.data === dataIso);
+            const card = criarCardDia(day, registro, mes);
+            weekRow.appendChild(card);
+        });
+        calendarioContainer.appendChild(weekRow);
     });
 }
 
 async function salvarPontos() {
-    const cards = calendarioContainer.querySelectorAll('.dia-card');
+    const cards = calendarioContainer.querySelectorAll('.dia-card:not(.dia-fora-mes)'); // Salvar apenas dias do mês atual
     if (cards.length === 0) {
-        alert('Nenhum dia carregado.');
+        alert('Nenhum dia carregado ou selecionado para o mês atual.');
         return;
     }
     salvarButton.disabled = true;
@@ -164,7 +203,9 @@ async function salvarPontos() {
                 continue; // usuário não interagiu com este dia
             }
             if (!entradaVal || !inicioVal || !fimVal || !saidaVal) {
-                continue; // horários incompletos para status comum
+                // Se for COMUM e horários incompletos, não salva, mas não impede outros
+                console.warn(`Horários incompletos para o dia ${card.dataset.data}. Não será salvo.`);
+                continue;
             }
         }
 
@@ -187,6 +228,8 @@ async function salvarPontos() {
             if (resp.ok) {
                 card.classList.add('success');
                 sucesso++;
+            } else {
+                console.error(`Erro ao salvar ponto para ${card.dataset.data}:`, resp.statusText);
             }
         } catch (err) {
             console.error('Erro ao salvar ponto:', err);
@@ -194,6 +237,7 @@ async function salvarPontos() {
     }
     salvarButton.disabled = false;
     alert(`Registros salvos: ${sucesso}`);
+    exibirCalendario(); // Recarregar calendário para refletir as mudanças
 }
 
 async function atualizarPonto(id, card) {
@@ -244,4 +288,12 @@ atendenteSelect.addEventListener('change', exibirCalendario);
 mesAnoInput.addEventListener('change', exibirCalendario);
 salvarButton.addEventListener('click', salvarPontos);
 
-document.addEventListener('DOMContentLoaded', carregarLojas);
+document.addEventListener('DOMContentLoaded', () => {
+    carregarLojas();
+    // Definir o mês/ano atual como padrão
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const year = today.getFullYear();
+    mesAnoInput.value = `${year}-${month}`;
+});
+

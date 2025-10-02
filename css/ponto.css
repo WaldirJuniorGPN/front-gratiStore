@@ -130,10 +130,32 @@ h1 {
 
 /* Novo layout em formato de calendário */
 .calendario-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaçamento entre as semanas */
     margin-top: 30px;
+}
+
+.week-header-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    text-align: center;
+}
+
+.day-header {
+    padding: 5px;
+}
+
+.week-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
 }
 
 .dia-card .status-label {
@@ -164,6 +186,7 @@ h1 {
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     transition: box-shadow 0.3s ease, transform 0.2s ease;
+    min-height: 180px; /* Garante altura mínima para cards vazios */
 }
 
 .dia-card:hover {
@@ -190,6 +213,17 @@ h1 {
 .dia-card.feriado {
     background-color: #ffe6e6;
     border-color: #f5c6cb;
+}
+
+.dia-card.dia-fora-mes {
+    background-color: var(--secondary-light);
+    color: #999;
+    opacity: 0.7;
+    pointer-events: none; /* Desabilita interação com dias fora do mês */
+}
+
+.dia-card.dia-fora-mes label {
+    color: #777;
 }
 
 .tabela-pontos {
@@ -300,7 +334,28 @@ h1 {
     }
 
     .calendario-container {
-        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .week-header-row, .week-row {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+
+    .dia-card {
+        min-height: 150px;
+        padding: 10px;
+        gap: 5px;
+    }
+
+    .dia-card label {
+        font-size: 0.9em;
+    }
+
+    .dia-card input[type="time"],
+    .dia-card select {
+        font-size: 0.8em;
+        padding: 5px;
     }
 
     .tabela-pontos, .tabela-pontos thead, .tabela-pontos tbody, .tabela-pontos th, .tabela-pontos td, .tabela-pontos tr {
