@@ -36,10 +36,15 @@ async function exibirListaAtendentes(atendentes) {
         const item = document.createElement("li");
 
         const salario = await obterSalario(atendente.id);
+        const admissao = formatarDataAdmissao(atendente.dataAdmissao);
 
         item.innerHTML = `
             <div class="atendente-info">
-                <strong>${atendente.nome}</strong> - <span class="salario">${salario !== null ? formatarMoeda(salario) : 'N/A'}</span>
+                <strong>${atendente.nome}</strong>
+                <span class="atendente-meta">
+                    <span class="salario">${salario !== null ? formatarMoeda(salario) : 'Salário N/A'}</span>
+                    ${admissao ? `<span class="admissao">Admissão: ${admissao}</span>` : ''}
+                </span>
             </div>
             <div class="acoes-atendente">
                 <button class="btn-editar" onclick="window.location.href='atualizar-funcionario.html?id=${atendente.id}'">
@@ -47,6 +52,9 @@ async function exibirListaAtendentes(atendentes) {
                 </button>
                 <button class="btn-salario" onclick="window.location.href='update-salario.html?id=${atendente.id}'">
                     Salário
+                </button>
+                <button class="btn-ferias" onclick="window.location.href='ferias-atendente.html?id=${atendente.id}'">
+                    Férias
                 </button>
                 <button class="btn-excluir" onclick="excluirAtendente(${atendente.id})">
                     Excluir
@@ -56,6 +64,12 @@ async function exibirListaAtendentes(atendentes) {
 
         lista.appendChild(item);
     }
+}
+
+function formatarDataAdmissao(iso) {
+    if (!iso) return null;
+    const [ano, mes, dia] = iso.split('-');
+    return `${dia}/${mes}/${ano}`;
 }
 
 async function obterSalario(id) {
