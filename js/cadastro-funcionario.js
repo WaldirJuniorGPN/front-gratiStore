@@ -2,6 +2,10 @@ import { carregarAtendentes } from './listarAtendentes.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     carregarLojas();
+    const dataAdmissaoInput = document.getElementById("dataAdmissao");
+    if (dataAdmissaoInput) {
+        dataAdmissaoInput.max = new Date().toISOString().slice(0, 10);
+    }
 });
 
 document.getElementById("formCadastroAtendente").addEventListener("submit", cadastrarAtendente);
@@ -46,17 +50,24 @@ document.getElementById("filtroLoja").addEventListener("change", (event) => {
 
 async function cadastrarAtendente(event) {
     event.preventDefault();
-    
+
     const nome = document.getElementById("nome").value;
     const lojaId = document.getElementById("loja").value;
     const salarioRaw = document.getElementById("salario").value;
+    const dataAdmissao = document.getElementById("dataAdmissao").value;
     // Normaliza o valor: remove pontos de milhar, troca vírgula decimal por ponto
     const salario = salarioRaw
         .replace(/\./g, "")   // remove todos os pontos
         .replace(/,/g, ".");  // troca vírgula por ponto
 
-    if (!nome || !lojaId || !salario) {
+    if (!nome || !lojaId || !salario || !dataAdmissao) {
         document.getElementById("mensagem").innerText = "Por favor, preencha todos os campos.";
+        return;
+    }
+
+    const hoje = new Date().toISOString().slice(0, 10);
+    if (dataAdmissao > hoje) {
+        document.getElementById("mensagem").innerText = "A data de admissão não pode estar no futuro.";
         return;
     }
 
@@ -66,26 +77,29 @@ async function cadastrarAtendente(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                nome, 
-                lojaId: parseInt(lojaId), 
-                salario: parseFloat(salario)
+            body: JSON.stringify({
+                nome,
+                lojaId: parseInt(lojaId),
+                salario: parseFloat(salario),
+                dataAdmissao
             })
         });
-        
+
         if (response.ok) {
             document.getElementById("mensagem").innerText = "Atendente cadastrado com sucesso!";
             document.getElementById("nome").value = "";
             document.getElementById("loja").value = "";
             document.getElementById("salario").value = "";
-            
+            document.getElementById("dataAdmissao").value = "";
+
             // Atualizar a lista se a loja do filtro for a mesma do cadastro
             const filtroLojaId = document.getElementById("filtroLoja").value;
             if (filtroLojaId === lojaId) {
                 carregarAtendentes(lojaId);
             }
         } else {
-            document.getElementById("mensagem").innerText = "Erro ao cadastrar o atendente.";
+            const erro = await response.json().catch(() => null);
+            document.getElementById("mensagem").innerText = erro?.message || "Erro ao cadastrar o atendente.";
         }
     } catch (error) {
         document.getElementById("mensagem").innerText = "Erro de conexão com o servidor.";

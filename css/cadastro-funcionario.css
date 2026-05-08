@@ -72,6 +72,7 @@ form label {
 }
 
 form input[type="text"],
+form input[type="date"],
 form select,
 .filtro-loja select {
     width: calc(100% - 20px); /* Ajuste para padding */
@@ -80,15 +81,25 @@ form select,
     border: 1px solid var(--secondary-light);
     border-radius: 6px;
     font-size: 1em;
+    font-family: inherit;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 form input[type="text"]:focus,
+form input[type="date"]:focus,
 form select:focus,
 .filtro-loja select:focus {
     border-color: var(--primary-blue);
     outline: none;
     box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.2);
+}
+
+form .campo-ajuda {
+    display: block;
+    margin: -14px 0 18px;
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
 }
 
 form button {
@@ -238,6 +249,10 @@ form button:hover {
     background-color: var(--primary-blue);
 }
 
+.btn-ferias {
+    background-color: #38B2AC;
+}
+
 .btn-editar:hover {
     background-color: #8CC4C6;
     transform: translateY(-1px);
@@ -253,11 +268,28 @@ form button:hover {
     transform: translateY(-1px);
 }
 
-.salario {
-    margin-left: 8px;
+.btn-ferias:hover {
+    background-color: #2C8C87;
+    transform: translateY(-1px);
+}
+
+.atendente-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 4px;
+    color: #666;
+    font-size: 0.95em;
+}
+
+.atendente-meta .salario {
     color: var(--text-dark);
-    font-size: 1em;
     font-weight: 600;
+}
+
+.atendente-meta .admissao {
+    color: #6B7280;
+    font-size: 0.92em;
 }
 
 /* Mensagens de estado */
