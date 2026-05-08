@@ -1,5 +1,6 @@
 (function () {
     const MOBILE_BREAKPOINT = 1024;
+    const STORAGE_KEY = 'gs:sidebar:collapsed';
 
     document.addEventListener('DOMContentLoaded', function () {
         fetch('/html/header.html')
@@ -21,7 +22,43 @@
 
         markActiveLink(sidebar);
         setupGroupToggles(sidebar);
-        setupMobileDrawer(sidebar, toggle, overlay);
+        setupSidebarToggle(sidebar, toggle, overlay);
+    }
+
+    function isDesktop() {
+        return window.innerWidth >= MOBILE_BREAKPOINT;
+    }
+
+    function readStoredCollapsed() {
+        try {
+            return localStorage.getItem(STORAGE_KEY) === '1';
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function writeStoredCollapsed(collapsed) {
+        try {
+            localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0');
+        } catch (_) { /* storage indisponível: silenciar */ }
+    }
+
+    function syncToggleState(toggle, sidebar) {
+        if (isDesktop()) {
+            const collapsed = document.body.classList.contains('sidebar-collapsed');
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            toggle.setAttribute(
+                'aria-label',
+                collapsed ? 'Expandir menu de navegação' : 'Recolher menu de navegação'
+            );
+        } else {
+            const isOpen = sidebar.classList.contains('is-open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            toggle.setAttribute(
+                'aria-label',
+                isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'
+            );
+        }
     }
 
     function normalizePath(path) {
@@ -57,17 +94,16 @@
         });
     }
 
-    function setupMobileDrawer(sidebar, toggle, overlay) {
-        const open = () => {
+    function setupSidebarToggle(sidebar, toggle, overlay) {
+        const openMobile = () => {
             sidebar.classList.add('is-open');
             overlay.hidden = false;
             requestAnimationFrame(() => overlay.classList.add('is-visible'));
-            toggle.setAttribute('aria-expanded', 'true');
-            toggle.setAttribute('aria-label', 'Fechar menu de navegação');
             document.body.style.overflow = 'hidden';
+            syncToggleState(toggle, sidebar);
         };
 
-        const close = () => {
+        const closeMobile = () => {
             sidebar.classList.remove('is-open');
             overlay.classList.remove('is-visible');
             const onEnd = () => {
@@ -75,35 +111,54 @@
                 overlay.removeEventListener('transitionend', onEnd);
             };
             overlay.addEventListener('transitionend', onEnd);
-            toggle.setAttribute('aria-expanded', 'false');
-            toggle.setAttribute('aria-label', 'Abrir menu de navegação');
             document.body.style.overflow = '';
+            syncToggleState(toggle, sidebar);
         };
 
+        const toggleDesktopCollapse = () => {
+            const collapsed = document.body.classList.toggle('sidebar-collapsed');
+            writeStoredCollapsed(collapsed);
+            syncToggleState(toggle, sidebar);
+        };
+
+        // Aplica estado inicial em desktop a partir do storage
+        if (isDesktop() && readStoredCollapsed()) {
+            document.body.classList.add('sidebar-collapsed');
+        }
+        syncToggleState(toggle, sidebar);
+
         toggle.addEventListener('click', () => {
-            const isOpen = sidebar.classList.contains('is-open');
-            isOpen ? close() : open();
+            if (isDesktop()) {
+                toggleDesktopCollapse();
+            } else {
+                const isOpen = sidebar.classList.contains('is-open');
+                isOpen ? closeMobile() : openMobile();
+            }
         });
 
-        overlay.addEventListener('click', close);
+        overlay.addEventListener('click', closeMobile);
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && sidebar.classList.contains('is-open')) {
-                close();
+                closeMobile();
                 toggle.focus();
             }
         });
 
         sidebar.querySelectorAll('.sidebar__link').forEach((link) => {
             link.addEventListener('click', () => {
-                if (window.innerWidth < MOBILE_BREAKPOINT) close();
+                if (!isDesktop()) closeMobile();
             });
         });
 
         window.addEventListener('resize', () => {
-            if (window.innerWidth >= MOBILE_BREAKPOINT && sidebar.classList.contains('is-open')) {
-                close();
+            if (isDesktop()) {
+                if (sidebar.classList.contains('is-open')) {
+                    closeMobile();
+                }
+                document.body.classList.toggle('sidebar-collapsed', readStoredCollapsed());
             }
+            syncToggleState(toggle, sidebar);
         });
     }
 })();
