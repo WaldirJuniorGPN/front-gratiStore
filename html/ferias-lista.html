@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagens de Férias</title>
+    <link rel="stylesheet" href="/css/ferias-lista.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Listagens de Férias</h1>
+                <p class="page-subtitle">Navegue pelas três visões para localizar atendentes por situação de férias.</p>
+            </div>
+            <div class="page-actions">
+                <a href="/html/ferias-dashboard.html" class="btn btn-secondary">Voltar ao painel</a>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <nav class="tabs" role="tablist" aria-label="Categorias de férias">
+            <button class="tab" role="tab" data-tab="com-direito" aria-selected="true">
+                <span class="tab-label">Com direito</span>
+                <span class="tab-hint">Saldo dentro do prazo</span>
+            </button>
+            <button class="tab" role="tab" data-tab="vencidas" aria-selected="false">
+                <span class="tab-label">A vencer / Vencidas</span>
+                <span class="tab-hint">Urgente, crítico ou irregular</span>
+            </button>
+            <button class="tab" role="tab" data-tab="sem-direito" aria-selected="false">
+                <span class="tab-label">Sem direito</span>
+                <span class="tab-hint">Ainda em aquisição</span>
+            </button>
+        </nav>
+
+        <section class="panel" id="painelLista">
+            <header class="panel-header">
+                <div>
+                    <h2 id="tituloLista">Atendentes com direito</h2>
+                    <p class="panel-subtitle" id="subtituloLista">Atendentes com período aquisitivo concluído e dentro do prazo concessional.</p>
+                </div>
+                <div class="page-size">
+                    <label for="pageSize">Itens por página</label>
+                    <select id="pageSize">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </header>
+
+            <div class="table-wrapper">
+                <table class="data-table" id="tabelaLista">
+                    <thead id="cabecalhoLista"></thead>
+                    <tbody id="corpoLista">
+                        <tr class="row-loading"><td colspan="7">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="panel-footer">
+                <span class="footer-info" id="footerInfo">—</span>
+                <div class="paginacao">
+                    <button id="btnAnterior" class="btn-page" disabled>← Anterior</button>
+                    <span id="paginaAtual" class="pagina-atual">Página 1 de 1</span>
+                    <button id="btnProximo" class="btn-page" disabled>Próxima →</button>
+                </div>
+            </footer>
+        </section>
+    </main>
+
+    <script src="/js/ferias-lista.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

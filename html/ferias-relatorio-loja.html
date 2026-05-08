@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Férias por Loja</title>
+    <link rel="stylesheet" href="/css/ferias-relatorio-loja.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Relatório de Férias por Loja</h1>
+                <p class="page-subtitle">Selecione uma loja para ver todos os atendentes ativos com seus períodos aquisitivos e registros.</p>
+            </div>
+            <div class="page-actions">
+                <button id="btnExportarPdf" class="btn btn-primary">
+                    <span class="btn-icon">⬇</span> Exportar PDF Consolidado
+                </button>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <section class="filter-bar">
+            <label for="lojaSelect">Loja</label>
+            <select id="lojaSelect">
+                <option value="">Selecione uma loja...</option>
+            </select>
+        </section>
+
+        <section class="loja-resumo" id="lojaResumo" hidden>
+            <div class="resumo-bloco">
+                <span class="resumo-label">Loja</span>
+                <span class="resumo-value" id="resumoNome">—</span>
+            </div>
+            <div class="resumo-bloco">
+                <span class="resumo-label">CNPJ</span>
+                <span class="resumo-value" id="resumoCnpj">—</span>
+            </div>
+            <div class="resumo-bloco">
+                <span class="resumo-label">Atendentes ativos</span>
+                <span class="resumo-value" id="resumoAtendentes">—</span>
+            </div>
+        </section>
+
+        <section id="conteudoRelatorio" class="conteudo">
+            <div class="placeholder">
+                <p>Selecione uma loja para visualizar o relatório.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/ferias-relatorio-loja.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

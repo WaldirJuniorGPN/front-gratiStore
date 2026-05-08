@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Férias do Atendente</title>
+    <link rel="stylesheet" href="/css/ferias-atendente.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <a href="javascript:history.back()" class="link-voltar">← Voltar</a>
+
+        <header class="atendente-header" id="cabecalhoAtendente">
+            <div class="atendente-info">
+                <span class="info-label">Atendente</span>
+                <h1 id="nomeAtendente">Carregando...</h1>
+                <div class="info-meta">
+                    <span><strong>Loja:</strong> <span id="lojaAtendente">—</span></span>
+                    <span><strong>Admissão:</strong> <span id="admissaoAtendente">—</span></span>
+                    <span><strong>Período concessivo total:</strong> <span id="qtdPeriodos">—</span> período(s)</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <section class="periodos" id="listaPeriodos">
+            <div class="periodos-loading">Carregando histórico...</div>
+        </section>
+    </main>
+
+    <!-- Modal: Registrar férias -->
+    <div class="modal" id="modalRegistro" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Registrar férias</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formRegistro" class="modal-body">
+                <div class="form-context" id="contextoPeriodo">—</div>
+
+                <div class="form-row">
+                    <label for="dataInicio">Data de início <span class="required">*</span></label>
+                    <input type="date" id="dataInicio" required>
+                </div>
+
+                <div class="form-row">
+                    <label for="dataFim">Data de término <span class="required">*</span></label>
+                    <input type="date" id="dataFim" required>
+                </div>
+
+                <div class="form-row checkbox-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="abonoPecuniario">
+                        <span>Vender parte das férias (abono pecuniário)</span>
+                    </label>
+                    <p class="form-hint">Limitado a 1/3 dos dias de direito (CLT art. 143), máximo de 10 dias.</p>
+                </div>
+
+                <div class="form-row" id="grupoDiasAbono" hidden>
+                    <label for="diasAbono">Dias de abono</label>
+                    <input type="number" id="diasAbono" min="0" step="1" value="0">
+                </div>
+
+                <div class="form-summary" id="resumoCalculo">
+                    <span><strong>Dias de gozo:</strong> <span id="resumoDias">0</span></span>
+                    <span><strong>Total a debitar:</strong> <span id="resumoTotal">0</span></span>
+                    <span><strong>Saldo após registro:</strong> <span id="resumoSaldo">—</span></span>
+                </div>
+
+                <div class="form-error" id="erroFormulario" hidden></div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirmar">Registrar férias</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/ferias-atendente.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

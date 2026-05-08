@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinatários de Notificação</title>
+    <link rel="stylesheet" href="/css/notificacoes-destinatarios.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Destinatários de Notificação</h1>
+                <p class="page-subtitle">Cadastre e gerencie quem recebe os alertas de férias por e-mail (resumo semanal e alertas urgentes).</p>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <div class="layout-grid">
+            <section class="card form-card">
+                <header class="card-header">
+                    <h2 id="formTitulo">Novo destinatário</h2>
+                    <p class="card-subtitle" id="formSubtitulo">Preencha os campos abaixo para cadastrar um novo destinatário.</p>
+                </header>
+
+                <form id="formDestinatario" class="form-body">
+                    <input type="hidden" id="destinatarioId">
+
+                    <div class="form-row">
+                        <label for="nome">Nome <span class="required">*</span></label>
+                        <input type="text" id="nome" required maxlength="120" placeholder="Ex.: Maria da Silva">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="email">E-mail <span class="required">*</span></label>
+                        <input type="email" id="email" required placeholder="exemplo@empresa.com.br">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="lojaId">Loja</label>
+                        <select id="lojaId">
+                            <option value="">Todas as lojas</option>
+                        </select>
+                        <p class="form-hint">Quando "Todas as lojas" for selecionada, o destinatário receberá alertas de qualquer loja.</p>
+                    </div>
+
+                    <fieldset class="switches">
+                        <legend>Tipos de notificação</legend>
+                        <p class="form-hint">Pelo menos um tipo precisa estar habilitado.</p>
+
+                        <label class="switch">
+                            <input type="checkbox" id="receberResumoSemanal" checked>
+                            <span class="switch-track" aria-hidden="true"></span>
+                            <span class="switch-text">
+                                <strong>Resumo semanal</strong>
+                                <small>Visão geral da situação dos atendentes</small>
+                            </span>
+                        </label>
+
+                        <label class="switch">
+                            <input type="checkbox" id="receberAlertaUrgente" checked>
+                            <span class="switch-track" aria-hidden="true"></span>
+                            <span class="switch-text">
+                                <strong>Alerta urgente</strong>
+                                <small>Notificação imediata para férias críticas/irregulares</small>
+                            </span>
+                        </label>
+                    </fieldset>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="btnLimpar" hidden>Cancelar edição</button>
+                        <button type="submit" class="btn btn-primary" id="btnSalvar">Cadastrar destinatário</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card list-card">
+                <header class="card-header">
+                    <div>
+                        <h2>Destinatários ativos</h2>
+                        <p class="card-subtitle" id="contagemTotal">—</p>
+                    </div>
+                    <div class="page-size">
+                        <label for="pageSize">Por página</label>
+                        <select id="pageSize">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </header>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Loja</th>
+                                <th>Notificações</th>
+                                <th class="th-acoes">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoLista">
+                            <tr class="row-loading"><td colspan="5">Carregando destinatários...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <footer class="card-footer">
+                    <span id="footerInfo" class="footer-info">—</span>
+                    <div class="paginacao">
+                        <button id="btnAnterior" class="btn-page" disabled>← Anterior</button>
+                        <span id="paginaAtual" class="pagina-atual">Página 1 de 1</span>
+                        <button id="btnProximo" class="btn-page" disabled>Próxima →</button>
+                    </div>
+                </footer>
+            </section>
+        </div>
+    </main>
+
+    <script src="/js/notificacoes-destinatarios.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

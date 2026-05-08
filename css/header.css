@@ -1,106 +1,298 @@
-/* Variáveis de Cores (redefinidas para consistência, se necessário) */
+/* GratiStore — Sidebar de navegação
+   ---------------------------------
+   Layout: sidebar lateral fixa (240px) em desktop;
+   drawer overlay com hambúrguer em telas < 1024px. */
+
 :root {
-    --primary-blue: #6A8EAE;
-    --secondary-light: #DCE2E8;
-    --accent-green: #A8DADC;
-    --text-dark: #333333;
-    --background-light: #F8F9FA;
+    --sidebar-width: 240px;
+    --sidebar-bg: #FFFFFF;
+    --sidebar-border: #E5E7EB;
+    --sidebar-brand: #2C5478;
+    --sidebar-brand-bg: #F4F8FB;
+    --sidebar-text: #374151;
+    --sidebar-text-muted: #6B7280;
+    --sidebar-hover-bg: #F3F4F6;
+    --sidebar-active-bg: #EEF4F9;
+    --sidebar-active-text: #2C5478;
+    --sidebar-active-bar: #3B6E91;
+    --sidebar-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    --sidebar-shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.12);
+    --sidebar-radius: 8px;
+    --sidebar-transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-header {
-    background-color: var(--primary-blue); /* Cor de fundo do cabeçalho */
-    padding: 15px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+#header-container {
+    display: contents;
 }
 
-nav ul {
+html body {
+    padding-left: var(--sidebar-width);
+    padding-top: 0;
+    transition: padding-left var(--sidebar-transition);
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    box-shadow: var(--sidebar-shadow);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: transform var(--sidebar-transition);
+}
+
+.sidebar__brand {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--sidebar-border);
+    background-color: var(--sidebar-brand-bg);
+    flex-shrink: 0;
+}
+
+.sidebar__brand-link {
+    color: var(--sidebar-brand);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.3px;
+}
+
+.sidebar__nav {
+    padding: 12px 8px 24px;
+    flex: 1;
+}
+
+.sidebar__list {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+
+.sidebar__item {
+    margin: 2px 0;
+}
+
+/* Links principais */
+.sidebar__link,
+.sidebar__group-toggle {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 9px 14px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    border-radius: var(--sidebar-radius);
+    transition: background-color var(--sidebar-transition), color var(--sidebar-transition);
+    line-height: 1.3;
+}
+
+.sidebar__group-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+}
+
+.sidebar__link:hover,
+.sidebar__group-toggle:hover {
+    background-color: var(--sidebar-hover-bg);
+    color: var(--sidebar-active-text);
+}
+
+.sidebar__link:focus-visible,
+.sidebar__group-toggle:focus-visible {
+    outline: 2px solid var(--sidebar-active-bar);
+    outline-offset: -2px;
+}
+
+/* Estado ativo */
+.sidebar__link.is-active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+    position: relative;
+}
+
+.sidebar__link.is-active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background-color: var(--sidebar-active-bar);
+    border-radius: 0 2px 2px 0;
+}
+
+.sidebar__item--group.has-active > .sidebar__group-toggle {
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+}
+
+/* Chevron do grupo */
+.sidebar__chevron {
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--sidebar-transition);
+    margin-left: 8px;
+    opacity: 0.6;
+}
+
+.sidebar__group-toggle[aria-expanded="true"] .sidebar__chevron {
+    transform: rotate(45deg);
+}
+
+/* Submenu (accordion) */
+.sidebar__submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height var(--sidebar-transition);
+    border-left: 1px solid var(--sidebar-border);
+    margin-left: 18px;
+    margin-top: 2px;
+}
+
+.sidebar__group-toggle[aria-expanded="true"] + .sidebar__submenu {
+    max-height: 400px;
+}
+
+.sidebar__submenu .sidebar__link {
+    padding: 7px 12px 7px 16px;
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--sidebar-text-muted);
+    border-radius: 0 var(--sidebar-radius) var(--sidebar-radius) 0;
+}
+
+.sidebar__submenu .sidebar__link:hover {
+    color: var(--sidebar-active-text);
+}
+
+.sidebar__submenu .sidebar__link.is-active {
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+}
+
+.sidebar__submenu .sidebar__link.is-active::before {
+    left: -1px;
+    border-radius: 0;
+}
+
+/* ===== Hambúrguer (mobile) ===== */
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    width: 40px;
+    height: 40px;
+    background-color: var(--sidebar-bg);
+    border: 1px solid var(--sidebar-border);
+    border-radius: var(--sidebar-radius);
+    box-shadow: var(--sidebar-shadow);
+    cursor: pointer;
+    z-index: 1002;
+    padding: 0;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 4px;
 }
 
-nav ul li {
-    position: relative;
-    margin: 0 15px;
+.sidebar-toggle:hover {
+    background-color: var(--sidebar-hover-bg);
 }
 
-nav ul li a {
-    color: #fff; /* Texto branco para contraste com o azul primário */
-    text-decoration: none;
-    padding: 10px 15px;
+.sidebar-toggle__bar {
     display: block;
-    font-weight: 500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    border-radius: 5px;
+    width: 18px;
+    height: 2px;
+    background-color: var(--sidebar-text);
+    border-radius: 2px;
+    transition: transform var(--sidebar-transition), opacity var(--sidebar-transition);
 }
 
-nav ul li a:hover {
-    background-color: rgba(255,255,255,0.2); /* Efeito hover suave */
-    color: #fff;
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
 }
 
-/* Dropdown */
-.dropdown-content {
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__bar:nth-child(2) {
+    opacity: 0;
+}
+
+.sidebar-toggle[aria-expanded="true"] .sidebar-toggle__bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Overlay escuro do drawer */
+.sidebar-overlay {
     display: none;
-    position: absolute;
-    background-color: #fff; /* Fundo branco para o dropdown */
-    min-width: 180px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 5px;
-    overflow: hidden;
-    top: 100%; /* Posicionar o dropdown imediatamente abaixo do item pai */
-    margin-top: 0; /* Garantir que não há margem extra */
-    padding-top: 5px; /* Pequeno padding para criar uma área de transição */
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.45);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity var(--sidebar-transition);
 }
 
-.dropdown-content a {
-    color: var(--text-dark); /* Cor do texto do dropdown */
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-    transition: background-color 0.3s ease;
+.sidebar-overlay.is-visible {
+    opacity: 1;
 }
 
-.dropdown-content a:hover {
-    background-color: var(--secondary-light); /* Cor de hover para itens do dropdown */
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* Adicionar seta para baixo no menu dropdown */
-.dropdown > a::after {
-    content: " ▼";
-    font-size: 0.8em;
-    margin-left: 5px;
-}
-
-/* Responsividade básica */
-@media (max-width: 768px) {
-    nav ul {
-        flex-direction: column;
+/* ===== Responsivo: < 1024px ===== */
+@media (max-width: 1023.98px) {
+    html body {
+        padding-left: 0;
+        padding-top: 64px;
     }
 
-    nav ul li {
-        margin: 10px 0;
-    }
-
-    .dropdown-content {
-        position: static;
-        box-shadow: none;
-        border-top: 1px solid var(--secondary-light);
-        margin-top: 0;
-    }
-
-    .dropdown:hover .dropdown-content {
+    .sidebar-toggle {
         display: flex;
-        flex-direction: column;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebar.is-open {
+        transform: translateX(0);
+        box-shadow: var(--sidebar-shadow-lg);
+    }
+
+    .sidebar-overlay:not([hidden]) {
+        display: block;
     }
 }
 
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    body,
+    .sidebar,
+    .sidebar__link,
+    .sidebar__group-toggle,
+    .sidebar__chevron,
+    .sidebar__submenu,
+    .sidebar-toggle__bar,
+    .sidebar-overlay {
+        transition: none;
+    }
+}

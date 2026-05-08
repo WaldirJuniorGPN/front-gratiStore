@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Férias</title>
+    <link rel="stylesheet" href="/css/ferias-dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Painel de Férias</h1>
+                <p class="page-subtitle">Visão geral da situação dos atendentes — totais por categoria e os mais urgentes do momento.</p>
+            </div>
+            <div class="page-actions">
+                <a href="/html/ferias-lista.html" class="btn btn-secondary">Ver listagens</a>
+                <button id="btnExportarPdf" class="btn btn-primary">
+                    <span class="btn-icon">⬇</span> Exportar PDF
+                </button>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <section class="kpi-grid" id="kpiGrid" aria-busy="true">
+            <div class="kpi-card kpi-em-aquisicao" data-kpi="sem-direito">
+                <span class="kpi-label">Sem direito</span>
+                <span class="kpi-value" data-value>—</span>
+                <span class="kpi-hint">Ainda em aquisição</span>
+            </div>
+            <div class="kpi-card kpi-com-direito" data-kpi="com-direito">
+                <span class="kpi-label">Com direito</span>
+                <span class="kpi-value" data-value>—</span>
+                <span class="kpi-hint">Saldo dentro do prazo</span>
+            </div>
+            <div class="kpi-card kpi-urgente" data-kpi="urgente">
+                <span class="kpi-label">Urgente</span>
+                <span class="kpi-value" data-value>—</span>
+                <span class="kpi-hint">60 a 120 dias para vencer</span>
+            </div>
+            <div class="kpi-card kpi-critico" data-kpi="critico">
+                <span class="kpi-label">Crítico</span>
+                <span class="kpi-value" data-value>—</span>
+                <span class="kpi-hint">30 a 60 dias para vencer</span>
+            </div>
+            <div class="kpi-card kpi-irregular" data-kpi="irregular">
+                <span class="kpi-label">Irregular</span>
+                <span class="kpi-value" data-value>—</span>
+                <span class="kpi-hint">Vence em 30 dias ou já venceu</span>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>Top 10 mais urgentes</h2>
+                    <p class="panel-subtitle">Atendentes com menor tempo restante para o limite concessional.</p>
+                </div>
+                <a href="/html/ferias-lista.html?tab=vencidas" class="link-action">Ver todos →</a>
+            </header>
+            <div class="table-wrapper">
+                <table class="data-table" id="tabelaUrgentes">
+                    <thead>
+                        <tr>
+                            <th>Atendente</th>
+                            <th>Loja</th>
+                            <th>Período aquisitivo</th>
+                            <th>Limite p/ gozar</th>
+                            <th>Atraso</th>
+                            <th>Grau</th>
+                            <th class="th-acao"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoUrgentes">
+                        <tr class="row-loading"><td colspan="7">Carregando informações...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/ferias-dashboard.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
