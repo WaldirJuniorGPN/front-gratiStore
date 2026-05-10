@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Calculadoras</title>
+    <title>Calculadoras de Gratificação</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/cadastro-calculadora.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,51 +13,158 @@
 <body>
     <div id="header-container"></div>
     <main>
-        <h1>Cadastro de Calculadora de Gratificação</h1>
-        <form id="formCadastroCalculadora">
-            <label for="nome">Nome da Calculadora</label>
-            <input type="text" id="nome" name="nome" required>
+        <header class="page-header">
+            <div>
+                <h1>Calculadoras de Gratificação</h1>
+                <p class="page-subtitle">Defina os percentuais e bônus aplicados a cada colocação no ranking de vendas.</p>
+            </div>
+            <div class="page-actions">
+                <button id="btnNovaCalc" class="btn btn-primary" type="button">
+                    <span class="btn-icon">+</span> Nova Calculadora
+                </button>
+            </div>
+        </header>
 
-            <h3>Percentuais de Gratificação</h3>
-            <label for="percentualPrimeiroColocado">Primeiro Colocado (%)</label>
-            <input type="number" step="0.01" id="percentualPrimeiroColocado" name="percentualPrimeiroColocado" required>
+        <div id="mensagem" class="mensagem" hidden></div>
 
-            <label for="percentualSegundoColocado">Segundo Colocado (%)</label>
-            <input type="number" step="0.01" id="percentualSegundoColocado" name="percentualSegundoColocado" required>
+        <section class="filter-bar">
+            <div class="filter-field filter-field--grow">
+                <label for="busca">Buscar</label>
+                <input type="search" id="busca" placeholder="Filtre por nome da calculadora ou loja...">
+            </div>
+        </section>
 
-            <label for="percentualTerceiroColocado">Terceiro Colocado (%)</label>
-            <input type="number" step="0.01" id="percentualTerceiroColocado" name="percentualTerceiroColocado" required>
-
-            <label for="percentualDemaisColocados">Demais Colocados (%)</label>
-            <input type="number" step="0.01" id="percentualDemaisColocados" name="percentualDemaisColocados" required>
-
-            <h3>Bônus Adicional</h3>
-            <label for="bonusPrimeiroColocado">Bônus Primeiro Colocado (R$)</label>
-            <input type="number" step="0.01" id="bonusPrimeiroColocado" name="bonusPrimeiroColocado" required>
-
-            <label for="bonusSegundoColocado">Bônus Segundo Colocado (R$)</label>
-            <input type="number" step="0.01" id="bonusSegundoColocado" name="bonusSegundoColocado" required>
-
-            <label for="bonusTerceiroColocado">Bônus Terceiro Colocado (R$)</label>
-            <input type="number" step="0.01" id="bonusTerceiroColocado" name="bonusTerceiroColocado" required>
-
-            <label for="loja">Loja</label>
-            <select id="loja" name="loja" required>
-                <option value="">Selecione uma loja</option>
-                <!-- Opções de lojas serão adicionadas dinamicamente -->
-            </select>
-
-            <button type="submit">Salvar</button>
-        </form>
-        <div id="mensagem"></div>
-
-        <h2>Lista de Calculadoras</h2>
-        <div id="listaCalculadoras">
-            <!-- As calculadoras serão adicionadas aqui dinamicamente -->
-        </div>
+        <section class="panel panel--cards">
+            <header class="panel-header">
+                <div>
+                    <h2>Calculadoras cadastradas</h2>
+                    <p class="panel-subtitle"><span id="contagemCalcs">0</span> calculadora(s) configurada(s).</p>
+                </div>
+            </header>
+            <div id="gridCalculadoras" class="cards-grid">
+                <p class="grid-loading">Carregando calculadoras...</p>
+            </div>
+        </section>
     </main>
 
-    <script type="module" src="/js/cadastro-calculadora.js"></script>
+    <!-- Modal Cadastro/Edição -->
+    <div class="modal" id="modalCalc" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog modal-dialog--wide" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Nova Calculadora</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formCalc">
+                <div class="modal-body">
+                    <section class="form-section">
+                        <h3 class="form-section-title">Identificação</h3>
+                        <div class="form-grid">
+                            <div class="form-row">
+                                <label for="nome">Nome da calculadora <span class="required">*</span></label>
+                                <input type="text" id="nome" required placeholder="Ex.: Padrão 2025" autocomplete="off">
+                            </div>
+                            <div class="form-row">
+                                <label for="loja">Loja <span class="required">*</span></label>
+                                <select id="loja" required>
+                                    <option value="">Selecione uma loja</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <h3 class="form-section-title">Percentuais por colocação (%)</h3>
+                        <div class="form-grid">
+                            <div class="form-row">
+                                <label for="percentualPrimeiroColocado">1º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <input type="number" step="0.01" min="0" id="percentualPrimeiroColocado" required placeholder="0,00">
+                                    <span class="input-affix__suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="percentualSegundoColocado">2º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <input type="number" step="0.01" min="0" id="percentualSegundoColocado" required placeholder="0,00">
+                                    <span class="input-affix__suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="percentualTerceiroColocado">3º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <input type="number" step="0.01" min="0" id="percentualTerceiroColocado" required placeholder="0,00">
+                                    <span class="input-affix__suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="percentualDemaisColocados">Demais <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <input type="number" step="0.01" min="0" id="percentualDemaisColocados" required placeholder="0,00">
+                                    <span class="input-affix__suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <h3 class="form-section-title">Bônus adicional por colocação (R$)</h3>
+                        <div class="form-grid form-grid--three">
+                            <div class="form-row">
+                                <label for="bonusPrimeiroColocado">1º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <span class="input-affix__prefix">R$</span>
+                                    <input type="number" step="0.01" min="0" id="bonusPrimeiroColocado" required placeholder="0,00">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="bonusSegundoColocado">2º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <span class="input-affix__prefix">R$</span>
+                                    <input type="number" step="0.01" min="0" id="bonusSegundoColocado" required placeholder="0,00">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="bonusTerceiroColocado">3º colocado <span class="required">*</span></label>
+                                <div class="input-affix">
+                                    <span class="input-affix__prefix">R$</span>
+                                    <input type="number" step="0.01" min="0" id="bonusTerceiroColocado" required placeholder="0,00">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirmar">Cadastrar</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação Exclusão -->
+    <div class="modal" id="modalExclusao" hidden>
+        <div class="modal-backdrop" data-close-confirm></div>
+        <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true">
+            <header class="modal-header">
+                <h2>Excluir calculadora</h2>
+                <button type="button" class="modal-close" data-close-confirm aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir <strong id="calcParaExcluir">esta calculadora</strong>?</p>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+            </div>
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-confirm>Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/cadastro-calculadora.js"></script>
     <script src="/js/header.js"></script>
 </body>
 </html>

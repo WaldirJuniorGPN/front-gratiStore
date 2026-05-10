@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Atendente</title>
+    <title>Atendentes</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/cadastro-funcionario.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,47 +13,128 @@
 <body>
     <div id="header-container"></div>
     <main>
-        <h1>Cadastro de Atendente</h1>
-        <form id="formCadastroAtendente">
-            <label for="nome">Nome do Atendente:</label>
-            <input type="text" id="nome" name="nome" required>
-
-            <label for="loja">Loja:</label>
-            <select id="loja" name="loja" required>
-                <option value="">Selecione uma loja</option>
-                <!-- Opções de lojas serão adicionadas dinamicamente -->
-            </select>
-
-            <label for="salario">Salário:</label>
-            <div class="input-group">
-                <span class="input-prefix">R$</span>
-                <input type="text" id="salario" name="salario" required placeholder="2.000,00">
+        <header class="page-header">
+            <div>
+                <h1>Atendentes</h1>
+                <p class="page-subtitle">Cadastre atendentes, atualize informações e acesse rapidamente férias e salário.</p>
             </div>
+            <div class="page-actions">
+                <button id="btnNovoAtendente" class="btn btn-primary" type="button">
+                    <span class="btn-icon">+</span> Novo Atendente
+                </button>
+            </div>
+        </header>
 
-            <label for="dataAdmissao">Data de Admissão:</label>
-            <input type="date" id="dataAdmissao" name="dataAdmissao" required>
-            <small class="campo-ajuda">Define o início do período aquisitivo de férias (12 meses após esta data).</small>
+        <div id="mensagem" class="mensagem" hidden></div>
 
-            <button type="submit">Cadastrar</button>
-        </form>
-        <div id="mensagem"></div>
-
-        <h2>Lista de Atendentes</h2>
-        <div class="filtro-loja">
-            <label for="filtroLoja">Filtrar por Loja:</label>
-            <div class="filtro-wrapper">
+        <section class="filter-bar">
+            <div class="filter-field">
+                <label for="filtroLoja">Loja</label>
                 <select id="filtroLoja">
-                    <option value="">Selecione uma loja</option>
-                    <!-- Opções de lojas serão adicionadas dinamicamente -->
+                    <option value="">Selecione uma loja...</option>
                 </select>
             </div>
-        </div>
-        <ul id="listaAtendentes">
-            <li class="mensagem-inicial">Selecione uma loja para ver seus atendentes.</li>
-        </ul>
+            <div class="filter-field filter-field--grow">
+                <label for="busca">Buscar atendente</label>
+                <input type="search" id="busca" placeholder="Filtre pelo nome..." disabled>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2 id="tituloLista">Atendentes da loja</h2>
+                    <p class="panel-subtitle"><span id="contagemAtendentes">0</span> atendente(s) ativo(s).</p>
+                </div>
+            </header>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Salário</th>
+                            <th>Admissão</th>
+                            <th class="th-acao" aria-label="Ações"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoAtendentes">
+                        <tr class="row-empty"><td colspan="4">Selecione uma loja para visualizar seus atendentes.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
-    <script type="module" src="/js/cadastro-funcionario.js"></script>
+    <!-- Modal Cadastro/Edição -->
+    <div class="modal" id="modalAtendente" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Novo Atendente</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formAtendente">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="nome">Nome do atendente <span class="required">*</span></label>
+                        <input type="text" id="nome" required placeholder="Ex.: Maria Silva" autocomplete="off">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="loja">Loja <span class="required">*</span></label>
+                        <select id="loja" required>
+                            <option value="">Selecione uma loja</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label for="salario">Salário <span class="required">*</span></label>
+                            <div class="input-affix">
+                                <span class="input-affix__prefix">R$</span>
+                                <input type="text" id="salario" required placeholder="2.000,00" inputmode="decimal" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="dataAdmissao">Data de admissão <span class="required">*</span></label>
+                            <input type="date" id="dataAdmissao" required>
+                        </div>
+                    </div>
+
+                    <p class="form-hint">A data de admissão define o início do período aquisitivo de férias (12 meses após esta data).</p>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirmar">Cadastrar</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação Exclusão -->
+    <div class="modal" id="modalExclusao" hidden>
+        <div class="modal-backdrop" data-close-confirm></div>
+        <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true">
+            <header class="modal-header">
+                <h2>Excluir atendente</h2>
+                <button type="button" class="modal-close" data-close-confirm aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir <strong id="atendenteParaExcluir">este atendente</strong>?</p>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+            </div>
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-confirm>Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/cadastro-funcionario.js"></script>
     <script src="/js/header.js"></script>
 </body>
 </html>
