@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,38 +11,62 @@
 </head>
 <body>
     <div id="header-container"></div>
-    <div class="container">
-        <h1>Horas Extras</h1>
-        <form id="filtro-form">
-            <label for="mes-ano">Mês/Ano:</label>
-            <input type="month" id="mes-ano" required>
-
-            <label for="loja-select">Selecione a Loja:</label>
-            <select id="loja-select" required>
-                <option value="">Selecione</option>
-            </select>
-
-            <div class="actions">
-                <button type="button" id="calcular-btn">Calcular</button>
-                <button type="button" id="buscar-btn">Buscar</button>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Horas Extras</h1>
+                <p class="page-subtitle">Calcule e consulte as horas extras dos atendentes por loja e período de competência.</p>
             </div>
-        </form>
+        </header>
 
-        <div id="mensagem" class="mensagem"></div>
+        <div id="mensagem" class="mensagem" hidden></div>
 
-        <table id="tabela-resultados" class="tabela-resultados">
-            <thead>
-                <tr>
-                    <th>Atendente</th>
-                    <th>Horas 50%</th>
-                    <th>Valor a Receber 50%</th>
-                    <th>Horas 100%</th>
-                    <th>Valor a Receber 100%</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+        <section class="filter-bar">
+            <form id="filtro-form" class="filter-form">
+                <div class="filter-field">
+                    <label for="mes-ano">Mês/Ano</label>
+                    <input type="month" id="mes-ano" required>
+                </div>
+
+                <div class="filter-field">
+                    <label for="loja-select">Loja</label>
+                    <select id="loja-select" required>
+                        <option value="">Selecione uma loja...</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" id="buscar-btn" class="btn btn-secondary">Buscar</button>
+                    <button type="button" id="calcular-btn" class="btn btn-primary">Calcular</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>Resultados</h2>
+                    <p class="panel-subtitle">Totais de horas extras 50% e 100% com os respectivos valores a receber.</p>
+                </div>
+            </header>
+            <div class="table-wrapper">
+                <table class="data-table" id="tabela-resultados">
+                    <thead>
+                        <tr>
+                            <th>Atendente</th>
+                            <th>Horas 50%</th>
+                            <th>Valor a Receber 50%</th>
+                            <th>Horas 100%</th>
+                            <th>Valor a Receber 100%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row-empty"><td colspan="5">Selecione um período e uma loja para visualizar os resultados.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
     <script src="/js/horas-extras.js"></script>
     <script src="/js/header.js"></script>

@@ -22,6 +22,20 @@ function formatarDuracao(isoDuration) {
     return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
 }
 
+function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
+    if (!mensagemDiv) return;
+    mensagemDiv.textContent = texto;
+    mensagemDiv.className = `mensagem ${tipo}`;
+    mensagemDiv.hidden = false;
+    if (timeout) {
+        setTimeout(() => {
+            mensagemDiv.hidden = true;
+            mensagemDiv.className = 'mensagem';
+            mensagemDiv.textContent = '';
+        }, timeout);
+    }
+}
+
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
@@ -62,14 +76,14 @@ async function calcularHorasExtras() {
             body: JSON.stringify(filtro)
         });
         if (resp.ok) {
-            mensagemDiv.textContent = 'Cálculo realizado com sucesso!';
+            mostrarMensagem('Cálculo realizado com sucesso!', 'sucesso');
             await buscarResultados();
         } else {
-            mensagemDiv.textContent = 'Erro ao calcular horas extras.';
+            mostrarMensagem('Erro ao calcular horas extras.', 'erro');
         }
     } catch (err) {
         console.error('Erro ao calcular horas extras:', err);
-        mensagemDiv.textContent = 'Erro ao calcular horas extras.';
+        mostrarMensagem('Erro ao calcular horas extras.', 'erro');
     }
 }
 
@@ -94,11 +108,11 @@ async function buscarResultados() {
             const resultados = await resp.json();
             renderizarTabela(resultados);
         } else {
-            mensagemDiv.textContent = 'Erro ao buscar resultados.';
+            mostrarMensagem('Erro ao buscar resultados.', 'erro');
         }
     } catch (err) {
         console.error('Erro ao buscar resultados:', err);
-        mensagemDiv.textContent = 'Erro ao buscar resultados.';
+        mostrarMensagem('Erro ao buscar resultados.', 'erro');
     }
 }
 
@@ -106,9 +120,10 @@ function renderizarTabela(dados) {
     tabelaBody.innerHTML = '';
     if (!dados || dados.length === 0) {
         const tr = document.createElement('tr');
+        tr.className = 'row-empty';
         const td = document.createElement('td');
         td.colSpan = 5;
-        td.textContent = 'Nenhum resultado encontrado';
+        td.textContent = 'Nenhum resultado encontrado para o período selecionado.';
         tr.appendChild(td);
         tabelaBody.appendChild(tr);
         return;
