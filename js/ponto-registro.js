@@ -1,66 +1,164 @@
 const API_BASE_URL = 'http://localhost:8080';
 
-const mesAnoInput = document.getElementById('mesAno');
+const STATUS_LABEL = {
+    COMUM: 'Comum',
+    FERIADO: 'Feriado',
+    ATESTADO_INTEGRAL: 'Atestado integral',
+    ATESTADO_MATUTINO: 'Atestado (manhã)',
+    ATESTADO_VESPERTINO: 'Atestado (tarde)',
+    FOLGA: 'Folga',
+    FALTA: 'Falta',
+    DESCONTAR_EM_HORAS: 'Descontar em horas'
+};
+
 const lojaSelect = document.getElementById('lojaSelect');
 const atendenteSelect = document.getElementById('atendenteSelect');
+const mesAnoInput = document.getElementById('mesAno');
 const calendarioContainer = document.getElementById('calendarioContainer');
-const salvarButton = document.getElementById('salvarRegistros');
+const calendarTitulo = document.getElementById('calendarTitulo');
+const calendarLegend = document.getElementById('calendarLegend');
+const resumoMes = document.getElementById('resumoMes');
+const mensagemDiv = document.getElementById('mensagem');
+
+const modalDia = document.getElementById('modalDia');
+const modalTitulo = document.getElementById('modalTitulo');
+const modalDayInfo = document.getElementById('modalDayInfo');
+const formDia = document.getElementById('formDia');
+const inputStatus = document.getElementById('status');
+const inputEntrada = document.getElementById('entrada');
+const inputInicioAlmoco = document.getElementById('inicioAlmoco');
+const inputFimAlmoco = document.getElementById('fimAlmoco');
+const inputSaida = document.getElementById('saida');
+const totalContainer = document.getElementById('totalContainer');
+const totalValue = document.getElementById('totalValue');
+const erroFormulario = document.getElementById('erroFormulario');
+const hintHorarios = document.getElementById('hintHorarios');
+const btnSalvar = document.getElementById('btnSalvar');
+const btnSalvarProximo = document.getElementById('btnSalvarProximo');
+const btnExcluir = document.getElementById('btnExcluir');
+
+const modalExcluir = document.getElementById('modalExcluir');
+const diaParaExcluirEl = document.getElementById('diaParaExcluir');
+const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+
+let registrosAtuais = [];
+let edicaoAtual = null; // { dataIso, dataObj, registroId? }
+let registroParaExcluir = null;
+
+const STATUS_SEM_HORARIOS = ['FOLGA', 'FALTA', 'ATESTADO_INTEGRAL'];
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function formatarData(iso) {
+    if (!iso) return '—';
+    const [ano, mes, dia] = iso.split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
+function formatarDataLonga(dataObj) {
+    return dataObj.toLocaleDateString('pt-BR', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+}
+
+function diaSemana(dataObj) {
+    return dataObj.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+}
+
+function ehHoje(dataObj) {
+    const hoje = new Date();
+    return dataObj.getFullYear() === hoje.getFullYear()
+        && dataObj.getMonth() === hoje.getMonth()
+        && dataObj.getDate() === hoje.getDate();
+}
+
+function dateToIso(d) {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function getInicioAlmoco(r) {
+    return r?.inicioAlmoco || r?.incioAlmoco || '';
+}
+
+function calcularTotal(entrada, inicioAlmoco, fimAlmoco, saida) {
+    if (!entrada || !saida) return null;
+    const m = (t) => {
+        const [h, mi] = t.split(':').map(Number);
+        return h * 60 + (mi || 0);
+    };
+    let total = m(saida) - m(entrada);
+    if (inicioAlmoco && fimAlmoco) total -= (m(fimAlmoco) - m(inicioAlmoco));
+    if (total < 0 || isNaN(total)) return null;
+    return `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`;
+}
+
+function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
+    mensagemDiv.textContent = texto;
+    mensagemDiv.className = `mensagem ${tipo}`;
+    mensagemDiv.hidden = false;
+    if (timeout) {
+        setTimeout(() => {
+            mensagemDiv.hidden = true;
+            mensagemDiv.className = 'mensagem';
+            mensagemDiv.textContent = '';
+        }, timeout);
+    }
+}
+
+function mostrarErroForm(texto) {
+    erroFormulario.textContent = texto;
+    erroFormulario.hidden = false;
+}
+
+function limparErroForm() {
+    erroFormulario.hidden = true;
+    erroFormulario.textContent = '';
+}
 
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (resp.ok) {
-            const lojas = await resp.json();
-            lojas.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l.id;
-                opt.textContent = l.nome;
-                lojaSelect.appendChild(opt);
-            });
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
+            return;
         }
+        const lojas = await resp.json();
+        lojas.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = l.nome;
+            lojaSelect.appendChild(opt);
+        });
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
 }
 
 async function carregarAtendentes(lojaId) {
-    atendenteSelect.innerHTML = '<option value="">Selecione</option>';
-    calendarioContainer.innerHTML = '';
-    if (!lojaId) return;
+    atendenteSelect.innerHTML = '<option value="">Selecione um funcionário...</option>';
+    if (!lojaId) {
+        atendenteSelect.disabled = true;
+        return;
+    }
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/${lojaId}/atendentes`);
-        if (resp.ok) {
-            const atendentes = await resp.json();
-            atendentes.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.id;
-                opt.textContent = a.nome;
-                atendenteSelect.appendChild(opt);
-            });
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar funcionários.', 'erro');
+            return;
         }
+        const atendentes = await resp.json();
+        atendentes.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.nome;
+            atendenteSelect.appendChild(opt);
+        });
+        atendenteSelect.disabled = false;
     } catch (err) {
         console.error('Erro ao carregar atendentes:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
-}
-
-function getDaysInMonthGroupedByWeek(mes, ano) {
-    const weeks = [];
-    const firstDayOfMonth = new Date(ano, mes - 1, 1);
-    const lastDayOfMonth = new Date(ano, mes, 0);
-
-    // Ajustar o primeiro dia da semana para domingo (0)
-    let currentDay = new Date(firstDayOfMonth);
-    currentDay.setDate(currentDay.getDate() - currentDay.getDay()); // Retrocede para o domingo da primeira semana
-
-    while (currentDay <= lastDayOfMonth || currentDay.getDay() !== 0) {
-        const week = [];
-        for (let i = 0; i < 7; i++) {
-            week.push(new Date(currentDay));
-            currentDay.setDate(currentDay.getDate() + 1);
-        }
-        weeks.push(week);
-    }
-    return weeks;
 }
 
 async function carregarHistorico(atendenteId, ano, mes) {
@@ -81,219 +179,390 @@ async function carregarHistorico(atendenteId, ano, mes) {
             break;
         }
     }
-    return registros.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
+    return registros.filter(r => r.atendenteId === atendenteId && r.data && r.data.startsWith(`${ano}-${mes}`));
 }
 
-function criarCardDia(dataObj, registro, mesAtual) {
-    const card = document.createElement('div');
-    card.className = 'dia-card';
+function getSemanasDoMes(mes, ano) {
+    const semanas = [];
+    const primeiroDia = new Date(ano, mes - 1, 1);
+    const ultimoDia = new Date(ano, mes, 0);
+    let cursor = new Date(primeiroDia);
+    cursor.setDate(cursor.getDate() - cursor.getDay()); // recua até domingo
 
-    const dataIso = dataObj.toISOString().split('T')[0];
-    card.dataset.data = dataIso;
-
-    if (registro && registro.id) {
-        card.dataset.id = registro.id;
+    while (cursor <= ultimoDia || cursor.getDay() !== 0) {
+        const semana = [];
+        for (let i = 0; i < 7; i++) {
+            semana.push(new Date(cursor));
+            cursor.setDate(cursor.getDate() + 1);
+        }
+        semanas.push(semana);
     }
+    return semanas;
+}
 
-    const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'short' });
-    const diaFormatado = dataObj.getDate();
-    const mesDoDia = dataObj.getMonth() + 1;
-
-    // Adicionar classe para dias fora do mês atual
-    if (mesDoDia !== mesAtual) {
-        card.classList.add('dia-fora-mes');
-    }
-
-    card.innerHTML = `
-        <label>${diaFormatado} ${diaSemana}</label>
-        <input type="time" class="entrada" value="${registro?.entrada || ''}">
-        <input type="time" class="inicio-almoco" value="${registro?.inicioAlmoco || registro?.incioAlmoco || ''}">
-        <input type="time" class="fim-almoco" value="${registro?.fimAlmoco || ''}">
-        <input type="time" class="saida" value="${registro?.saida || ''}">
-        <label class="status-label">Status</label>
-        <select class="status">
-            <option value="COMUM">Comum</option>
-            <option value="FERIADO">Feriado</option>
-            <option value="ATESTADO_INTEGRAL">Atestado Integral</option>
-            <option value="ATESTADO_MATUTINO">Atestado Matutino</option>
-            <option value="ATESTADO_VESPERTINO">Atestado Vespertino</option>
-            <option value="FOLGA">Folga</option>
-            <option value="FALTA">Falta</n>
-            <option value="DESCONTAR_EM_HORAS">Descontar em Horas</option>
-        </select>
-    `;
-
-    if (registro && registro.id) {
-        const actions = document.createElement('div');
-        actions.className = 'acoes-ponto';
-        actions.innerHTML = `
-            <button class="btn-editar">Atualizar</button>
-            <button class="btn-excluir">Deletar</button>
-        `;
-        const [btnAtualizar, btnDeletar] = actions.querySelectorAll('button');
-        btnAtualizar.addEventListener('click', () => atualizarPonto(registro.id, card));
-        btnDeletar.addEventListener('click', () => deletarPonto(registro.id, card));
-        card.appendChild(actions);
-    }
-    const statusSelect = card.querySelector('.status');
-    statusSelect.value = registro?.status || 'COMUM';
-    card.classList.toggle('feriado', statusSelect.value === 'FERIADO');
-    statusSelect.addEventListener('change', e => {
-        card.classList.toggle('feriado', e.target.value === 'FERIADO');
+function atualizarResumo(registros, ano, mes) {
+    const contagem = {
+        comum: 0, folga: 0, falta: 0, atestado: 0,
+        feriado: 0, descontar: 0, vazio: 0
+    };
+    registros.forEach(r => {
+        switch (r.status) {
+            case 'COMUM': contagem.comum++; break;
+            case 'FOLGA': contagem.folga++; break;
+            case 'FALTA': contagem.falta++; break;
+            case 'ATESTADO_INTEGRAL':
+            case 'ATESTADO_MATUTINO':
+            case 'ATESTADO_VESPERTINO': contagem.atestado++; break;
+            case 'FERIADO': contagem.feriado++; break;
+            case 'DESCONTAR_EM_HORAS': contagem.descontar++; break;
+        }
     });
-    return card;
+    const totalDiasMes = new Date(ano, mes, 0).getDate();
+    contagem.vazio = Math.max(0, totalDiasMes - registros.length);
+
+    Object.entries(contagem).forEach(([k, v]) => {
+        const el = resumoMes.querySelector(`[data-resumo="${k}"]`);
+        if (el) el.textContent = v;
+    });
+    resumoMes.hidden = false;
 }
 
 async function exibirCalendario() {
-    calendarioContainer.innerHTML = '';
     const mesAno = mesAnoInput.value;
     const atendenteId = parseInt(atendenteSelect.value);
-    if (!mesAno || !atendenteId) return;
+
+    if (!mesAno || !atendenteId) {
+        calendarioContainer.innerHTML = '<p class="calendar-placeholder">Selecione loja, funcionário e mês para visualizar o calendário.</p>';
+        resumoMes.hidden = true;
+        calendarLegend.hidden = true;
+        calendarTitulo.textContent = 'Calendário';
+        return;
+    }
+
+    calendarioContainer.innerHTML = '<p class="calendar-loading">Carregando calendário...</p>';
+    calendarLegend.hidden = true;
 
     const [anoStr, mesStr] = mesAno.split('-');
     const ano = parseInt(anoStr);
     const mes = parseInt(mesStr);
 
-    const weeks = getDaysInMonthGroupedByWeek(mes, ano);
-    const historico = await carregarHistorico(atendenteId, anoStr, mesStr);
+    registrosAtuais = await carregarHistorico(atendenteId, anoStr, mesStr);
+    const nomeFuncionario = atendenteSelect.options[atendenteSelect.selectedIndex]?.textContent || '';
+    const nomeMes = new Date(ano, mes - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    calendarTitulo.textContent = `${nomeFuncionario} — ${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}`;
 
-    const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const semanas = getSemanasDoMes(mes, ano);
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-    const headerRow = document.createElement('div');
-    headerRow.className = 'week-header-row';
-    diasDaSemana.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'day-header';
-        dayHeader.textContent = day;
-        headerRow.appendChild(dayHeader);
+    const grid = document.createElement('div');
+    grid.className = 'calendar-grid';
+
+    const wkHeader = document.createElement('div');
+    wkHeader.className = 'calendar-weekdays';
+    diasSemana.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'calendar-weekday';
+        el.textContent = d;
+        wkHeader.appendChild(el);
     });
-    calendarioContainer.appendChild(headerRow);
+    grid.appendChild(wkHeader);
 
-    weeks.forEach(week => {
-        const weekRow = document.createElement('div');
-        weekRow.className = 'week-row';
-        week.forEach(day => {
-            const dataIso = day.toISOString().split('T')[0];
-            const registro = historico.find(h => h.data === dataIso);
-            const card = criarCardDia(day, registro, mes);
-            weekRow.appendChild(card);
+    semanas.forEach(semana => {
+        const wkRow = document.createElement('div');
+        wkRow.className = 'calendar-week';
+        semana.forEach(dataObj => {
+            wkRow.appendChild(criarDayCard(dataObj, mes));
         });
-        calendarioContainer.appendChild(weekRow);
+        grid.appendChild(wkRow);
     });
+
+    calendarioContainer.innerHTML = '';
+    calendarioContainer.appendChild(grid);
+    calendarLegend.hidden = false;
+    atualizarResumo(registrosAtuais, ano, mes);
 }
 
-async function salvarPontos() {
-    const cards = calendarioContainer.querySelectorAll('.dia-card:not(.dia-fora-mes)'); // Salvar apenas dias do mês atual
-    if (cards.length === 0) {
-        alert('Nenhum dia carregado ou selecionado para o mês atual.');
+function criarDayCard(dataObj, mesAtual) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'calendar-day';
+    const dataIso = dateToIso(dataObj);
+    btn.dataset.data = dataIso;
+
+    const ehDoMes = (dataObj.getMonth() + 1) === mesAtual;
+    if (!ehDoMes) {
+        btn.disabled = true;
+    }
+
+    if (ehHoje(dataObj)) {
+        btn.classList.add('calendar-day--hoje');
+    }
+
+    const registro = registrosAtuais.find(r => r.data === dataIso);
+    const status = registro?.status;
+
+    if (registro) {
+        btn.classList.add('calendar-day--has-registro');
+        btn.classList.add(`calendar-day--${status?.toLowerCase()}`);
+    }
+
+    btn.innerHTML = `
+        <div class="calendar-day-head">
+            <span class="calendar-day-num">${dataObj.getDate()}</span>
+            <span class="calendar-day-week">${diaSemana(dataObj)}</span>
+        </div>
+    `;
+
+    if (status) {
+        const badge = document.createElement('span');
+        badge.className = `badge badge-${status.toLowerCase()} calendar-day-status`;
+        badge.textContent = STATUS_LABEL[status] || status;
+        btn.appendChild(badge);
+    }
+
+    if (registro && (registro.entrada || registro.saida)) {
+        const times = document.createElement('div');
+        times.className = 'calendar-day-times';
+        const entrada = registro.entrada || '—';
+        const saida = registro.saida || '—';
+        times.innerHTML = `<span>${entrada} → ${saida}</span>`;
+        btn.appendChild(times);
+    } else if (!registro && ehDoMes) {
+        const empty = document.createElement('span');
+        empty.className = 'calendar-day-empty';
+        empty.textContent = 'Sem registro';
+        btn.appendChild(empty);
+    }
+
+    if (ehDoMes) {
+        btn.addEventListener('click', () => abrirModalDia(dataObj, registro));
+    }
+
+    return btn;
+}
+
+function abrirModalDia(dataObj, registro) {
+    const dataIso = dateToIso(dataObj);
+    edicaoAtual = { dataIso, dataObj, registroId: registro?.id || null };
+
+    modalTitulo.textContent = registro ? 'Editar ponto' : 'Registrar ponto';
+    modalDayInfo.innerHTML = `<strong>${formatarDataLonga(dataObj)}</strong>`;
+    btnSalvar.textContent = registro ? 'Salvar alterações' : 'Salvar';
+
+    inputStatus.value = registro?.status || 'COMUM';
+    inputEntrada.value = registro?.entrada || '';
+    inputInicioAlmoco.value = getInicioAlmoco(registro);
+    inputFimAlmoco.value = registro?.fimAlmoco || '';
+    inputSaida.value = registro?.saida || '';
+
+    btnExcluir.hidden = !registro;
+
+    // Mostra "Salvar e próximo" só quando existir um próximo dia no mês atual
+    const proximoDia = obterProximoDiaDoMes(dataObj);
+    btnSalvarProximo.hidden = !proximoDia;
+
+    limparErroForm();
+    aplicarVisibilidadeHorarios();
+    atualizarTotal();
+
+    modalDia.hidden = false;
+    setTimeout(() => inputStatus.focus(), 50);
+}
+
+function obterProximoDiaDoMes(dataObj) {
+    if (!mesAnoInput.value) return null;
+    const mesAtual = parseInt(mesAnoInput.value.split('-')[1]);
+    const proximo = new Date(dataObj);
+    proximo.setDate(proximo.getDate() + 1);
+    return (proximo.getMonth() + 1) === mesAtual ? proximo : null;
+}
+
+function fecharModalDia() {
+    modalDia.hidden = true;
+    edicaoAtual = null;
+}
+
+function aplicarVisibilidadeHorarios() {
+    const status = inputStatus.value;
+    const semHorarios = STATUS_SEM_HORARIOS.includes(status);
+
+    [inputEntrada, inputInicioAlmoco, inputFimAlmoco, inputSaida].forEach(inp => {
+        inp.disabled = semHorarios;
+        if (semHorarios) inp.value = '';
+    });
+
+    if (status === 'COMUM') {
+        hintHorarios.textContent = 'Para o status "Comum", todos os horários são obrigatórios.';
+        totalContainer.style.display = '';
+    } else if (semHorarios) {
+        hintHorarios.textContent = `O status "${STATUS_LABEL[status]}" não exige horários.`;
+        totalContainer.style.display = 'none';
+    } else {
+        hintHorarios.textContent = 'Informe os horários se aplicável.';
+        totalContainer.style.display = '';
+    }
+}
+
+function atualizarTotal() {
+    const total = calcularTotal(
+        inputEntrada.value,
+        inputInicioAlmoco.value,
+        inputFimAlmoco.value,
+        inputSaida.value
+    );
+    totalValue.textContent = total || '—';
+}
+
+async function salvarPonto(event, opts = {}) {
+    event?.preventDefault?.();
+    if (!edicaoAtual) return;
+    limparErroForm();
+
+    const { dataIso, dataObj, registroId } = edicaoAtual;
+    const status = inputStatus.value;
+    const entrada = inputEntrada.value || null;
+    const inicioAlmoco = inputInicioAlmoco.value || null;
+    const fimAlmoco = inputFimAlmoco.value || null;
+    const saida = inputSaida.value || null;
+
+    if (status === 'COMUM' && (!entrada || !inicioAlmoco || !fimAlmoco || !saida)) {
+        mostrarErroForm('Para "Comum", informe todos os horários (entrada, almoço e saída).');
         return;
     }
-    salvarButton.disabled = true;
-    let sucesso = 0;
-    for (const card of cards) {
-        const entradaVal = card.querySelector('.entrada').value;
-        const inicioVal = card.querySelector('.inicio-almoco').value;
-        const fimVal = card.querySelector('.fim-almoco').value;
-        const saidaVal = card.querySelector('.saida').value;
-        const statusVal = card.querySelector('.status').value;
 
-        const allEmpty = !entradaVal && !inicioVal && !fimVal && !saidaVal;
-        if (statusVal === 'COMUM') {
-            if (allEmpty) {
-                continue; // usuário não interagiu com este dia
-            }
-            if (!entradaVal || !inicioVal || !fimVal || !saidaVal) {
-                // Se for COMUM e horários incompletos, não salva, mas não impede outros
-                console.warn(`Horários incompletos para o dia ${card.dataset.data}. Não será salvo.`);
-                continue;
-            }
-        }
-
-        const payload = {
-            data: card.dataset.data,
-            entrada: entradaVal || null,
-            inicioAlmoco: inicioVal || null,
-            fimAlmoco: fimVal || null,
-            saida: saidaVal || null,
-            status: statusVal,
-            atendenteId: parseInt(atendenteSelect.value)
-        };
-
-        try {
-            const resp = await fetch(`${API_BASE_URL}/ponto`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            if (resp.ok) {
-                card.classList.add('success');
-                sucesso++;
-            } else {
-                console.error(`Erro ao salvar ponto para ${card.dataset.data}:`, resp.statusText);
-            }
-        } catch (err) {
-            console.error('Erro ao salvar ponto:', err);
-        }
-    }
-    salvarButton.disabled = false;
-    alert(`Registros salvos: ${sucesso}`);
-    exibirCalendario(); // Recarregar calendário para refletir as mudanças
-}
-
-async function atualizarPonto(id, card) {
     const payload = {
-        data: card.dataset.data,
-        entrada: card.querySelector('.entrada').value || null,
-        inicioAlmoco: card.querySelector('.inicio-almoco').value || null,
-        fimAlmoco: card.querySelector('.fim-almoco').value || null,
-        saida: card.querySelector('.saida').value || null,
-        status: card.querySelector('.status').value,
+        data: dataIso,
+        entrada,
+        inicioAlmoco,
+        fimAlmoco,
+        saida,
+        status,
         atendenteId: parseInt(atendenteSelect.value)
     };
+
+    btnSalvar.disabled = true;
+    btnSalvarProximo.disabled = true;
+
     try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+        const url = registroId
+            ? `${API_BASE_URL}/ponto/${registroId}`
+            : `${API_BASE_URL}/ponto`;
+        const method = registroId ? 'PUT' : 'POST';
+        const resp = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
         if (resp.ok) {
-            alert('Ponto atualizado com sucesso');
-            card.classList.add('success');
+            mostrarMensagem(
+                registroId ? 'Ponto atualizado com sucesso!' : 'Ponto registrado com sucesso!',
+                'sucesso',
+                2000
+            );
+            await exibirCalendario();
+
+            if (opts.avancar) {
+                const proximo = obterProximoDiaDoMes(dataObj);
+                if (proximo) {
+                    const proximoIso = dateToIso(proximo);
+                    const proximoRegistro = registrosAtuais.find(r => r.data === proximoIso);
+                    abrirModalDia(proximo, proximoRegistro);
+                } else {
+                    fecharModalDia();
+                    mostrarMensagem('Último dia do mês registrado!', 'sucesso', 3000);
+                }
+            } else {
+                fecharModalDia();
+            }
         } else {
-            alert('Erro ao atualizar ponto');
+            const erro = await resp.json().catch(() => null);
+            mostrarErroForm(erro?.message || 'Erro ao salvar o ponto.');
         }
     } catch (err) {
-        console.error('Erro ao atualizar ponto:', err);
+        console.error('Erro ao salvar ponto:', err);
+        mostrarErroForm('Erro de conexão com o servidor.');
+    } finally {
+        btnSalvar.disabled = false;
+        btnSalvarProximo.disabled = false;
     }
 }
 
-async function deletarPonto(id, card) {
-    if (!confirm('Deseja realmente excluir este ponto?')) return;
+function abrirModalExclusao() {
+    if (!edicaoAtual?.registroId) return;
+    registroParaExcluir = edicaoAtual.registroId;
+    diaParaExcluirEl.textContent = formatarData(edicaoAtual.dataIso);
+    modalExcluir.hidden = false;
+}
+
+function fecharModalExclusao() {
+    modalExcluir.hidden = true;
+    registroParaExcluir = null;
+}
+
+async function confirmarExclusao() {
+    if (!registroParaExcluir) return;
+    btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
+        const resp = await fetch(`${API_BASE_URL}/ponto/${registroParaExcluir}`, {
             method: 'DELETE'
         });
         if (resp.ok) {
-            card.remove();
+            mostrarMensagem('Ponto excluído com sucesso!', 'sucesso');
+            fecharModalExclusao();
+            fecharModalDia();
+            await exibirCalendario();
         } else {
-            alert('Erro ao excluir ponto');
+            mostrarMensagem('Erro ao excluir o ponto.', 'erro');
+            fecharModalExclusao();
         }
     } catch (err) {
         console.error('Erro ao excluir ponto:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        fecharModalExclusao();
+    } finally {
+        btnConfirmarExclusao.disabled = false;
     }
 }
 
-lojaSelect.addEventListener('change', e => carregarAtendentes(e.target.value));
+// Eventos
+lojaSelect.addEventListener('change', e => {
+    carregarAtendentes(e.target.value);
+    exibirCalendario();
+});
 atendenteSelect.addEventListener('change', exibirCalendario);
 mesAnoInput.addEventListener('change', exibirCalendario);
-salvarButton.addEventListener('click', salvarPontos);
 
-document.addEventListener('DOMContentLoaded', () => {
-    carregarLojas();
-    // Definir o mês/ano atual como padrão
-    const today = new Date();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const year = today.getFullYear();
-    mesAnoInput.value = `${year}-${month}`;
+inputStatus.addEventListener('change', () => {
+    aplicarVisibilidadeHorarios();
+    atualizarTotal();
 });
 
+[inputEntrada, inputInicioAlmoco, inputFimAlmoco, inputSaida].forEach(inp => {
+    inp.addEventListener('input', atualizarTotal);
+});
+
+formDia.addEventListener('submit', (e) => salvarPonto(e, { avancar: true }));
+btnSalvar.addEventListener('click', (e) => salvarPonto(e, { avancar: false }));
+btnExcluir.addEventListener('click', abrirModalExclusao);
+btnConfirmarExclusao.addEventListener('click', confirmarExclusao);
+
+modalDia.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', fecharModalDia);
+});
+modalExcluir.querySelectorAll('[data-close-confirm]').forEach(el => {
+    el.addEventListener('click', fecharModalExclusao);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (!modalExcluir.hidden) fecharModalExclusao();
+        else if (!modalDia.hidden) fecharModalDia();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hoje = new Date();
+    mesAnoInput.value = `${hoje.getFullYear()}-${pad2(hoje.getMonth() + 1)}`;
+    carregarLojas();
+});

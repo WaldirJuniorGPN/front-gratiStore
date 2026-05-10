@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Ponto</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/ponto.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,30 +12,177 @@
 </head>
 <body>
     <div id="header-container"></div>
-    <div class="container">
-        <h1>Registrar Ponto</h1>
-        <div class="date-selection">
-            <label for="mesAno">Mês/Ano:</label>
-            <input type="month" id="mesAno">
-        </div>
-        <div class="store-selection">
-            <label for="lojaSelect">Loja:</label>
-            <select id="lojaSelect">
-                <option value="">Selecione</option>
-            </select>
-        </div>
-        <div class="attendant-selection">
-            <label for="atendenteSelect">Atendente:</label>
-            <select id="atendenteSelect">
-                <option value="">Selecione</option>
-            </select>
-        </div>
-        <p class="info-feriado">Use o campo <strong>Status</strong> para indicar a situação do dia.</p>
-        <div id="calendarioContainer" class="calendario-container"></div>
-        <div class="save-button">
-            <button id="salvarRegistros">Salvar</button>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Registrar Ponto</h1>
+                <p class="page-subtitle">Selecione um funcionário e um mês para visualizar o calendário. Clique em um dia para registrar ou ajustar os horários.</p>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <section class="filter-bar">
+            <div class="filter-field">
+                <label for="lojaSelect">Loja</label>
+                <select id="lojaSelect">
+                    <option value="">Selecione uma loja...</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="atendenteSelect">Funcionário</label>
+                <select id="atendenteSelect" disabled>
+                    <option value="">Selecione um funcionário...</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="mesAno">Mês/Ano</label>
+                <input type="month" id="mesAno">
+            </div>
+        </section>
+
+        <!-- Resumo do mês -->
+        <section class="resumo-mes" id="resumoMes" hidden>
+            <div class="resumo-card resumo-card--comum">
+                <span class="resumo-label">Comum</span>
+                <span class="resumo-value" data-resumo="comum">0</span>
+                <span class="resumo-hint">Dia trabalhado</span>
+            </div>
+            <div class="resumo-card resumo-card--folga">
+                <span class="resumo-label">Folgas</span>
+                <span class="resumo-value" data-resumo="folga">0</span>
+            </div>
+            <div class="resumo-card resumo-card--falta">
+                <span class="resumo-label">Faltas</span>
+                <span class="resumo-value" data-resumo="falta">0</span>
+            </div>
+            <div class="resumo-card resumo-card--atestado">
+                <span class="resumo-label">Atestados</span>
+                <span class="resumo-value" data-resumo="atestado">0</span>
+            </div>
+            <div class="resumo-card resumo-card--feriado">
+                <span class="resumo-label">Feriados</span>
+                <span class="resumo-value" data-resumo="feriado">0</span>
+            </div>
+            <div class="resumo-card resumo-card--descontar">
+                <span class="resumo-label">Desc. horas</span>
+                <span class="resumo-value" data-resumo="descontar">0</span>
+            </div>
+            <div class="resumo-card resumo-card--vazio">
+                <span class="resumo-label">Sem registro</span>
+                <span class="resumo-value" data-resumo="vazio">0</span>
+                <span class="resumo-hint">Dias não preenchidos</span>
+            </div>
+        </section>
+
+        <!-- Calendário -->
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2 id="calendarTitulo">Calendário</h2>
+                    <p class="panel-subtitle">Clique em qualquer dia do mês para registrar ou editar.</p>
+                </div>
+            </header>
+            <div class="calendar-wrap" id="calendarioContainer">
+                <p class="calendar-placeholder">Selecione loja, funcionário e mês para visualizar o calendário.</p>
+            </div>
+            <div class="calendar-legend" id="calendarLegend" hidden>
+                <span class="legend-item"><span class="legend-dot legend-dot--comum"></span> Comum</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--folga"></span> Folga</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--falta"></span> Falta</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--atestado"></span> Atestado</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--feriado"></span> Feriado</span>
+                <span class="legend-item"><span class="legend-dot legend-dot--descontar"></span> Descontar em horas</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de registro/edição -->
+    <div class="modal" id="modalDia" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Registrar ponto</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formDia">
+                <div class="modal-body">
+                    <div class="modal-day-info" id="modalDayInfo">—</div>
+
+                    <div class="form-row">
+                        <label for="status">Status do dia <span class="required">*</span></label>
+                        <select id="status" required>
+                            <option value="COMUM">Comum</option>
+                            <option value="FOLGA">Folga</option>
+                            <option value="FALTA">Falta</option>
+                            <option value="FERIADO">Feriado</option>
+                            <option value="ATESTADO_INTEGRAL">Atestado integral</option>
+                            <option value="ATESTADO_MATUTINO">Atestado (manhã)</option>
+                            <option value="ATESTADO_VESPERTINO">Atestado (tarde)</option>
+                            <option value="DESCONTAR_EM_HORAS">Descontar em horas</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label for="entrada">Entrada</label>
+                            <input type="time" id="entrada">
+                        </div>
+                        <div class="form-row">
+                            <label for="inicioAlmoco">Início do almoço</label>
+                            <input type="time" id="inicioAlmoco">
+                        </div>
+                        <div class="form-row">
+                            <label for="fimAlmoco">Fim do almoço</label>
+                            <input type="time" id="fimAlmoco">
+                        </div>
+                        <div class="form-row">
+                            <label for="saida">Saída</label>
+                            <input type="time" id="saida">
+                        </div>
+                    </div>
+
+                    <p class="form-hint" id="hintHorarios">Para o status "Comum", todos os horários são obrigatórios.</p>
+
+                    <div class="total-trabalhado" id="totalContainer">
+                        <span class="total-trabalhado-label">Total trabalhado</span>
+                        <span class="total-trabalhado-value" id="totalValue">—</span>
+                    </div>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+                </div>
+
+                <footer class="modal-footer modal-footer--with-delete">
+                    <button type="button" class="btn btn-danger" id="btnExcluir" hidden>Excluir</button>
+                    <div class="modal-footer-group">
+                        <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                        <button type="button" class="btn btn-secondary" id="btnSalvar">Salvar</button>
+                        <button type="submit" class="btn btn-primary" id="btnSalvarProximo">Salvar e próximo →</button>
+                    </div>
+                </footer>
+            </form>
         </div>
     </div>
+
+    <!-- Modal de confirmação de exclusão -->
+    <div class="modal" id="modalExcluir" hidden>
+        <div class="modal-backdrop" data-close-confirm></div>
+        <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true">
+            <header class="modal-header">
+                <h2>Excluir ponto</h2>
+                <button type="button" class="modal-close" data-close-confirm aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o registro de <strong id="diaParaExcluir">—</strong>?</p>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+            </div>
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-confirm>Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+            </footer>
+        </div>
+    </div>
+
     <script src="/js/ponto-registro.js"></script>
     <script src="/js/header.js"></script>
 </body>

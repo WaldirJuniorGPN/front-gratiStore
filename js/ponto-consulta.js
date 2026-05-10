@@ -1,48 +1,157 @@
 const API_BASE_URL = 'http://localhost:8080';
 
-const mesAnoInput = document.getElementById('mesAnoConsulta');
-const lojaSelect = document.getElementById('lojaSelectConsulta');
-const atendenteSelect = document.getElementById('atendenteSelectConsulta');
-const buscarButton = document.getElementById('buscarPontos');
-const tabela = document.getElementById('tabelaPontos');
+const STATUS_LABEL = {
+    COMUM: 'Comum',
+    FERIADO: 'Feriado',
+    ATESTADO_INTEGRAL: 'Atestado integral',
+    ATESTADO_MATUTINO: 'Atestado (manhã)',
+    ATESTADO_VESPERTINO: 'Atestado (tarde)',
+    FOLGA: 'Folga',
+    FALTA: 'Falta',
+    DESCONTAR_EM_HORAS: 'Descontar em horas'
+};
+
+const STATUS_SEM_HORARIOS = ['FOLGA', 'FALTA', 'ATESTADO_INTEGRAL'];
+
+const lojaSelect = document.getElementById('lojaSelect');
+const atendenteSelect = document.getElementById('atendenteSelect');
+const mesAnoInput = document.getElementById('mesAno');
+const btnBuscar = document.getElementById('btnBuscar');
+const corpoHistorico = document.getElementById('corpoHistorico');
+const tituloHistorico = document.getElementById('tituloHistorico');
+const contagemRegistros = document.getElementById('contagemRegistros');
+const mensagemDiv = document.getElementById('mensagem');
+
+const modalDia = document.getElementById('modalDia');
+const modalDayInfo = document.getElementById('modalDayInfo');
+const formDia = document.getElementById('formDia');
+const inputStatus = document.getElementById('status');
+const inputEntrada = document.getElementById('entrada');
+const inputInicioAlmoco = document.getElementById('inicioAlmoco');
+const inputFimAlmoco = document.getElementById('fimAlmoco');
+const inputSaida = document.getElementById('saida');
+const totalContainer = document.getElementById('totalContainer');
+const totalValue = document.getElementById('totalValue');
+const erroFormulario = document.getElementById('erroFormulario');
+const hintHorarios = document.getElementById('hintHorarios');
+const btnSalvar = document.getElementById('btnSalvar');
+
+const modalExcluir = document.getElementById('modalExcluir');
+const diaParaExcluirEl = document.getElementById('diaParaExcluir');
+const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+
+let registrosAtuais = [];
+let edicaoAtual = null;
+let registroParaExcluir = null;
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function formatarData(iso) {
+    if (!iso) return '—';
+    const [ano, mes, dia] = iso.split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
+function formatarDataLonga(iso) {
+    if (!iso) return '—';
+    const [a, m, d] = iso.split('-').map(Number);
+    return new Date(a, m - 1, d).toLocaleDateString('pt-BR', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+}
+
+function diaSemana(iso) {
+    if (!iso) return '';
+    const [a, m, d] = iso.split('-').map(Number);
+    return new Date(a, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+}
+
+function getInicioAlmoco(r) {
+    return r?.inicioAlmoco || r?.incioAlmoco || '';
+}
+
+function calcularTotal(entrada, inicioAlmoco, fimAlmoco, saida) {
+    if (!entrada || !saida) return null;
+    const m = (t) => {
+        const [h, mi] = t.split(':').map(Number);
+        return h * 60 + (mi || 0);
+    };
+    let total = m(saida) - m(entrada);
+    if (inicioAlmoco && fimAlmoco) total -= (m(fimAlmoco) - m(inicioAlmoco));
+    if (total < 0 || isNaN(total)) return null;
+    return `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`;
+}
+
+function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
+    mensagemDiv.textContent = texto;
+    mensagemDiv.className = `mensagem ${tipo}`;
+    mensagemDiv.hidden = false;
+    if (timeout) {
+        setTimeout(() => {
+            mensagemDiv.hidden = true;
+            mensagemDiv.className = 'mensagem';
+            mensagemDiv.textContent = '';
+        }, timeout);
+    }
+}
+
+function mostrarErroForm(texto) {
+    erroFormulario.textContent = texto;
+    erroFormulario.hidden = false;
+}
+
+function limparErroForm() {
+    erroFormulario.hidden = true;
+    erroFormulario.textContent = '';
+}
 
 async function carregarLojas() {
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (resp.ok) {
-            const lojas = await resp.json();
-            lojas.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l.id;
-                opt.textContent = l.nome;
-                lojaSelect.appendChild(opt);
-            });
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
+            return;
         }
+        const lojas = await resp.json();
+        lojas.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = l.nome;
+            lojaSelect.appendChild(opt);
+        });
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
 }
 
 async function carregarAtendentes(lojaId) {
-    atendenteSelect.innerHTML = '<option value="">Selecione</option>';
-    if (!lojaId) return;
+    atendenteSelect.innerHTML = '<option value="">Selecione um funcionário...</option>';
+    if (!lojaId) {
+        atendenteSelect.disabled = true;
+        return;
+    }
     try {
         const resp = await fetch(`${API_BASE_URL}/lojas/${lojaId}/atendentes`);
-        if (resp.ok) {
-            const atendentes = await resp.json();
-            atendentes.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.id;
-                opt.textContent = a.nome;
-                atendenteSelect.appendChild(opt);
-            });
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar funcionários.', 'erro');
+            return;
         }
+        const atendentes = await resp.json();
+        atendentes.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.nome;
+            atendenteSelect.appendChild(opt);
+        });
+        atendenteSelect.disabled = false;
     } catch (err) {
         console.error('Erro ao carregar atendentes:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
 }
 
-async function carregarHistorico() {
+async function carregarHistoricoCompleto() {
     const registros = [];
     let page = 0;
     while (true) {
@@ -63,182 +172,268 @@ async function carregarHistorico() {
     return registros;
 }
 
-function renderizarTabela(registros) {
-    tabela.innerHTML = '';
-    if (registros.length === 0) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 7;
-        td.textContent = 'Nenhum registro encontrado';
-        tr.appendChild(td);
-        tabela.appendChild(tr);
-        return;
-    }
-    const header = document.createElement('tr');
-    header.innerHTML = '<th>Data</th><th>Entrada</th><th>Início Almoço</th><th>Fim Almoço</th><th>Saída</th><th>Status</th><th>Ações</th>';
-    tabela.appendChild(header);
-    registros.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.dataset.id = r.id;
-        tr.dataset.atendenteId = r.atendenteId;
-        tr.dataset.data = r.data;
-        tr.dataset.entrada = r.entrada || '';
-        tr.dataset.inicioAlmoco = r.inicioAlmoco || r.incioAlmoco || '';
-        tr.dataset.fimAlmoco = r.fimAlmoco || '';
-        tr.dataset.saida = r.saida || '';
-        tr.dataset.status = r.status || 'COMUM';
-        tr.classList.toggle('feriado', r.status === 'FERIADO');
-        tr.innerHTML = `
-            <td>${r.data}</td>
-            <td>${r.entrada || ''}</td>
-            <td>${r.inicioAlmoco || r.incioAlmoco || ''}</td>
-            <td>${r.fimAlmoco || ''}</td>
-            <td>${r.saida || ''}</td>
-            <td>${r.status}</td>
-            <td class="acoes-ponto">
-                <button class="btn-editar">Atualizar</button>
-                <button class="btn-excluir">Deletar</button>
-            </td>
-        `;
-        const [btnEditar, btnExcluir] = tr.querySelectorAll('button');
-        btnEditar.addEventListener('click', () => editarLinha(tr));
-        btnExcluir.addEventListener('click', () => deletarPonto(r.id, tr));
-        tabela.appendChild(tr);
-    });
-}
-
 async function buscarPontos() {
     const mesAno = mesAnoInput.value;
     const atendenteId = parseInt(atendenteSelect.value);
     if (!mesAno || !atendenteId) {
-        alert('Preencha todas as opções.');
+        mostrarMensagem('Selecione loja, funcionário e mês para buscar.', 'erro');
         return;
     }
-    const [ano, mes] = mesAno.split('-');
-    const historico = await carregarHistorico();
-    const registros = historico.filter(r => r.atendenteId === atendenteId && r.data.startsWith(`${ano}-${mes}`));
-    renderizarTabela(registros);
-}
 
-lojaSelect.addEventListener('change', e => carregarAtendentes(e.target.value));
-buscarButton.addEventListener('click', buscarPontos);
+    btnBuscar.disabled = true;
+    corpoHistorico.innerHTML = '<tr class="row-loading"><td colspan="8">Carregando registros...</td></tr>';
 
-function editarLinha(tr) {
-    const editing = tr.dataset.editing === 'true';
-    const btnEditar = tr.querySelector('.btn-editar');
-    if (!editing) {
-        tr.dataset.editing = 'true';
-        const valores = {
-            data: tr.dataset.data,
-            entrada: tr.dataset.entrada,
-            inicioAlmoco: tr.dataset.inicioAlmoco,
-            fimAlmoco: tr.dataset.fimAlmoco,
-            saida: tr.dataset.saida,
-            status: tr.dataset.status
-        };
-        tr.cells[0].innerHTML = `<input type="date" class="edit-data" value="${valores.data}">`;
-        tr.cells[1].innerHTML = `<input type="time" class="edit-entrada" value="${valores.entrada}">`;
-        tr.cells[2].innerHTML = `<input type="time" class="edit-inicio-almoco" value="${valores.inicioAlmoco}">`;
-        tr.cells[3].innerHTML = `<input type="time" class="edit-fim-almoco" value="${valores.fimAlmoco}">`;
-        tr.cells[4].innerHTML = `<input type="time" class="edit-saida" value="${valores.saida}">`;
-        tr.cells[5].innerHTML = `<select class="edit-status">
-            <option value="COMUM">Comum</option>
-            <option value="FERIADO">Feriado</option>
-            <option value="ATESTADO_INTEGRAL">Atestado Integral</option>
-            <option value="ATESTADO_MATUTINO">Atestado Matutino</option>
-            <option value="ATESTADO_VESPERTINO">Atestado Vespertino</option>
-            <option value="FOLGA">Folga</option>
-            <option value="FALTA">Falta</option>
-            <option value="DESCONTAR_EM_HORAS">Descontar em Horas</option>
-        </select>`;
-        tr.cells[5].querySelector('select').value = valores.status;
-        btnEditar.textContent = 'Salvar';
-        const btnCancelar = document.createElement('button');
-        btnCancelar.textContent = 'Cancelar';
-        btnCancelar.className = 'btn-cancelar';
-        btnCancelar.style.backgroundColor = '#6c757d';
-        btnCancelar.style.color = '#fff';
-        btnCancelar.style.border = 'none';
-        btnCancelar.style.borderRadius = '4px';
-        btnCancelar.style.cursor = 'pointer';
-        btnCancelar.style.padding = '6px 12px';
-        btnCancelar.addEventListener('click', () => cancelarEdicao(tr));
-        tr.querySelector('.acoes-ponto').appendChild(btnCancelar);
-    } else {
-        atualizarPonto(tr.dataset.id, tr);
+    try {
+        const [ano, mes] = mesAno.split('-');
+        const todos = await carregarHistoricoCompleto();
+        registrosAtuais = todos
+            .filter(r => r.atendenteId === atendenteId && r.data && r.data.startsWith(`${ano}-${mes}`))
+            .sort((a, b) => a.data.localeCompare(b.data));
+
+        const nomeFuncionario = atendenteSelect.options[atendenteSelect.selectedIndex]?.textContent || '';
+        const nomeMes = new Date(parseInt(ano), parseInt(mes) - 1, 1)
+            .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        tituloHistorico.textContent = `${nomeFuncionario} — ${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}`;
+        contagemRegistros.textContent = registrosAtuais.length;
+
+        renderizarTabela();
+    } finally {
+        btnBuscar.disabled = false;
     }
 }
 
-function cancelarEdicao(tr) {
-    tr.dataset.editing = 'false';
-    tr.querySelector('.btn-editar').textContent = 'Atualizar';
-    const btnCancelar = tr.querySelector('.btn-cancelar');
-    if (btnCancelar) btnCancelar.remove();
-    tr.cells[0].textContent = tr.dataset.data;
-    tr.cells[1].textContent = tr.dataset.entrada;
-    tr.cells[2].textContent = tr.dataset.inicioAlmoco;
-    tr.cells[3].textContent = tr.dataset.fimAlmoco;
-    tr.cells[4].textContent = tr.dataset.saida;
-    tr.cells[5].textContent = tr.dataset.status;
+function renderizarTabela() {
+    corpoHistorico.innerHTML = '';
+
+    if (registrosAtuais.length === 0) {
+        const tr = document.createElement('tr');
+        tr.className = 'row-empty';
+        const td = document.createElement('td');
+        td.colSpan = 8;
+        td.textContent = 'Nenhum registro encontrado para o período selecionado.';
+        tr.appendChild(td);
+        corpoHistorico.appendChild(tr);
+        return;
+    }
+
+    registrosAtuais.forEach(r => {
+        const tr = document.createElement('tr');
+
+        const inicioAlmoco = getInicioAlmoco(r);
+        const fimAlmoco = r.fimAlmoco || '';
+        const almoco = (inicioAlmoco && fimAlmoco)
+            ? `${inicioAlmoco} → ${fimAlmoco}`
+            : (inicioAlmoco || fimAlmoco || '—');
+        const total = calcularTotal(r.entrada, inicioAlmoco, fimAlmoco, r.saida) || '—';
+        const statusKey = (r.status || 'COMUM').toLowerCase();
+        const statusLabel = STATUS_LABEL[r.status] || r.status || '—';
+
+        tr.innerHTML = `
+            <td class="cell-date">${formatarData(r.data)}</td>
+            <td class="cell-muted">${diaSemana(r.data)}</td>
+            <td class="cell-time">${r.entrada || '<span class="cell-empty">—</span>'}</td>
+            <td class="cell-time">${almoco === '—' ? '<span class="cell-empty">—</span>' : almoco}</td>
+            <td class="cell-time">${r.saida || '<span class="cell-empty">—</span>'}</td>
+            <td class="cell-total">${total}</td>
+            <td><span class="badge badge-${statusKey}">${statusLabel}</span></td>
+            <td class="cell-acao"></td>
+        `;
+
+        const acaoTd = tr.querySelector('.cell-acao');
+        const btnEditar = botaoAcao('✎', 'Editar', () => abrirModalEdicao(r));
+        const btnExcluir = botaoAcao('🗑', 'Excluir', () => abrirModalExclusao(r), 'btn-icon-danger');
+        acaoTd.appendChild(btnEditar);
+        acaoTd.appendChild(btnExcluir);
+
+        corpoHistorico.appendChild(tr);
+    });
 }
 
-async function atualizarPonto(id, tr) {
+function botaoAcao(icone, titulo, onClick, classeExtra = '') {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn-icon-action ${classeExtra}`.trim();
+    btn.title = titulo;
+    btn.setAttribute('aria-label', titulo);
+    btn.textContent = icone;
+    btn.addEventListener('click', onClick);
+    return btn;
+}
+
+function abrirModalEdicao(registro) {
+    edicaoAtual = registro;
+    modalDayInfo.innerHTML = `<strong>${formatarDataLonga(registro.data)}</strong>`;
+
+    inputStatus.value = registro.status || 'COMUM';
+    inputEntrada.value = registro.entrada || '';
+    inputInicioAlmoco.value = getInicioAlmoco(registro);
+    inputFimAlmoco.value = registro.fimAlmoco || '';
+    inputSaida.value = registro.saida || '';
+
+    limparErroForm();
+    aplicarVisibilidadeHorarios();
+    atualizarTotal();
+
+    modalDia.hidden = false;
+    setTimeout(() => inputStatus.focus(), 50);
+}
+
+function fecharModalDia() {
+    modalDia.hidden = true;
+    edicaoAtual = null;
+}
+
+function aplicarVisibilidadeHorarios() {
+    const status = inputStatus.value;
+    const semHorarios = STATUS_SEM_HORARIOS.includes(status);
+
+    [inputEntrada, inputInicioAlmoco, inputFimAlmoco, inputSaida].forEach(inp => {
+        inp.disabled = semHorarios;
+        if (semHorarios) inp.value = '';
+    });
+
+    if (status === 'COMUM') {
+        hintHorarios.textContent = 'Para o status "Comum", todos os horários são obrigatórios.';
+        totalContainer.style.display = '';
+    } else if (semHorarios) {
+        hintHorarios.textContent = `O status "${STATUS_LABEL[status]}" não exige horários.`;
+        totalContainer.style.display = 'none';
+    } else {
+        hintHorarios.textContent = 'Informe os horários se aplicável.';
+        totalContainer.style.display = '';
+    }
+}
+
+function atualizarTotal() {
+    const total = calcularTotal(
+        inputEntrada.value,
+        inputInicioAlmoco.value,
+        inputFimAlmoco.value,
+        inputSaida.value
+    );
+    totalValue.textContent = total || '—';
+}
+
+async function salvarPonto(event) {
+    event.preventDefault();
+    if (!edicaoAtual) return;
+    limparErroForm();
+
+    const status = inputStatus.value;
+    const entrada = inputEntrada.value || null;
+    const inicioAlmoco = inputInicioAlmoco.value || null;
+    const fimAlmoco = inputFimAlmoco.value || null;
+    const saida = inputSaida.value || null;
+
+    if (status === 'COMUM' && (!entrada || !inicioAlmoco || !fimAlmoco || !saida)) {
+        mostrarErroForm('Para "Comum", informe todos os horários (entrada, almoço e saída).');
+        return;
+    }
+
     const payload = {
-        data: tr.querySelector('.edit-data').value,
-        entrada: tr.querySelector('.edit-entrada').value,
-        inicioAlmoco: tr.querySelector('.edit-inicio-almoco').value,
-        fimAlmoco: tr.querySelector('.edit-fim-almoco').value,
-        saida: tr.querySelector('.edit-saida').value,
-        status: tr.querySelector('.edit-status').value,
-        atendenteId: parseInt(tr.dataset.atendenteId)
+        data: edicaoAtual.data,
+        entrada,
+        inicioAlmoco,
+        fimAlmoco,
+        saida,
+        status,
+        atendenteId: edicaoAtual.atendenteId
     };
+
+    btnSalvar.disabled = true;
+
     try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
+        const resp = await fetch(`${API_BASE_URL}/ponto/${edicaoAtual.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
         if (resp.ok) {
-            tr.dataset.data = payload.data;
-            tr.dataset.entrada = payload.entrada;
-            tr.dataset.inicioAlmoco = payload.inicioAlmoco;
-            tr.dataset.fimAlmoco = payload.fimAlmoco;
-            tr.dataset.saida = payload.saida;
-            tr.dataset.status = payload.status;
-            tr.cells[0].textContent = payload.data;
-            tr.cells[1].textContent = payload.entrada;
-            tr.cells[2].textContent = payload.inicioAlmoco;
-            tr.cells[3].textContent = payload.fimAlmoco;
-            tr.cells[4].textContent = payload.saida;
-            tr.cells[5].textContent = payload.status;
-            tr.classList.toggle('feriado', payload.status === 'FERIADO');
-            tr.querySelector('.btn-editar').textContent = 'Atualizar';
-            const btnCancelar = tr.querySelector('.btn-cancelar');
-            if (btnCancelar) btnCancelar.remove();
-            tr.dataset.editing = 'false';
-            alert('Ponto atualizado com sucesso');
+            mostrarMensagem('Ponto atualizado com sucesso!', 'sucesso');
+            fecharModalDia();
+            await buscarPontos();
         } else {
-            alert('Erro ao atualizar ponto');
+            const erro = await resp.json().catch(() => null);
+            mostrarErroForm(erro?.message || 'Erro ao atualizar o ponto.');
         }
     } catch (err) {
         console.error('Erro ao atualizar ponto:', err);
+        mostrarErroForm('Erro de conexão com o servidor.');
+    } finally {
+        btnSalvar.disabled = false;
     }
 }
 
-async function deletarPonto(id, tr) {
-    if (!confirm('Deseja realmente excluir este ponto?')) return;
+function abrirModalExclusao(registro) {
+    registroParaExcluir = registro;
+    diaParaExcluirEl.textContent = formatarData(registro.data);
+    modalExcluir.hidden = false;
+}
+
+function fecharModalExclusao() {
+    modalExcluir.hidden = true;
+    registroParaExcluir = null;
+}
+
+async function confirmarExclusao() {
+    if (!registroParaExcluir) return;
+    btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${id}`, {
+        const resp = await fetch(`${API_BASE_URL}/ponto/${registroParaExcluir.id}`, {
             method: 'DELETE'
         });
         if (resp.ok) {
-            tr.remove();
+            mostrarMensagem('Ponto excluído com sucesso!', 'sucesso');
+            fecharModalExclusao();
+            await buscarPontos();
         } else {
-            alert('Erro ao excluir ponto');
+            mostrarMensagem('Erro ao excluir o ponto.', 'erro');
+            fecharModalExclusao();
         }
     } catch (err) {
         console.error('Erro ao excluir ponto:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        fecharModalExclusao();
+    } finally {
+        btnConfirmarExclusao.disabled = false;
     }
 }
 
-document.addEventListener('DOMContentLoaded', carregarLojas);
+// Eventos
+lojaSelect.addEventListener('change', e => {
+    carregarAtendentes(e.target.value);
+});
+btnBuscar.addEventListener('click', buscarPontos);
+
+inputStatus.addEventListener('change', () => {
+    aplicarVisibilidadeHorarios();
+    atualizarTotal();
+});
+
+[inputEntrada, inputInicioAlmoco, inputFimAlmoco, inputSaida].forEach(inp => {
+    inp.addEventListener('input', atualizarTotal);
+});
+
+formDia.addEventListener('submit', salvarPonto);
+btnConfirmarExclusao.addEventListener('click', confirmarExclusao);
+
+modalDia.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', fecharModalDia);
+});
+modalExcluir.querySelectorAll('[data-close-confirm]').forEach(el => {
+    el.addEventListener('click', fecharModalExclusao);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (!modalExcluir.hidden) fecharModalExclusao();
+        else if (!modalDia.hidden) fecharModalDia();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hoje = new Date();
+    mesAnoInput.value = `${hoje.getFullYear()}-${pad2(hoje.getMonth() + 1)}`;
+    carregarLojas();
+});
