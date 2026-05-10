@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GatiStore</title>
+    <title>GratiStore</title>
+    <!-- Primitivos compartilhados (panel, data-table, btn, mensagem) -->
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +14,199 @@
 <body>
     <div id="header-container"></div>
     <main>
-        <h1><strong>Gestão de Gratificações</strong></h1>
-        <h2>Lista de Lojas</h2>
-        <div id="listaLojas">
-            <!-- A lista de lojas será exibida aqui -->
+        <header class="page-header">
+            <div>
+                <h1>Visão Geral</h1>
+                <p class="page-subtitle">Acompanhe os principais indicadores da rede e acesse rapidamente as operações do dia a dia.</p>
+            </div>
+            <div class="page-actions">
+                <span class="badge-atualizacao" id="ultimaAtualizacao">Carregando...</span>
+                <button id="btnAtualizar" class="btn btn-secondary" type="button" title="Atualizar dados">
+                    <span class="btn-icon">⟳</span> Atualizar
+                </button>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <!-- KPI cards principais -->
+        <section class="kpi-grid" aria-busy="true" id="kpiGrid">
+            <div class="kpi-card kpi-card--lojas">
+                <span class="kpi-label">Lojas</span>
+                <span class="kpi-value" id="kpiLojas">—</span>
+                <span class="kpi-hint">Unidades cadastradas</span>
+            </div>
+            <div class="kpi-card kpi-card--atendentes">
+                <span class="kpi-label">Funcionários</span>
+                <span class="kpi-value" id="kpiAtendentes">—</span>
+                <span class="kpi-hint">Total ativo na rede</span>
+            </div>
+            <div class="kpi-card kpi-card--vendas">
+                <span class="kpi-label">Vendas Totais</span>
+                <span class="kpi-value" id="kpiVendas">—</span>
+                <span class="kpi-hint">Soma de todas as lojas</span>
+            </div>
+            <div class="kpi-card kpi-card--calculadoras">
+                <span class="kpi-label">Calculadoras</span>
+                <span class="kpi-value" id="kpiCalculadoras">—</span>
+                <span class="kpi-hint">Regras de gratificação</span>
+            </div>
+        </section>
+
+        <!-- Painéis lado a lado: Ranking + Férias -->
+        <div class="dashboard-grid">
+            <section class="panel">
+                <header class="panel-header">
+                    <div>
+                        <h2>Ranking de Lojas por Vendas</h2>
+                        <p class="panel-subtitle">Comparativo de desempenho entre as unidades.</p>
+                    </div>
+                </header>
+                <div class="table-wrapper">
+                    <table class="data-table" id="tabelaRanking">
+                        <thead>
+                            <tr>
+                                <th class="th-numero">#</th>
+                                <th>Loja</th>
+                                <th class="th-num">Funcionários</th>
+                                <th class="th-num">Total Vendido</th>
+                                <th>Participação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoRanking">
+                            <tr class="row-loading"><td colspan="5">Carregando ranking...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside class="panel panel-side">
+                <header class="panel-header">
+                    <div>
+                        <h2>Atenção a Férias</h2>
+                        <p class="panel-subtitle">Saldo dentro / fora do prazo.</p>
+                    </div>
+                    <a href="/html/ferias-dashboard.html" class="link-action">Ver painel →</a>
+                </header>
+                <div class="ferias-mini" id="feriasMini">
+                    <div class="ferias-mini-row">
+                        <div class="ferias-mini-card ferias-mini-card--ok">
+                            <span class="ferias-mini-label">Com direito</span>
+                            <span class="ferias-mini-value" data-ferias="comDireito">—</span>
+                        </div>
+                        <div class="ferias-mini-card ferias-mini-card--em-aquisicao">
+                            <span class="ferias-mini-label">Sem direito</span>
+                            <span class="ferias-mini-value" data-ferias="semDireito">—</span>
+                        </div>
+                    </div>
+                    <div class="ferias-mini-row">
+                        <div class="ferias-mini-card ferias-mini-card--urgente">
+                            <span class="ferias-mini-label">Urgente</span>
+                            <span class="ferias-mini-value" data-ferias="urgente">—</span>
+                            <span class="ferias-mini-hint">60–120 dias</span>
+                        </div>
+                        <div class="ferias-mini-card ferias-mini-card--critico">
+                            <span class="ferias-mini-label">Crítico</span>
+                            <span class="ferias-mini-value" data-ferias="critico">—</span>
+                            <span class="ferias-mini-hint">30–60 dias</span>
+                        </div>
+                        <div class="ferias-mini-card ferias-mini-card--irregular">
+                            <span class="ferias-mini-label">Irregular</span>
+                            <span class="ferias-mini-value" data-ferias="irregular">—</span>
+                            <span class="ferias-mini-hint">≤ 30 dias / vencido</span>
+                        </div>
+                    </div>
+                    <p class="ferias-mini-info" id="feriasMiniInfo" hidden></p>
+                </div>
+            </aside>
         </div>
+
+        <!-- Acesso rápido -->
+        <section class="quick-actions">
+            <header class="panel-header panel-header--standalone">
+                <div>
+                    <h2>Acesso rápido</h2>
+                    <p class="panel-subtitle">Atalhos para as operações mais frequentes.</p>
+                </div>
+            </header>
+            <div class="actions-grid">
+                <a href="/html/registro-vendas.html" class="action-card">
+                    <span class="action-icon">📊</span>
+                    <span class="action-title">Registro de Vendas</span>
+                    <span class="action-desc">Lançar e acompanhar vendas</span>
+                </a>
+                <a href="/html/upload-vendas.html" class="action-card">
+                    <span class="action-icon">⬆</span>
+                    <span class="action-title">Upload de Vendas</span>
+                    <span class="action-desc">Importar planilha semanal</span>
+                </a>
+                <a href="/html/update-atrasos.html" class="action-card">
+                    <span class="action-icon">⏱</span>
+                    <span class="action-title">Lançar Atrasos</span>
+                    <span class="action-desc">Registrar minutos perdidos</span>
+                </a>
+                <a href="/html/ponto-registro.html" class="action-card">
+                    <span class="action-icon">🕒</span>
+                    <span class="action-title">Registrar Ponto</span>
+                    <span class="action-desc">Entradas e saídas do dia</span>
+                </a>
+                <a href="/html/horas-extras.html" class="action-card">
+                    <span class="action-icon">＋</span>
+                    <span class="action-title">Horas Extras</span>
+                    <span class="action-desc">Calcular e consultar</span>
+                </a>
+                <a href="/html/ferias-dashboard.html" class="action-card">
+                    <span class="action-icon">☼</span>
+                    <span class="action-title">Painel de Férias</span>
+                    <span class="action-desc">KPIs e funcionários em risco</span>
+                </a>
+                <a href="/html/cadastro-funcionario.html" class="action-card">
+                    <span class="action-icon">👤</span>
+                    <span class="action-title">Funcionários</span>
+                    <span class="action-desc">Cadastrar e gerenciar</span>
+                </a>
+                <a href="/html/resultado.html" class="action-card">
+                    <span class="action-icon">🏆</span>
+                    <span class="action-title">Resultados</span>
+                    <span class="action-desc">Gratificações calculadas</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Status da rede -->
+        <section class="panel status-panel">
+            <header class="panel-header">
+                <div>
+                    <h2>Estado da rede</h2>
+                    <p class="panel-subtitle">Configurações ativas no momento.</p>
+                </div>
+            </header>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-icon">🏪</span>
+                    <div>
+                        <span class="status-label">Lojas cadastradas</span>
+                        <span class="status-value" id="statusLojas">—</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">⚙️</span>
+                    <div>
+                        <span class="status-label">Calculadoras configuradas</span>
+                        <span class="status-value" id="statusCalcs">—</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">📧</span>
+                    <div>
+                        <span class="status-label">Destinatários de notificação</span>
+                        <span class="status-value" id="statusDestinatarios">—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+
     <script src="/js/index.js"></script>
     <script src="/js/header.js"></script>
 </body>

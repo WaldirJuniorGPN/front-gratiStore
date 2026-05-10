@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Loja</title>
+    <title>Lojas</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/cadastro-loja.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,23 +13,100 @@
 <body>
     <div id="header-container"></div>
     <main>
-        <h1>Cadastro de Loja</h1>
-        <form id="formCadastroLoja">
-            <label for="nome">Nome da Loja:</label>
-            <input type="text" id="nome" name="nome" required>
+        <header class="page-header">
+            <div>
+                <h1>Lojas</h1>
+                <p class="page-subtitle">Cadastre, edite e remova as lojas da rede.</p>
+            </div>
+            <div class="page-actions">
+                <button id="btnNovaLoja" class="btn btn-primary" type="button">
+                    <span class="btn-icon">+</span> Nova Loja
+                </button>
+            </div>
+        </header>
 
-            <label for="cnpj">CNPJ:</label>
-            <input type="text" id="cnpj" name="cnpj" required>
+        <div id="mensagem" class="mensagem" hidden></div>
 
-            <button type="submit">Salvar</button>
-        </form>
-        <div id="mensagem"></div>
+        <section class="filter-bar">
+            <div class="filter-field filter-field--grow">
+                <label for="busca">Buscar</label>
+                <input type="search" id="busca" placeholder="Filtre por nome ou CNPJ...">
+            </div>
+        </section>
 
-        <h2>Lista de Lojas</h2>
-        <div id="listaLojas">
-            <!-- As lojas serão adicionadas aqui dinamicamente -->
-        </div>
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2>Lista de lojas</h2>
+                    <p class="panel-subtitle"><span id="contagemLojas">0</span> loja(s) cadastrada(s).</p>
+                </div>
+            </header>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CNPJ</th>
+                            <th class="th-acao" aria-label="Ações"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoLojas">
+                        <tr class="row-loading"><td colspan="3">Carregando lojas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
+
+    <!-- Modal Cadastro/Edição -->
+    <div class="modal" id="modalLoja" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Nova Loja</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formLoja">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="nome">Nome da Loja <span class="required">*</span></label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex.: Loja Centro" autocomplete="off">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="cnpj">CNPJ <span class="required">*</span></label>
+                        <input type="text" id="cnpj" name="cnpj" required placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" autocomplete="off">
+                    </div>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnConfirmar">Cadastrar</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação Exclusão -->
+    <div class="modal" id="modalExclusao" hidden>
+        <div class="modal-backdrop" data-close-confirm></div>
+        <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true">
+            <header class="modal-header">
+                <h2>Excluir loja</h2>
+                <button type="button" class="modal-close" data-close-confirm aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir <strong id="lojaParaExcluir">esta loja</strong>?</p>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+            </div>
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-confirm>Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+            </footer>
+        </div>
+    </div>
 
     <script src="/js/cadastro-loja.js"></script>
     <script src="/js/header.js"></script>

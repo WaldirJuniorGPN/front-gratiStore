@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultar Pontos</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/ponto.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,30 +12,149 @@
 </head>
 <body>
     <div id="header-container"></div>
-    <div class="container">
-        <h1>Consultar Pontos</h1>
-        <div class="date-selection">
-            <label for="mesAnoConsulta">Mês/Ano:</label>
-            <input type="month" id="mesAnoConsulta">
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Consultar Pontos</h1>
+                <p class="page-subtitle">Visualize o histórico de pontos registrados de cada funcionário por mês.</p>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" hidden></div>
+
+        <section class="filter-bar">
+            <div class="filter-field">
+                <label for="lojaSelect">Loja</label>
+                <select id="lojaSelect">
+                    <option value="">Selecione uma loja...</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="atendenteSelect">Funcionário</label>
+                <select id="atendenteSelect" disabled>
+                    <option value="">Selecione um funcionário...</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="mesAno">Mês/Ano</label>
+                <input type="month" id="mesAno">
+            </div>
+            <div class="filter-actions">
+                <button type="button" class="btn btn-primary" id="btnBuscar">Buscar</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header class="panel-header">
+                <div>
+                    <h2 id="tituloHistorico">Histórico</h2>
+                    <p class="panel-subtitle"><span id="contagemRegistros">0</span> registro(s) encontrado(s).</p>
+                </div>
+            </header>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Dia</th>
+                            <th>Entrada</th>
+                            <th>Almoço</th>
+                            <th>Saída</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th class="th-acao" aria-label="Ações"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoHistorico">
+                        <tr class="row-empty"><td colspan="8">Selecione os filtros e clique em "Buscar" para ver o histórico.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de edição -->
+    <div class="modal" id="modalDia" hidden>
+        <div class="modal-backdrop" data-close></div>
+        <div class="modal-dialog" role="dialog" aria-labelledby="modalTitulo" aria-modal="true">
+            <header class="modal-header">
+                <h2 id="modalTitulo">Editar ponto</h2>
+                <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+            </header>
+            <form id="formDia">
+                <div class="modal-body">
+                    <div class="modal-day-info" id="modalDayInfo">—</div>
+
+                    <div class="form-row">
+                        <label for="status">Status do dia <span class="required">*</span></label>
+                        <select id="status" required>
+                            <option value="COMUM">Comum</option>
+                            <option value="FOLGA">Folga</option>
+                            <option value="FALTA">Falta</option>
+                            <option value="FERIADO">Feriado</option>
+                            <option value="ATESTADO_INTEGRAL">Atestado integral</option>
+                            <option value="ATESTADO_MATUTINO">Atestado (manhã)</option>
+                            <option value="ATESTADO_VESPERTINO">Atestado (tarde)</option>
+                            <option value="DESCONTAR_EM_HORAS">Descontar em horas</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label for="entrada">Entrada</label>
+                            <input type="time" id="entrada">
+                        </div>
+                        <div class="form-row">
+                            <label for="inicioAlmoco">Início do almoço</label>
+                            <input type="time" id="inicioAlmoco">
+                        </div>
+                        <div class="form-row">
+                            <label for="fimAlmoco">Fim do almoço</label>
+                            <input type="time" id="fimAlmoco">
+                        </div>
+                        <div class="form-row">
+                            <label for="saida">Saída</label>
+                            <input type="time" id="saida">
+                        </div>
+                    </div>
+
+                    <p class="form-hint" id="hintHorarios">Para o status "Comum", todos os horários são obrigatórios.</p>
+
+                    <div class="total-trabalhado" id="totalContainer">
+                        <span class="total-trabalhado-label">Total trabalhado</span>
+                        <span class="total-trabalhado-value" id="totalValue">—</span>
+                    </div>
+
+                    <div class="form-error" id="erroFormulario" hidden></div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvar">Salvar alterações</button>
+                </footer>
+            </form>
         </div>
-        <div class="store-selection">
-            <label for="lojaSelectConsulta">Loja:</label>
-            <select id="lojaSelectConsulta">
-                <option value="">Selecione</option>
-            </select>
-        </div>
-        <div class="attendant-selection">
-            <label for="atendenteSelectConsulta">Atendente:</label>
-            <select id="atendenteSelectConsulta">
-                <option value="">Selecione</option>
-            </select>
-        </div>
-        <p class="info-feriado">A coluna <strong>Status</strong> indica a situação do dia.</p>
-        <div class="search-button">
-            <button id="buscarPontos">Buscar</button>
-        </div>
-        <table id="tabelaPontos" class="tabela-pontos"></table>
     </div>
+
+    <!-- Modal de confirmação de exclusão -->
+    <div class="modal" id="modalExcluir" hidden>
+        <div class="modal-backdrop" data-close-confirm></div>
+        <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true">
+            <header class="modal-header">
+                <h2>Excluir ponto</h2>
+                <button type="button" class="modal-close" data-close-confirm aria-label="Fechar">×</button>
+            </header>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o registro de <strong id="diaParaExcluir">—</strong>?</p>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+            </div>
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-confirm>Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">Excluir</button>
+            </footer>
+        </div>
+    </div>
+
     <script src="/js/ponto-consulta.js"></script>
     <script src="/js/header.js"></script>
 </body>

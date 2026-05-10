@@ -1,259 +1,149 @@
-/* Variáveis de Cores */
-:root {
-    --primary-blue: #6A8EAE;
-    --secondary-light: #DCE2E8;
-    --accent-green: #A8DADC;
-    --text-dark: #333333;
-    --background-light: #F8F9FA;
-    --error-red: #dc3545;
-    --success-green: #28a745;
+/* Estilos específicos da página de Calculadoras
+   (a maior parte vem de cadastro-shared.css) */
+
+.panel--cards {
+    background-color: transparent;
+    box-shadow: none;
+    overflow: visible;
 }
 
-/* Estilo geral */
-body {
-    font-family: 'Open Sans', sans-serif; /* Nova fonte */
-    background-color: var(--background-light);
-    margin: 0;
-    padding: 0;
-    color: var(--text-dark);
-    line-height: 1.6;
-}
-
-main {
-    max-width: 900px; /* Aumentar largura máxima para um layout mais aberto */
-    margin: 30px auto;
-    padding: 20px;
+.panel--cards .panel-header {
     background-color: #fff;
-    border-radius: 10px; /* Bordas mais arredondadas para o container principal */
-    box-shadow: 0 8px 16px rgba(0,0,0,0.08); /* Sombra mais pronunciada e suave */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-bottom: none;
+    margin-bottom: 16px;
 }
 
-h1, h2 {
-    text-align: center;
-    color: var(--primary-blue);
-    margin-top: 20px;
-    font-weight: 600;
-}
-
-h1 {
-    margin-bottom: 15px;
-    font-size: 2.5em;
-}
-
-h2 {
-    margin-bottom: 30px;
-    font-size: 1.8em;
-    color: var(--text-dark);
-}
-
-/* Estilos para o formulário */
-form {
-    max-width: 700px;
-    margin: 0 auto 40px;
-    background-color: #ffffff;
-    padding: 30px;
-    border: 1px solid var(--secondary-light);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-h3 {
-    color: var(--primary-blue);
-    margin-top: 25px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid var(--secondary-light);
-    padding-bottom: 8px;
-    font-size: 1.3em;
-    font-weight: 600;
-}
-
-label {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--text-dark);
-    font-weight: 600;
-    font-size: 1.1em;
-}
-
-input[type="text"],
-input[type="number"],
-select {
-    width: calc(100% - 20px); /* Ajuste para padding */
-    padding: 12px 10px;
-    margin-bottom: 20px;
-    border: 1px solid var(--secondary-light);
-    border-radius: 6px;
-    font-size: 1em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-    border-color: var(--primary-blue);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.2);
-}
-
-button[type="submit"] {
-    width: 100%;
-    padding: 14px;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 20px;
-}
-
-button[type="submit"]:hover {
-    background-color: #5A7B9C; /* Tom mais escuro do azul primário */
-    transform: translateY(-2px);
-}
-
-/* Estilo para a lista de calculadoras */
-#listaCalculadoras {
+.cards-grid {
     display: grid;
-    gap: 25px;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    max-width: 700px;
-    margin: 20px auto;
+    gap: 18px;
 }
 
-.calculadora-item {
+.grid-loading,
+.grid-empty {
+    grid-column: 1 / -1;
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-    padding: 25px;
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border: 1px dashed var(--secondary-light);
+    margin: 0;
+}
+
+.calc-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    border: 1px solid var(--secondary-light);
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-top: 4px solid var(--primary-blue);
 }
 
-.calculadora-item:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    transform: translateY(-5px);
+.calc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.calculadora-info {
-    flex: 1;
-}
-
-.calculadora-info .nome {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: var(--primary-blue);
-    display: block;
-    margin-bottom: 10px;
-}
-
-.calculadora-detalhes {
-    display: grid;
-    gap: 10px;
-}
-
-.detalhe {
+.calc-card-head {
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--secondary-light);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: var(--background-light);
-    border-radius: 6px;
-    border: 1px solid var(--secondary-light);
-}
-
-.detalhe strong {
-    color: var(--text-dark);
-    font-size: 0.95em;
-    font-weight: 500;
-}
-
-.detalhe .valor {
-    color: var(--primary-blue);
-    font-size: 1em;
-    font-weight: 600;
-}
-
-.acoes-calculadora {
-    display: flex;
+    align-items: flex-start;
     gap: 10px;
-    margin-top: 20px;
 }
 
-.btn-editar, .btn-excluir {
+.calc-card-head__info {
     flex: 1;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95em;
+    min-width: 0;
+}
+
+.calc-card-head__nome {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.1em;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.calc-card-head__loja {
+    margin: 4px 0 0;
+    color: var(--text-muted);
+    font-size: 0.88em;
+}
+
+.calc-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.calc-card-section {
+    padding: 14px 20px;
+}
+
+.calc-card-section + .calc-card-section {
+    border-top: 1px solid var(--secondary-light);
+}
+
+.calc-card-section__title {
+    font-size: 0.72em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin: 0 0 10px;
+}
+
+.calc-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 14px;
+}
+
+.calc-card-grid--three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.calc-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.calc-stat__label {
+    font-size: 0.72em;
+    color: var(--text-muted);
+    text-transform: uppercase;
     font-weight: 600;
-    color: white;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    letter-spacing: 0.04em;
 }
 
-.btn-editar {
-    background-color: var(--accent-green);
+.calc-stat__value {
+    font-size: 1em;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
-.btn-editar:hover {
-    background-color: #8CC4C6;
-    transform: translateY(-1px);
+/* Form grid: 3 colunas para a seção de bônus */
+.form-grid--three {
+    grid-template-columns: repeat(3, 1fr);
 }
 
-.btn-excluir {
-    background-color: var(--error-red);
-}
-
-.btn-excluir:hover {
-    background-color: #C02C3C;
-    transform: translateY(-1px);
-}
-
-/* Mensagens de estado */
-#mensagem {
-    max-width: 700px;
-    margin: 20px auto;
-    padding: 15px;
-    text-align: center;
-    font-weight: 600;
-    border-radius: 8px;
-    font-size: 1.05em;
-}
-
-#mensagem.sucesso {
-    color: var(--success-green);
-    background-color: #e6ffed; /* Fundo mais claro para sucesso */
-    border: 1px solid #b2dfc9;
-}
-
-#mensagem.erro {
-    color: var(--error-red);
-    background-color: #ffe6e6; /* Fundo mais claro para erro */
-    border: 1px solid #f5c6cb;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    main, form, #listaCalculadoras {
-        width: 95%;
-        margin: 20px auto;
-        padding: 15px;
-    }
-    
-    input[type="text"],
-    input[type="number"],
-    select {
-        width: calc(100% - 20px);
-    }
-
-    #listaCalculadoras {
+@media (max-width: 720px) {
+    .form-grid--three {
         grid-template-columns: 1fr;
     }
+    .calc-card-grid--three {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
-

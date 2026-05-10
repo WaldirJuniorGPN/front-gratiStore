@@ -1,114 +1,362 @@
-import { carregarCalculadoras } from './listarCalculadoras.js';
+const API_BASE_URL = 'http://localhost:8080';
 
-document.addEventListener("DOMContentLoaded", () => {
-    carregarCalculadoras();
-    carregarLojas();
-    document.getElementById("formCadastroCalculadora").addEventListener("submit", cadastrarCalculadora);
-});
+const grid = document.getElementById('gridCalculadoras');
+const buscaInput = document.getElementById('busca');
+const contagemEl = document.getElementById('contagemCalcs');
+const mensagemDiv = document.getElementById('mensagem');
+
+const modalCalc = document.getElementById('modalCalc');
+const modalTitulo = document.getElementById('modalTitulo');
+const formCalc = document.getElementById('formCalc');
+const erroFormulario = document.getElementById('erroFormulario');
+const btnConfirmar = document.getElementById('btnConfirmar');
+const btnNovaCalc = document.getElementById('btnNovaCalc');
+const inputLoja = document.getElementById('loja');
+
+const inputs = {
+    nome: document.getElementById('nome'),
+    loja: inputLoja,
+    percentualPrimeiroColocado: document.getElementById('percentualPrimeiroColocado'),
+    percentualSegundoColocado: document.getElementById('percentualSegundoColocado'),
+    percentualTerceiroColocado: document.getElementById('percentualTerceiroColocado'),
+    percentualDemaisColocados: document.getElementById('percentualDemaisColocados'),
+    bonusPrimeiroColocado: document.getElementById('bonusPrimeiroColocado'),
+    bonusSegundoColocado: document.getElementById('bonusSegundoColocado'),
+    bonusTerceiroColocado: document.getElementById('bonusTerceiroColocado')
+};
+
+const modalExclusao = document.getElementById('modalExclusao');
+const calcParaExcluirEl = document.getElementById('calcParaExcluir');
+const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+
+let estadoLojas = [];
+let estadoCalcs = [];
+let calcEditandoId = null;
+let calcExcluindoId = null;
 
 function formatarMoeda(valor) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(valor);
+    if (valor === null || valor === undefined || isNaN(valor)) return '—';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
 }
 
 function formatarPercentual(valor) {
+    if (valor === null || valor === undefined || isNaN(valor)) return '—';
     return new Intl.NumberFormat('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(valor) + '%';
 }
 
-async function carregarLojas() {
-    try {
-        const response = await fetch('http://localhost:8080/lojas/listar'); // Ajuste o endpoint conforme necessário
-        if (response.ok) {
-            const lojas = await response.json();
-            const lojaSelect = document.getElementById("loja");
+function nomeLoja(lojaId) {
+    if (!lojaId && lojaId !== 0) return '—';
+    const l = estadoLojas.find(x => String(x.id) === String(lojaId));
+    return l ? l.nome : '—';
+}
 
-            lojas.forEach(loja => {
-                const option = document.createElement("option");
-                option.value = loja.id;
-                option.textContent = loja.nome;
-                lojaSelect.appendChild(option);
-            });
-        } else {
-            console.error("Erro ao carregar a lista de lojas.");
-        }
-    } catch (error) {
-        console.error("Erro de conexão com o servidor:", error);
+function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
+    mensagemDiv.textContent = texto;
+    mensagemDiv.className = `mensagem ${tipo}`;
+    mensagemDiv.hidden = false;
+    if (timeout) {
+        setTimeout(() => {
+            mensagemDiv.hidden = true;
+            mensagemDiv.className = 'mensagem';
+            mensagemDiv.textContent = '';
+        }, timeout);
     }
 }
 
-async function cadastrarCalculadora(event) {
-    event.preventDefault();
-    
-    const calculadora = {
-        nome: document.getElementById('nome').value,
-        percentualPrimeiroColocado: parseFloat(document.getElementById('percentualPrimeiroColocado').value),
-        percentualSegundoColocado: parseFloat(document.getElementById('percentualSegundoColocado').value),
-        percentualTerceiroColocado: parseFloat(document.getElementById('percentualTerceiroColocado').value),
-        percentualDemaisColocados: parseFloat(document.getElementById('percentualDemaisColocados').value),
-        bonusPrimeiroColocado: parseFloat(document.getElementById('bonusPrimeiroColocado').value),
-        bonusSegundoColocado: parseFloat(document.getElementById('bonusSegundoColocado').value),
-        bonusTerceiroColocado: parseFloat(document.getElementById('bonusTerceiroColocado').value),
-        lojaId: document.getElementById('loja').value
-    };
+function mostrarErroForm(texto) {
+    erroFormulario.textContent = texto;
+    erroFormulario.hidden = false;
+}
 
+function limparErroForm() {
+    erroFormulario.hidden = true;
+    erroFormulario.textContent = '';
+}
+
+async function carregarLojas() {
     try {
-        const response = await fetch('http://localhost:8080/calculadoras', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(calculadora)
-        });
-
-        if (response.ok) {
-            mostrarMensagem('Calculadora cadastrada com sucesso!', 'sucesso');
-            document.getElementById('formCadastroCalculadora').reset();
-            carregarCalculadoras();
-        } else {
-            mostrarMensagem('Erro ao cadastrar a calculadora.', 'erro');
+        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
+            return;
         }
-    } catch (error) {
-        console.error('Erro:', error);
+        estadoLojas = await resp.json();
+        inputLoja.innerHTML = '<option value="">Selecione uma loja</option>';
+        estadoLojas.forEach(loja => {
+            const opt = document.createElement('option');
+            opt.value = loja.id;
+            opt.textContent = loja.nome;
+            inputLoja.appendChild(opt);
+        });
+        // Re-renderiza para que o nome da loja apareça nos cards já carregados
+        renderizarLista();
+    } catch (err) {
+        console.error('Erro ao carregar lojas:', err);
         mostrarMensagem('Erro de conexão com o servidor.', 'erro');
     }
 }
 
-async function excluirCalculadora(id) {
-    if (!confirm('Tem certeza que deseja excluir esta calculadora?')) {
+async function carregarCalculadoras() {
+    grid.innerHTML = '<p class="grid-loading">Carregando calculadoras...</p>';
+    try {
+        const resp = await fetch(`${API_BASE_URL}/calculadoras/listar`);
+        if (!resp.ok) {
+            mostrarMensagem('Erro ao carregar a lista de calculadoras.', 'erro');
+            estadoCalcs = [];
+            renderizarLista();
+            return;
+        }
+        estadoCalcs = await resp.json();
+        renderizarLista();
+    } catch (err) {
+        console.error('Erro ao carregar calculadoras:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        estadoCalcs = [];
+        renderizarLista();
+    }
+}
+
+function renderizarLista() {
+    const termo = (buscaInput.value || '').trim().toLowerCase();
+    const filtradas = estadoCalcs.filter(c => {
+        if (!termo) return true;
+        const nome = (c.nome || '').toLowerCase();
+        const loja = nomeLoja(c.lojaId).toLowerCase();
+        return nome.includes(termo) || loja.includes(termo);
+    });
+
+    contagemEl.textContent = filtradas.length;
+    grid.innerHTML = '';
+
+    if (filtradas.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'grid-empty';
+        p.textContent = termo
+            ? 'Nenhuma calculadora encontrada para a busca.'
+            : 'Nenhuma calculadora cadastrada ainda. Clique em "Nova Calculadora" para começar.';
+        grid.appendChild(p);
         return;
     }
 
+    filtradas.forEach(calc => {
+        grid.appendChild(criarCard(calc));
+    });
+}
+
+function criarCard(calc) {
+    const card = document.createElement('article');
+    card.className = 'calc-card';
+    card.innerHTML = `
+        <header class="calc-card-head">
+            <div class="calc-card-head__info">
+                <h3 class="calc-card-head__nome"></h3>
+                <p class="calc-card-head__loja"></p>
+            </div>
+            <div class="calc-card-actions"></div>
+        </header>
+        <section class="calc-card-section">
+            <h4 class="calc-card-section__title">Percentuais</h4>
+            <div class="calc-card-grid">
+                <div class="calc-stat"><span class="calc-stat__label">1º</span><span class="calc-stat__value" data-pct1></span></div>
+                <div class="calc-stat"><span class="calc-stat__label">2º</span><span class="calc-stat__value" data-pct2></span></div>
+                <div class="calc-stat"><span class="calc-stat__label">3º</span><span class="calc-stat__value" data-pct3></span></div>
+                <div class="calc-stat"><span class="calc-stat__label">Demais</span><span class="calc-stat__value" data-pctd></span></div>
+            </div>
+        </section>
+        <section class="calc-card-section">
+            <h4 class="calc-card-section__title">Bônus adicional</h4>
+            <div class="calc-card-grid calc-card-grid--three">
+                <div class="calc-stat"><span class="calc-stat__label">1º</span><span class="calc-stat__value" data-bn1></span></div>
+                <div class="calc-stat"><span class="calc-stat__label">2º</span><span class="calc-stat__value" data-bn2></span></div>
+                <div class="calc-stat"><span class="calc-stat__label">3º</span><span class="calc-stat__value" data-bn3></span></div>
+            </div>
+        </section>
+    `;
+
+    card.querySelector('.calc-card-head__nome').textContent = calc.nome || '—';
+    card.querySelector('.calc-card-head__loja').textContent = nomeLoja(calc.lojaId);
+    card.querySelector('[data-pct1]').textContent = formatarPercentual(calc.percentualPrimeiroColocado);
+    card.querySelector('[data-pct2]').textContent = formatarPercentual(calc.percentualSegundoColocado);
+    card.querySelector('[data-pct3]').textContent = formatarPercentual(calc.percentualTerceiroColocado);
+    card.querySelector('[data-pctd]').textContent = formatarPercentual(calc.percentualDemaisColocados);
+    card.querySelector('[data-bn1]').textContent = formatarMoeda(calc.bonusPrimeiroColocado);
+    card.querySelector('[data-bn2]').textContent = formatarMoeda(calc.bonusSegundoColocado);
+    card.querySelector('[data-bn3]').textContent = formatarMoeda(calc.bonusTerceiroColocado);
+
+    const acoes = card.querySelector('.calc-card-actions');
+    acoes.appendChild(botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc)));
+    acoes.appendChild(botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger'));
+
+    return card;
+}
+
+function botaoAcao(icone, titulo, onClick, classeExtra = '') {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn-icon-action ${classeExtra}`.trim();
+    btn.title = titulo;
+    btn.setAttribute('aria-label', titulo);
+    btn.textContent = icone;
+    btn.addEventListener('click', onClick);
+    return btn;
+}
+
+function abrirModalCriacao() {
+    calcEditandoId = null;
+    modalTitulo.textContent = 'Nova Calculadora';
+    btnConfirmar.textContent = 'Cadastrar';
+    formCalc.reset();
+    limparErroForm();
+    modalCalc.hidden = false;
+    setTimeout(() => inputs.nome.focus(), 50);
+}
+
+function abrirModalEdicao(calc) {
+    calcEditandoId = calc.id;
+    modalTitulo.textContent = 'Editar Calculadora';
+    btnConfirmar.textContent = 'Salvar Alterações';
+    inputs.nome.value = calc.nome || '';
+    inputs.loja.value = calc.lojaId || '';
+    inputs.percentualPrimeiroColocado.value = calc.percentualPrimeiroColocado ?? '';
+    inputs.percentualSegundoColocado.value = calc.percentualSegundoColocado ?? '';
+    inputs.percentualTerceiroColocado.value = calc.percentualTerceiroColocado ?? '';
+    inputs.percentualDemaisColocados.value = calc.percentualDemaisColocados ?? '';
+    inputs.bonusPrimeiroColocado.value = calc.bonusPrimeiroColocado ?? '';
+    inputs.bonusSegundoColocado.value = calc.bonusSegundoColocado ?? '';
+    inputs.bonusTerceiroColocado.value = calc.bonusTerceiroColocado ?? '';
+    limparErroForm();
+    modalCalc.hidden = false;
+    setTimeout(() => inputs.nome.focus(), 50);
+}
+
+function fecharModalCalc() {
+    modalCalc.hidden = true;
+    calcEditandoId = null;
+}
+
+async function salvarCalc(event) {
+    event.preventDefault();
+    limparErroForm();
+
+    const dados = {
+        nome: inputs.nome.value.trim(),
+        lojaId: inputs.loja.value ? parseInt(inputs.loja.value) : null,
+        percentualPrimeiroColocado: parseFloat(inputs.percentualPrimeiroColocado.value),
+        percentualSegundoColocado: parseFloat(inputs.percentualSegundoColocado.value),
+        percentualTerceiroColocado: parseFloat(inputs.percentualTerceiroColocado.value),
+        percentualDemaisColocados: parseFloat(inputs.percentualDemaisColocados.value),
+        bonusPrimeiroColocado: parseFloat(inputs.bonusPrimeiroColocado.value),
+        bonusSegundoColocado: parseFloat(inputs.bonusSegundoColocado.value),
+        bonusTerceiroColocado: parseFloat(inputs.bonusTerceiroColocado.value)
+    };
+
+    if (!dados.nome || !dados.lojaId) {
+        mostrarErroForm('Preencha o nome e selecione uma loja.');
+        return;
+    }
+
+    const camposNumericos = [
+        'percentualPrimeiroColocado', 'percentualSegundoColocado',
+        'percentualTerceiroColocado', 'percentualDemaisColocados',
+        'bonusPrimeiroColocado', 'bonusSegundoColocado', 'bonusTerceiroColocado'
+    ];
+    for (const campo of camposNumericos) {
+        if (isNaN(dados[campo]) || dados[campo] < 0) {
+            mostrarErroForm('Todos os percentuais e bônus devem ser números válidos (≥ 0).');
+            return;
+        }
+    }
+
+    btnConfirmar.disabled = true;
+
     try {
-        const response = await fetch(`http://localhost:8080/calculadoras/${id}`, {
-            method: 'DELETE'
+        const url = calcEditandoId
+            ? `${API_BASE_URL}/calculadoras/${calcEditandoId}`
+            : `${API_BASE_URL}/calculadoras`;
+        const method = calcEditandoId ? 'PUT' : 'POST';
+        const resp = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
         });
 
-        if (response.ok) {
-            mostrarMensagem('Calculadora excluída com sucesso!', 'sucesso');
-            carregarCalculadoras();
+        if (resp.ok) {
+            mostrarMensagem(
+                calcEditandoId ? 'Calculadora atualizada com sucesso!' : 'Calculadora cadastrada com sucesso!',
+                'sucesso'
+            );
+            fecharModalCalc();
+            await carregarCalculadoras();
         } else {
-            mostrarMensagem('Erro ao excluir a calculadora.', 'erro');
+            const erro = await resp.json().catch(() => null);
+            mostrarErroForm(erro?.message || 'Erro ao salvar a calculadora.');
         }
-    } catch (error) {
-        console.error('Erro:', error);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+    } catch (err) {
+        console.error('Erro:', err);
+        mostrarErroForm('Erro de conexão com o servidor.');
+    } finally {
+        btnConfirmar.disabled = false;
     }
 }
 
-function mostrarMensagem(texto, tipo) {
-    const mensagem = document.getElementById('mensagem');
-    mensagem.textContent = texto;
-    mensagem.className = tipo;
-    setTimeout(() => {
-        mensagem.textContent = '';
-        mensagem.className = '';
-    }, 3000);
+function abrirModalExclusao(calc) {
+    calcExcluindoId = calc.id;
+    calcParaExcluirEl.textContent = `"${calc.nome}"`;
+    modalExclusao.hidden = false;
 }
 
-// Tornar funções globalmente acessíveis
-window.excluirCalculadora = excluirCalculadora;
+function fecharModalExclusao() {
+    modalExclusao.hidden = true;
+    calcExcluindoId = null;
+}
+
+async function confirmarExclusao() {
+    if (!calcExcluindoId) return;
+    btnConfirmarExclusao.disabled = true;
+    try {
+        const resp = await fetch(`${API_BASE_URL}/calculadoras/${calcExcluindoId}`, {
+            method: 'DELETE'
+        });
+        if (resp.ok) {
+            mostrarMensagem('Calculadora excluída com sucesso!', 'sucesso');
+            fecharModalExclusao();
+            await carregarCalculadoras();
+        } else {
+            mostrarMensagem('Erro ao excluir a calculadora.', 'erro');
+            fecharModalExclusao();
+        }
+    } catch (err) {
+        console.error('Erro:', err);
+        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        fecharModalExclusao();
+    } finally {
+        btnConfirmarExclusao.disabled = false;
+    }
+}
+
+btnNovaCalc.addEventListener('click', abrirModalCriacao);
+formCalc.addEventListener('submit', salvarCalc);
+btnConfirmarExclusao.addEventListener('click', confirmarExclusao);
+buscaInput.addEventListener('input', renderizarLista);
+
+modalCalc.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', fecharModalCalc);
+});
+modalExclusao.querySelectorAll('[data-close-confirm]').forEach(el => {
+    el.addEventListener('click', fecharModalExclusao);
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (!modalCalc.hidden) fecharModalCalc();
+        if (!modalExclusao.hidden) fecharModalExclusao();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    carregarCalculadoras();
+    carregarLojas();
+});
