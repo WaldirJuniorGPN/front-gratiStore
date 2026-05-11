@@ -44,7 +44,18 @@ function formatarPercentual(valor) {
     return new Intl.NumberFormat('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(valor) + '%';
+    }).format(valor * 100) + '%';
+}
+
+function decimalParaInputPercentual(valor) {
+    if (valor === null || valor === undefined || isNaN(valor)) return '';
+    return +(valor * 100).toFixed(4);
+}
+
+function inputPercentualParaDecimal(valor) {
+    const num = parseFloat(valor);
+    if (isNaN(num)) return NaN;
+    return +(num / 100).toFixed(6);
 }
 
 function nomeLoja(lojaId) {
@@ -220,10 +231,10 @@ function abrirModalEdicao(calc) {
     btnConfirmar.textContent = 'Salvar Alterações';
     inputs.nome.value = calc.nome || '';
     inputs.loja.value = calc.lojaId || '';
-    inputs.percentualPrimeiroColocado.value = calc.percentualPrimeiroColocado ?? '';
-    inputs.percentualSegundoColocado.value = calc.percentualSegundoColocado ?? '';
-    inputs.percentualTerceiroColocado.value = calc.percentualTerceiroColocado ?? '';
-    inputs.percentualDemaisColocados.value = calc.percentualDemaisColocados ?? '';
+    inputs.percentualPrimeiroColocado.value = decimalParaInputPercentual(calc.percentualPrimeiroColocado);
+    inputs.percentualSegundoColocado.value = decimalParaInputPercentual(calc.percentualSegundoColocado);
+    inputs.percentualTerceiroColocado.value = decimalParaInputPercentual(calc.percentualTerceiroColocado);
+    inputs.percentualDemaisColocados.value = decimalParaInputPercentual(calc.percentualDemaisColocados);
     inputs.bonusPrimeiroColocado.value = calc.bonusPrimeiroColocado ?? '';
     inputs.bonusSegundoColocado.value = calc.bonusSegundoColocado ?? '';
     inputs.bonusTerceiroColocado.value = calc.bonusTerceiroColocado ?? '';
@@ -244,10 +255,10 @@ async function salvarCalc(event) {
     const dados = {
         nome: inputs.nome.value.trim(),
         lojaId: inputs.loja.value ? parseInt(inputs.loja.value) : null,
-        percentualPrimeiroColocado: parseFloat(inputs.percentualPrimeiroColocado.value),
-        percentualSegundoColocado: parseFloat(inputs.percentualSegundoColocado.value),
-        percentualTerceiroColocado: parseFloat(inputs.percentualTerceiroColocado.value),
-        percentualDemaisColocados: parseFloat(inputs.percentualDemaisColocados.value),
+        percentualPrimeiroColocado: inputPercentualParaDecimal(inputs.percentualPrimeiroColocado.value),
+        percentualSegundoColocado: inputPercentualParaDecimal(inputs.percentualSegundoColocado.value),
+        percentualTerceiroColocado: inputPercentualParaDecimal(inputs.percentualTerceiroColocado.value),
+        percentualDemaisColocados: inputPercentualParaDecimal(inputs.percentualDemaisColocados.value),
         bonusPrimeiroColocado: parseFloat(inputs.bonusPrimeiroColocado.value),
         bonusSegundoColocado: parseFloat(inputs.bonusSegundoColocado.value),
         bonusTerceiroColocado: parseFloat(inputs.bonusTerceiroColocado.value)
