@@ -56,9 +56,14 @@ async function request(method, path, body) {
     });
 
     if (resp.status === 401) {
-        limparSessao();
         const err = await safeJson(resp);
-        window.location.href = '/html/login.html';
+        // Em rotas públicas (ex.: /auth/login), 401 significa "credenciais inválidas",
+        // não "sessão expirada" — não há sessão para limpar nem motivo para redirecionar.
+        // A UI da tela de login captura o ApiError e mostra a mensagem genérica.
+        if (!ehRotaPublica(path)) {
+            limparSessao();
+            window.location.href = '/html/login.html';
+        }
         throw new ApiError(401, err?.error || 'Unauthorized', err?.message || 'Sessão expirada', path);
     }
 

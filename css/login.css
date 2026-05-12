@@ -1,0 +1,65 @@
+/* ===========================================================
+   Tela de Login
+   Reaproveita variáveis e primitivos de cadastro-shared.css
+   (.btn, .mensagem, .form-row, --primary-blue, etc.).
+   =========================================================== */
+
+.login-page {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #4A6A8C 100%);
+    padding: 24px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    margin: 0;
+    padding: 0;
+}
+
+.login-card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    padding: 36px 32px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-header h1 {
+    color: var(--primary-blue);
+    font-size: 2.4em;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.login-subtitle {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 0.98em;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-submit {
+    margin-top: 8px;
+    padding: 13px 22px;
+    font-size: 1.02em;
+    width: 100%;
+}
+
+@media (max-width: 480px) {
+    .login-card { padding: 28px 22px; }
+    .login-header h1 { font-size: 2em; }
+}
