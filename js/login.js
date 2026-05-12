@@ -92,5 +92,11 @@ async function entrar(event) {
 formLogin.addEventListener('submit', entrar);
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ?expirou=1 vem do logout automático em expiracao-sessao.js (TASK-12).
+    // Mostra um aviso informativo, mas não em formato de erro.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('expirou') === '1') {
+        mostrarMensagem('Sua sessão expirou. Faça login novamente.', 'aviso');
+    }
     inputEmail.focus();
 });

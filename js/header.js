@@ -23,6 +23,13 @@
                 if (typeof inicializarBannerSenhaPadrao === 'function') {
                     inicializarBannerSenhaPadrao();
                 }
+                // expiracao-sessao.js (TASK-12) — agenda o modal de aviso e o
+                // logout automático com base em `expiraEm`. Precisa rodar depois
+                // do header (markup do modal vive lá) e de ligarLogout (handler
+                // de logout manual cancela os timers).
+                if (typeof inicializarTimerExpiracao === 'function') {
+                    inicializarTimerExpiracao();
+                }
             })
             .catch((error) => console.error('Erro ao carregar o header:', error));
     });

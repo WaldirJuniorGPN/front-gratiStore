@@ -59,6 +59,13 @@
     width: 100%;
 }
 
+/* Aviso informativo na tela de login (ex.: ?expirou=1 vindo de TASK-12). */
+.mensagem.aviso {
+    color: #78350F;
+    background-color: #FEF3C7;
+    border: 1px solid #FCD34D;
+}
+
 @media (max-width: 480px) {
     .login-card { padding: 28px 22px; }
     .login-header h1 { font-size: 2em; }
