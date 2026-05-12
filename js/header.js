@@ -18,6 +18,11 @@
                 if (typeof aplicarRoleNoDom === 'function') {
                     aplicarRoleNoDom(document);
                 }
+                // banner-senha-padrao.js (TASK-11) — só decide se mostra após o
+                // markup do banner ser injetado pelo header.
+                if (typeof inicializarBannerSenhaPadrao === 'function') {
+                    inicializarBannerSenhaPadrao();
+                }
             })
             .catch((error) => console.error('Erro ao carregar o header:', error));
     });
