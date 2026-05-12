@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Editar Usuário — GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/cadastro-usuario.css">
+    <link rel="stylesheet" href="/css/atualizar-usuario.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Editar Usuário</h1>
+                <p class="page-subtitle">Atualize o nome e o papel deste usuário. E-mail e senha não são editáveis por aqui.</p>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" role="alert" aria-live="polite" hidden></div>
+
+        <section class="panel usuario-card" id="painelFormulario" hidden>
+            <form id="formUsuario" class="usuario-form" novalidate>
+                <div class="alerta-master" id="alertaMaster" hidden>
+                    <strong>Este é o único administrador ativo.</strong>
+                    Não é possível rebaixá-lo a COMUM nem desativá-lo enquanto for o único <em>MASTER</em> do sistema.
+                </div>
+
+                <div class="form-row">
+                    <label for="nome">Nome completo <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        required
+                        autocomplete="off"
+                        placeholder="Ex.: Maria Operadora"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <label for="email">E-mail</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        disabled
+                        aria-readonly="true"
+                        autocomplete="off"
+                    >
+                    <p class="form-hint">O e-mail é definido no cadastro e não pode ser alterado por esta tela.</p>
+                </div>
+
+                <div class="form-row">
+                    <label for="role">Papel <span class="required">*</span></label>
+                    <select id="role" name="role" required>
+                        <option value="">Selecione o papel...</option>
+                        <option value="MASTER">MASTER (administrador total)</option>
+                        <option value="COMUM">COMUM (consulta / operação)</option>
+                    </select>
+                    <p class="form-hint"><strong>MASTER</strong> gerencia usuários e toda a plataforma. <strong>COMUM</strong> tem acesso apenas a consultas e operações do dia a dia.</p>
+                </div>
+
+                <div class="form-error" id="erroFormulario" hidden></div>
+
+                <div class="usuario-actions">
+                    <a href="/html/usuarios.html" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" id="btnSalvar" class="btn btn-primary usuario-submit">Salvar alterações</button>
+                </div>
+            </form>
+
+            <footer class="danger-zone">
+                <div class="danger-zone-info">
+                    <h2 class="danger-zone-title">Desativar usuário</h2>
+                    <p class="danger-zone-desc">Após desativar, este usuário não poderá mais fazer login. A operação pode ser revertida apenas pelo backend (soft-delete).</p>
+                </div>
+                <button type="button" id="btnDesativar" class="btn btn-danger">Desativar usuário</button>
+            </footer>
+        </section>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/atualizar-usuario.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

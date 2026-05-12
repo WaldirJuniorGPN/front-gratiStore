@@ -1,0 +1,72 @@
+/* ===========================================================
+   Edição e desativação de usuário (TASK-08)
+   Reaproveita cadastro-shared.css + cadastro-usuario.css
+   (.panel, .form-row, .btn, .mensagem, .usuario-card, ...).
+   =========================================================== */
+
+/* Campo desabilitado (e-mail somente leitura) */
+.usuario-form .form-row input:disabled {
+    background-color: var(--background-light);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* Aviso "último administrador" */
+.alerta-master {
+    background-color: #fff8e1;
+    border: 1px solid #ffd966;
+    color: #6b4f00;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.92em;
+    margin-bottom: 18px;
+}
+
+.alerta-master strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #5a4200;
+}
+
+/* Bloco destrutivo (Desativar usuário) */
+.danger-zone {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin: 24px;
+    padding: 18px 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 10px;
+    background-color: #fff5f5;
+}
+
+.danger-zone-info {
+    flex: 1;
+}
+
+.danger-zone-title {
+    margin: 0 0 4px;
+    font-size: 1.02em;
+    color: var(--error-red-dark);
+    font-weight: 700;
+}
+
+.danger-zone-desc {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9em;
+}
+
+.danger-zone .btn-danger {
+    flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+    .danger-zone {
+        flex-direction: column;
+        align-items: stretch;
+        margin: 18px 16px;
+    }
+    .danger-zone .btn-danger { width: 100%; }
+}

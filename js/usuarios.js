@@ -99,8 +99,50 @@ function renderizarLista(content) {
         return;
     }
     tabelaBody.innerHTML = content.map(renderLinhaUsuario).join('');
-    // TASK-08 conecta o click handler em `[data-desativar]` (confirm + DELETE).
 }
+
+async function desativarUsuario(id, nome, botao) {
+    const confirmou = window.confirm(
+        `Tem certeza que deseja desativar "${nome}"?\n\n` +
+        `O usuário não poderá mais fazer login no sistema.`
+    );
+    if (!confirmou) return;
+
+    botao.disabled = true;
+    const textoOriginal = botao.textContent;
+    botao.textContent = 'Desativando...';
+
+    try {
+        await apiDelete(`/usuarios/${id}`);
+        mostrarMensagem(`Usuário "${nome}" desativado.`, 'sucesso');
+        carregarUsuarios();
+    } catch (err) {
+        console.error('Erro ao desativar usuário:', err);
+        // 400 cobre a regra do último MASTER ativo (§5.5) — exibe a mensagem do
+        // backend direto. Outros erros caem no fallback genérico.
+        let texto;
+        if (err instanceof ApiError) {
+            texto = err.status === 400
+                ? (err.message || 'Operação não permitida.')
+                : err.status === 404
+                    ? 'Usuário não encontrado ou já inativo.'
+                    : (err.message || 'Falha ao desativar usuário.');
+        } else {
+            texto = 'Erro de conexão. Tente novamente.';
+        }
+        mostrarMensagem(texto, 'erro');
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+    }
+}
+
+tabelaBody.addEventListener('click', (event) => {
+    const botao = event.target.closest('[data-desativar]');
+    if (!botao) return;
+    const id = botao.getAttribute('data-desativar');
+    const nome = botao.getAttribute('data-nome') || 'este usuário';
+    desativarUsuario(id, nome, botao);
+});
 
 function renderizarErro(err) {
     const detalhe = err instanceof ApiError && err.message ? ` (${err.message})` : '';
