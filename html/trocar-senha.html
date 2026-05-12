@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Trocar Senha — GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/trocar-senha.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Trocar Senha</h1>
+                <p class="page-subtitle">Atualize sua senha de acesso. Após salvar, você será deslogado e precisará entrar novamente com a nova senha.</p>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" role="alert" aria-live="polite" hidden></div>
+
+        <section class="panel senha-card">
+            <form id="formTrocarSenha" class="senha-form" novalidate>
+                <div class="form-row">
+                    <label for="senhaAtual">Senha atual <span class="required">*</span></label>
+                    <input
+                        type="password"
+                        id="senhaAtual"
+                        name="senhaAtual"
+                        required
+                        autocomplete="current-password"
+                        placeholder="Digite sua senha atual"
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-row">
+                    <label for="novaSenha">Nova senha <span class="required">*</span></label>
+                    <input
+                        type="password"
+                        id="novaSenha"
+                        name="novaSenha"
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                        placeholder="Mínimo de 8 caracteres"
+                    >
+                    <p class="form-hint">A nova senha deve ter no mínimo 8 caracteres.</p>
+                </div>
+
+                <div class="form-row">
+                    <label for="confirmarNovaSenha">Confirmar nova senha <span class="required">*</span></label>
+                    <input
+                        type="password"
+                        id="confirmarNovaSenha"
+                        name="confirmarNovaSenha"
+                        required
+                        minlength="8"
+                        autocomplete="new-password"
+                        placeholder="Repita a nova senha"
+                    >
+                </div>
+
+                <div class="form-error" id="erroFormulario" hidden></div>
+
+                <div class="senha-actions">
+                    <a href="/index.html" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" id="btnTrocar" class="btn btn-primary senha-submit">Trocar Senha</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/trocar-senha.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
