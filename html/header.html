@@ -26,7 +26,7 @@
         <a href="/index.html" class="sidebar__link" data-path="/index.html">Início</a>
       </li>
 
-      <li class="sidebar__item sidebar__item--group">
+      <li class="sidebar__item sidebar__item--group" data-requer-role="MASTER">
         <button type="button" class="sidebar__group-toggle" aria-expanded="false" data-group="cadastros">
           <span>Cadastros</span>
           <span class="sidebar__chevron" aria-hidden="true"></span>
@@ -38,13 +38,17 @@
         </ul>
       </li>
 
+      <li class="sidebar__item" data-requer-role="MASTER">
+        <a href="/html/usuarios.html" class="sidebar__link" data-path="/html/usuarios.html">Usuários</a>
+      </li>
+
       <li class="sidebar__item">
         <a href="/html/upload-vendas.html" class="sidebar__link" data-path="/html/upload-vendas.html">Upload</a>
       </li>
-      <li class="sidebar__item">
+      <li class="sidebar__item" data-requer-role="MASTER">
         <a href="/html/update-atrasos.html" class="sidebar__link" data-path="/html/update-atrasos.html">Lançamento Atrasos</a>
       </li>
-      <li class="sidebar__item">
+      <li class="sidebar__item" data-requer-role="MASTER">
         <a href="/html/update-salario.html" class="sidebar__link" data-path="/html/update-salario.html">Atualizar Salário</a>
       </li>
       <li class="sidebar__item">
@@ -83,4 +87,18 @@
       </li>
     </ul>
   </nav>
+
+  <div class="sidebar__profile">
+    <div class="sidebar__profile-info">
+      <span class="sidebar__profile-iniciais" id="perfilIniciais" aria-hidden="true"></span>
+      <div class="sidebar__profile-text">
+        <span class="sidebar__profile-nome" id="perfilNome">—</span>
+        <span class="sidebar__profile-email" id="perfilEmail">—</span>
+      </div>
+    </div>
+    <ul class="sidebar__profile-actions">
+      <li><a href="/html/trocar-senha.html" class="sidebar__link" data-path="/html/trocar-senha.html">Trocar senha</a></li>
+      <li><button type="button" class="sidebar__link sidebar__link--logout" id="btnLogout">Sair</button></li>
+    </ul>
+  </div>
 </aside>
