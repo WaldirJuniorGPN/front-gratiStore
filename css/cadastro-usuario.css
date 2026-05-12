@@ -1,0 +1,89 @@
+/* ===========================================================
+   Cadastro de Usuário (TASK-07)
+   Reaproveita primitivos de cadastro-shared.css
+   (.panel, .form-row, .form-error, .btn, .mensagem, ...).
+   =========================================================== */
+
+.usuario-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.usuario-form {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.usuario-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--secondary-light);
+}
+
+.usuario-submit {
+    min-width: 200px;
+}
+
+.senha-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.senha-wrapper input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    font-size: 0.97em;
+    font-family: inherit;
+    color: var(--text-dark);
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-width: 0;
+}
+
+.senha-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.18);
+}
+
+.senha-toggle {
+    background-color: #fff;
+    border: 1px solid var(--secondary-light);
+    color: var(--primary-blue);
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 0.9em;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+.senha-toggle:hover {
+    background-color: var(--background-light);
+    border-color: var(--primary-blue);
+}
+
+.senha-toggle[aria-pressed="true"] {
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-color: var(--primary-blue);
+}
+
+@media (max-width: 720px) {
+    .usuario-form { padding: 18px 16px; }
+    .usuario-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .usuario-actions .btn { width: 100%; }
+    .usuario-submit { min-width: 0; }
+}
