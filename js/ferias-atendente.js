@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const STATUS_LABEL = {
     em_aquisicao: 'Em aquisição',
     disponivel: 'Disponível',
@@ -169,18 +167,13 @@ function renderHistorico() {
 
 async function carregarHistorico() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/atendente/${state.atendenteId}`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Não foi possível carregar o histórico.', 'erro');
-            document.getElementById('listaPeriodos').innerHTML = '';
-            return;
-        }
-        state.historico = await resp.json();
+        state.historico = await apiGet(`/ferias/atendente/${state.atendenteId}`);
         renderHistorico();
     } catch (err) {
         console.error('Erro ao carregar histórico:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível carregar o histórico.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
+        document.getElementById('listaPeriodos').innerHTML = '';
     }
 }
 
@@ -313,25 +306,15 @@ async function submeterFormulario(event) {
     btnConfirmar.textContent = 'Salvando...';
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/registrar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            erroFormulario.textContent = err?.message || 'Erro ao registrar férias.';
-            erroFormulario.hidden = false;
-            return;
-        }
-
+        await apiPost('/ferias/registrar', payload);
         fecharModal();
         mostrarMensagem('Registro de férias salvo com sucesso!', 'sucesso', 3500);
         await carregarHistorico();
     } catch (err) {
         console.error('Erro ao registrar:', err);
-        erroFormulario.textContent = 'Não foi possível conectar ao servidor.';
+        erroFormulario.textContent = err instanceof ApiError
+            ? (err.message || 'Erro ao registrar férias.')
+            : 'Não foi possível conectar ao servidor.';
         erroFormulario.hidden = false;
     } finally {
         btnConfirmar.disabled = false;
@@ -343,19 +326,13 @@ async function cancelarRegistro(registroId) {
     if (!confirm('Cancelar este registro de férias? O saldo será devolvido ao período.')) return;
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/registro/${registroId}`, { method: 'DELETE' });
-        if (resp.status === 204) {
-            mostrarMensagem('Registro cancelado com sucesso. Saldo devolvido.', 'sucesso', 3500);
-            await carregarHistorico();
-            return;
-        }
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Não foi possível cancelar o registro.', 'erro');
-        }
+        await apiDelete(`/ferias/registro/${registroId}`);
+        mostrarMensagem('Registro cancelado com sucesso. Saldo devolvido.', 'sucesso', 3500);
+        await carregarHistorico();
     } catch (err) {
         console.error('Erro ao cancelar registro:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível cancelar o registro.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 

@@ -128,3 +128,105 @@ function apiPatch(path, body) {
 function apiDelete(path) {
     return request('DELETE', path);
 }
+
+/**
+ * Variante de baixo nível: devolve o objeto `Response` cru (não parseia JSON)
+ * com o `Authorization` já anexado e o mesmo tratamento de 401/403.
+ *
+ * Útil para downloads de blob (PDF, planilhas) onde precisamos ler
+ * `resp.blob()` e cabeçalhos como `Content-Disposition`.
+ *
+ * @param {string} path Caminho relativo (ex.: `/ferias/relatorio/pdf`).
+ * @param {RequestInit} [options] Opções padrão do `fetch` (method, headers extra, body).
+ * @returns {Promise<Response>}
+ * @throws {ApiError} Para 401/403/erros não-OK; só retorna a Response em respostas `ok`.
+ */
+async function apiFetch(path, options = {}) {
+    const url = `${API_BASE_URL}${path}`;
+    const headers = { ...(options.headers || {}) };
+
+    if (!ehRotaPublica(path)) {
+        const token = obterToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+    }
+
+    const resp = await fetch(url, { ...options, headers });
+
+    if (resp.status === 401) {
+        const err = await safeJson(resp);
+        if (!ehRotaPublica(path) && path !== '/auth/trocar-senha') {
+            limparSessao();
+            window.location.href = '/html/login.html';
+        }
+        throw new ApiError(401, err?.error || 'Unauthorized', err?.message || 'Sessão expirada', path);
+    }
+
+    if (resp.status === 403) {
+        const err = await safeJson(resp);
+        const message = err?.message || 'Você não tem permissão para essa ação.';
+        document.dispatchEvent(new CustomEvent('gs:forbidden', {
+            detail: { path, message, error: err?.error }
+        }));
+        throw new ApiError(403, err?.error || 'Forbidden', message, path);
+    }
+
+    if (!resp.ok) {
+        const err = await safeJson(resp);
+        throw new ApiError(resp.status, err?.error, err?.message, path);
+    }
+
+    return resp;
+}
+
+/**
+ * Upload de arquivo (`multipart/form-data`) via PATCH — usado pelo
+ * upload de planilha de vendas (`/atendentes/upload/{semana}/{lojaId}`).
+ *
+ * Diferenças em relação a `request`:
+ *  - NÃO seta `Content-Type` — o browser monta o boundary do multipart.
+ *  - Anexa `Authorization: Bearer <token>` quando o path não é público.
+ *  - Mantém o mesmo tratamento de 401/403/erros do cliente principal.
+ *
+ * @param {string} path Caminho relativo (ex.: `/atendentes/upload/primeira-semana/12`).
+ * @param {FormData} formData Conteúdo do upload.
+ * @param {string} [method='PATCH'] Método HTTP (geralmente PATCH para este uso).
+ * @returns {Promise<any>} Body parseado, ou `null` em `204`.
+ * @throws {ApiError}
+ */
+async function apiUpload(path, formData, method = 'PATCH') {
+    const url = `${API_BASE_URL}${path}`;
+    const headers = {};
+
+    if (!ehRotaPublica(path)) {
+        const token = obterToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+    }
+
+    const resp = await fetch(url, { method, headers, body: formData });
+
+    if (resp.status === 401) {
+        const err = await safeJson(resp);
+        if (!ehRotaPublica(path) && path !== '/auth/trocar-senha') {
+            limparSessao();
+            window.location.href = '/html/login.html';
+        }
+        throw new ApiError(401, err?.error || 'Unauthorized', err?.message || 'Sessão expirada', path);
+    }
+
+    if (resp.status === 403) {
+        const err = await safeJson(resp);
+        const message = err?.message || 'Você não tem permissão para essa ação.';
+        document.dispatchEvent(new CustomEvent('gs:forbidden', {
+            detail: { path, message, error: err?.error }
+        }));
+        throw new ApiError(403, err?.error || 'Forbidden', message, path);
+    }
+
+    if (!resp.ok) {
+        const err = await safeJson(resp);
+        throw new ApiError(resp.status, err?.error, err?.message, path);
+    }
+
+    if (resp.status === 204) return null;
+    return resp.json();
+}

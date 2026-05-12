@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const GRAU_URGENCIA_LABEL = {
     sem_urgencia: 'Sem urgência',
     atencao: 'Atenção',
@@ -86,18 +84,13 @@ function renderUrgentes(lista) {
 
 async function carregarDashboard() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/dashboard`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Erro ao carregar o painel de férias.', 'erro');
-            return;
-        }
-        const dados = await resp.json();
+        const dados = await apiGet('/ferias/dashboard');
         atualizarKpis(dados);
         renderUrgentes(dados.proximosAVencer || []);
     } catch (err) {
         console.error('Erro ao carregar dashboard:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar o painel de férias.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -108,12 +101,7 @@ async function exportarPdf() {
     botao.innerHTML = '<span class="btn-icon">…</span> Gerando PDF';
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/relatorio/pdf`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Erro ao gerar o relatório PDF.', 'erro');
-            return;
-        }
+        const resp = await apiFetch('/ferias/relatorio/pdf');
 
         const disposition = resp.headers.get('content-disposition') || '';
         const match = disposition.match(/filename="?([^"]+)"?/i);
@@ -133,7 +121,8 @@ async function exportarPdf() {
         mostrarMensagem('Relatório PDF gerado com sucesso!', 'sucesso', 3500);
     } catch (err) {
         console.error('Erro ao exportar PDF:', err);
-        mostrarMensagem('Não foi possível baixar o relatório.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao gerar o relatório PDF.') : 'Não foi possível baixar o relatório.';
+        mostrarMensagem(msg, 'erro');
     } finally {
         botao.disabled = false;
         botao.innerHTML = textoOriginal;

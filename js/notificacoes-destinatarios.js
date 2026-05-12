@@ -1,7 +1,5 @@
 exigirRole('MASTER');
 
-const API_BASE_URL = 'http://localhost:8080';
-
 const state = {
     page: 0,
     size: 20,
@@ -32,11 +30,9 @@ function setErroFormulario(texto) {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) return;
-        state.lojas = await resp.json();
+        state.lojas = await apiGet('/lojas/listar');
         const select = document.getElementById('lojaId');
-        state.lojas.forEach(loja => {
+        state.lojas.forEach((loja) => {
             const opt = document.createElement('option');
             opt.value = loja.id;
             opt.textContent = loja.nome;
@@ -124,21 +120,15 @@ async function carregarLista() {
     document.getElementById('corpoLista').innerHTML =
         `<tr class="row-loading"><td colspan="5">Carregando destinatários...</td></tr>`;
     try {
-        const url = `${API_BASE_URL}/notificacoes/destinatarios?page=${state.page}&size=${state.size}&sort=nome,asc`;
-        const resp = await fetch(url);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Erro ao carregar destinatários.', 'erro');
-            return;
-        }
-        const data = await resp.json();
+        const data = await apiGet(`/notificacoes/destinatarios?page=${state.page}&size=${state.size}&sort=nome,asc`);
         state.totalPages = data.totalPages || 1;
         state.totalElements = data.totalElements || 0;
         renderLista(data.content || []);
         atualizarPaginacao();
     } catch (err) {
         console.error('Erro ao carregar destinatários:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar destinatários.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -179,36 +169,26 @@ function sairModoEdicao() {
 
 async function editarDestinatario(id) {
     try {
-        const resp = await fetch(`${API_BASE_URL}/notificacoes/destinatarios/${id}`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Não foi possível carregar o destinatário.', 'erro');
-            return;
-        }
-        entrarModoEdicao(await resp.json());
+        const data = await apiGet(`/notificacoes/destinatarios/${id}`);
+        entrarModoEdicao(data);
     } catch (err) {
         console.error('Erro ao carregar destinatário:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível carregar o destinatário.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
 async function excluirDestinatario(id) {
     if (!confirm('Desativar este destinatário? Ele deixará de receber notificações.')) return;
     try {
-        const resp = await fetch(`${API_BASE_URL}/notificacoes/destinatarios/${id}`, { method: 'DELETE' });
-        if (resp.status === 204) {
-            mostrarMensagem('Destinatário desativado com sucesso.', 'sucesso', 3500);
-            if (state.editingId === id) sairModoEdicao();
-            await carregarLista();
-            return;
-        }
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Não foi possível desativar o destinatário.', 'erro');
-        }
+        await apiDelete(`/notificacoes/destinatarios/${id}`);
+        mostrarMensagem('Destinatário desativado com sucesso.', 'sucesso', 3500);
+        if (state.editingId === id) sairModoEdicao();
+        await carregarLista();
     } catch (err) {
         console.error('Erro ao desativar destinatário:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível desativar o destinatário.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -246,10 +226,6 @@ async function salvarFormulario(event) {
     }
 
     const id = state.editingId;
-    const url = id
-        ? `${API_BASE_URL}/notificacoes/destinatarios/${id}`
-        : `${API_BASE_URL}/notificacoes/destinatarios`;
-    const method = id ? 'PUT' : 'POST';
 
     const botao = document.getElementById('btnSalvar');
     const textoOriginal = botao.textContent;
@@ -257,15 +233,10 @@ async function salvarFormulario(event) {
     botao.textContent = 'Salvando...';
 
     try {
-        const resp = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            setErroFormulario(err?.message || 'Erro ao salvar destinatário.');
-            return;
+        if (id) {
+            await apiPut(`/notificacoes/destinatarios/${id}`, payload);
+        } else {
+            await apiPost('/notificacoes/destinatarios', payload);
         }
         const sucesso = id ? 'Destinatário atualizado com sucesso!' : 'Destinatário cadastrado com sucesso!';
         sairModoEdicao();
@@ -273,7 +244,8 @@ async function salvarFormulario(event) {
         await carregarLista();
     } catch (err) {
         console.error('Erro ao salvar destinatário:', err);
-        setErroFormulario('Não foi possível conectar ao servidor.');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar destinatário.') : 'Não foi possível conectar ao servidor.';
+        setErroFormulario(msg);
     } finally {
         botao.disabled = false;
         botao.textContent = textoOriginal;

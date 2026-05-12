@@ -120,24 +120,13 @@ async function saveEmployeeData(employee) {
     };
 
     try {
-        const response = await fetch(`http://localhost:8080/atendentes/${employee.id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            const employeeCard = document.querySelector(`.employee[data-id="${employee.id}"]`);
-            employeeCard.classList.add("success"); // Adiciona a classe 'success' ao retângulo do atendente
-        } else {
-            console.error("Erro ao salvar dados:", response.status);
-            alert("Erro ao salvar os dados.");
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
-        alert("Erro ao salvar os dados.");
+        await apiPatch(`/atendentes/${employee.id}`, data);
+        const employeeCard = document.querySelector(`.employee[data-id="${employee.id}"]`);
+        employeeCard.classList.add('success');
+    } catch (err) {
+        console.error('Erro ao salvar dados:', err);
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar os dados.') : 'Erro ao salvar os dados.';
+        alert(msg);
     }
 }
 
@@ -171,15 +160,10 @@ function goToPreviousWeek() {
 // Função para buscar a lista de lojas e preencher o dropdown
 async function fetchStores() {
     try {
-        const response = await fetch("http://localhost:8080/lojas/listar");
-        if (response.ok) {
-            const stores = await response.json();
-            populateStoreSelect(stores);
-        } else {
-            console.error("Erro ao buscar lojas:", response.status);
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
+        const stores = await apiGet('/lojas/listar');
+        populateStoreSelect(stores);
+    } catch (err) {
+        console.error('Erro ao buscar lojas:', err);
     }
 }
 
@@ -196,35 +180,28 @@ function populateStoreSelect(stores) {
 // Função para buscar os atendentes de uma loja específica
 async function fetchEmployeesByStore(storeId) {
     try {
-        const response = await fetch(`http://localhost:8080/lojas/${storeId}/atendentes`);
-        if (response.ok) {
-            const employees = await response.json();
-            employeesData = employees.map(employee => ({
-                ...employee,
-                // Inicializa as semanas se ainda não existirem
-                vendasSemana1: employee.vendasSemana1 || "",
-                vendasSemana2: employee.vendasSemana2 || "",
-                vendasSemana3: employee.vendasSemana3 || "",
-                vendasSemana4: employee.vendasSemana4 || "",
-                vendasSemana5: employee.vendasSemana5 || "",
-                vendasSemana6: employee.vendasSemana6 || "",
-                atrasoSemana1: employee.atrasoSemana1 || "",
-                atrasoSemana2: employee.atrasoSemana2 || "nao",
-                atrasoSemana3: employee.atrasoSemana3 || "nao",
-                atrasoSemana4: employee.atrasoSemana4 || "nao",
-                atrasoSemana5: employee.atrasoSemana5 || "nao",
-                atrasoSemana6: employee.atrasoSemana6 || "nao",
-            }));
-            visibleWeeks = [1, 2, 3, 4];
-            loadEmployees();
-            updateArrows();
-        } else {
-            console.error("Erro ao buscar atendentes:", response.status);
-            employeesContainer.innerHTML = "<p>Erro ao carregar atendentes.</p>";
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
-        employeesContainer.innerHTML = "<p>Erro ao carregar atendentes.</p>";
+        const employees = await apiGet(`/lojas/${storeId}/atendentes`);
+        employeesData = employees.map((employee) => ({
+            ...employee,
+            vendasSemana1: employee.vendasSemana1 || '',
+            vendasSemana2: employee.vendasSemana2 || '',
+            vendasSemana3: employee.vendasSemana3 || '',
+            vendasSemana4: employee.vendasSemana4 || '',
+            vendasSemana5: employee.vendasSemana5 || '',
+            vendasSemana6: employee.vendasSemana6 || '',
+            atrasoSemana1: employee.atrasoSemana1 || '',
+            atrasoSemana2: employee.atrasoSemana2 || 'nao',
+            atrasoSemana3: employee.atrasoSemana3 || 'nao',
+            atrasoSemana4: employee.atrasoSemana4 || 'nao',
+            atrasoSemana5: employee.atrasoSemana5 || 'nao',
+            atrasoSemana6: employee.atrasoSemana6 || 'nao'
+        }));
+        visibleWeeks = [1, 2, 3, 4];
+        loadEmployees();
+        updateArrows();
+    } catch (err) {
+        console.error('Erro ao buscar atendentes:', err);
+        employeesContainer.innerHTML = '<p>Erro ao carregar atendentes.</p>';
     }
 }
 

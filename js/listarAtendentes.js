@@ -1,40 +1,27 @@
-export async function carregarAtendentes(lojaId = null) {
-    try {
-        let url = 'http://localhost:8080/lojas';
-        if (lojaId) {
-            url = `${url}/${lojaId}/atendentes`;
-        } else {
-            return; // Se não houver loja selecionada, não carrega atendentes
-        }
+async function carregarAtendentes(lojaId = null) {
+    if (!lojaId) return;
 
-        const response = await fetch(url);
-        if (response.ok) {
-            const atendentes = await response.json();
-            exibirListaAtendentes(atendentes);
-        } else {
-            console.error("Erro ao carregar a lista de atendentes.");
-            document.getElementById("listaAtendentes").innerHTML = 
-                '<p class="erro">Erro ao carregar atendentes. Por favor, tente novamente.</p>';
-        }
-    } catch (error) {
-        console.error("Erro de conexão com o servidor:", error);
-        document.getElementById("listaAtendentes").innerHTML = 
-            '<p class="erro">Erro de conexão com o servidor. Por favor, verifique sua conexão.</p>';
+    try {
+        const atendentes = await apiGet(`/lojas/${lojaId}/atendentes`);
+        exibirListaAtendentes(atendentes);
+    } catch (err) {
+        console.error('Erro ao carregar a lista de atendentes:', err);
+        document.getElementById('listaAtendentes').innerHTML =
+            '<p class="erro">Erro ao carregar atendentes. Por favor, tente novamente.</p>';
     }
 }
 
 async function exibirListaAtendentes(atendentes) {
-    const lista = document.getElementById("listaAtendentes");
-    lista.innerHTML = ""; // Limpar lista antes de renderizar
-    
+    const lista = document.getElementById('listaAtendentes');
+    lista.innerHTML = '';
+
     if (atendentes.length === 0) {
         lista.innerHTML = '<p>Nenhum atendente cadastrado para esta loja.</p>';
         return;
     }
 
     for (const atendente of atendentes) {
-        const item = document.createElement("li");
-
+        const item = document.createElement('li');
         const salario = await obterSalario(atendente.id);
         const admissao = formatarDataAdmissao(atendente.dataAdmissao);
 
@@ -47,21 +34,12 @@ async function exibirListaAtendentes(atendentes) {
                 </span>
             </div>
             <div class="acoes-atendente">
-                <button class="btn-editar" onclick="window.location.href='atualizar-funcionario.html?id=${atendente.id}'">
-                    Editar
-                </button>
-                <button class="btn-salario" onclick="window.location.href='update-salario.html?id=${atendente.id}'">
-                    Salário
-                </button>
-                <button class="btn-ferias" onclick="window.location.href='ferias-atendente.html?id=${atendente.id}'">
-                    Férias
-                </button>
-                <button class="btn-excluir" onclick="excluirAtendente(${atendente.id})">
-                    Excluir
-                </button>
+                <button class="btn-editar" onclick="window.location.href='atualizar-funcionario.html?id=${atendente.id}'">Editar</button>
+                <button class="btn-salario" onclick="window.location.href='update-salario.html?id=${atendente.id}'">Salário</button>
+                <button class="btn-ferias" onclick="window.location.href='ferias-atendente.html?id=${atendente.id}'">Férias</button>
+                <button class="btn-excluir" onclick="excluirAtendente(${atendente.id})">Excluir</button>
             </div>
         `;
-
         lista.appendChild(item);
     }
 }
@@ -74,15 +52,12 @@ function formatarDataAdmissao(iso) {
 
 async function obterSalario(id) {
     try {
-        const response = await fetch(`http://localhost:8080/atendentes/salario/${id}`);
-        if (response.ok) {
-            const data = await response.json();
-            return data.salario;
-        }
-    } catch (error) {
-        console.error("Erro ao buscar salário:", error);
+        const data = await apiGet(`/atendentes/salario/${id}`);
+        return data?.salario ?? null;
+    } catch (err) {
+        console.error('Erro ao buscar salário:', err);
+        return null;
     }
-    return null;
 }
 
 function formatarMoeda(valor) {
@@ -92,29 +67,19 @@ function formatarMoeda(valor) {
     }).format(valor);
 }
 
-// Função para excluir o atendente
-export async function excluirAtendente(id) {
-    if (!confirm('Tem certeza que deseja excluir este atendente?')) {
-        return;
-    }
+async function excluirAtendente(id) {
+    if (!confirm('Tem certeza que deseja excluir este atendente?')) return;
 
     try {
-        const response = await fetch(`http://localhost:8080/atendentes/${id}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            // Recarregar a lista com a loja atualmente selecionada
-            const filtroLoja = document.getElementById('filtroLoja');
-            await carregarAtendentes(filtroLoja.value);
-        } else {
-            alert("Erro ao excluir o atendente.");
-        }
-    } catch (error) {
-        console.error("Erro de conexão com o servidor:", error);
-        alert("Erro de conexão com o servidor ao tentar excluir o atendente.");
+        await apiDelete(`/atendentes/${id}`);
+        const filtroLoja = document.getElementById('filtroLoja');
+        await carregarAtendentes(filtroLoja.value);
+    } catch (err) {
+        console.error('Erro ao excluir o atendente:', err);
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao excluir o atendente.') : 'Erro de conexão com o servidor.';
+        alert(msg);
     }
 }
 
-// Tornar a função globalmente acessível
 window.excluirAtendente = excluirAtendente;
-
+window.carregarAtendentes = carregarAtendentes;
