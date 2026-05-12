@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const storeSelect = document.getElementById("store-select");
 const weeksContainer = document.getElementById("weeks-container");
 const weeks = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta"];

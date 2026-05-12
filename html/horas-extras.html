@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
     <title>Horas Extras</title>
     <link rel="stylesheet" href="/css/horas-extras.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +39,7 @@
 
                 <div class="filter-actions">
                     <button type="button" id="buscar-btn" class="btn btn-secondary">Buscar</button>
-                    <button type="button" id="calcular-btn" class="btn btn-primary">Calcular</button>
+                    <button type="button" id="calcular-btn" class="btn btn-primary" data-requer-role="MASTER">Calcular</button>
                 </div>
             </form>
         </section>

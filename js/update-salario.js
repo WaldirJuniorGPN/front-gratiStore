@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const API_BASE_URL = 'http://localhost:8080';
 
 const lojaSelect = document.getElementById('loja-select');

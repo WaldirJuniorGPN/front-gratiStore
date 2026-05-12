@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const API_BASE_URL = 'http://localhost:8080';
 
 const grid = document.getElementById('gridCalculadoras');
@@ -198,8 +200,12 @@ function criarCard(calc) {
     card.querySelector('[data-bn3]').textContent = formatarMoeda(calc.bonusTerceiroColocado);
 
     const acoes = card.querySelector('.calc-card-actions');
-    acoes.appendChild(botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc)));
-    acoes.appendChild(botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger'));
+    const btnEditar = botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc));
+    btnEditar.setAttribute('data-requer-role', 'MASTER');
+    const btnExcluir = botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger');
+    btnExcluir.setAttribute('data-requer-role', 'MASTER');
+    acoes.appendChild(btnEditar);
+    acoes.appendChild(btnExcluir);
 
     return card;
 }

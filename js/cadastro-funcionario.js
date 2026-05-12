@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const API_BASE_URL = 'http://localhost:8080';
 
 const tabelaBody = document.getElementById('corpoAtendentes');
@@ -210,13 +212,16 @@ function renderizarLista() {
         acaoTd.className = 'cell-acao';
 
         const btnEditar = botaoAcao('✎', 'Editar atendente', () => abrirModalEdicao(at));
+        btnEditar.setAttribute('data-requer-role', 'MASTER');
         const btnSalario = botaoAcao('R$', 'Atualizar salário', () => {
             window.location.href = `/html/update-salario.html?id=${at.id}`;
         });
+        btnSalario.setAttribute('data-requer-role', 'MASTER');
         const btnFerias = botaoAcao('☼', 'Histórico de férias', () => {
             window.location.href = `/html/ferias-atendente.html?id=${at.id}`;
         }, 'btn-icon-accent');
         const btnExcluir = botaoAcao('🗑', 'Excluir atendente', () => abrirModalExclusao(at), 'btn-icon-danger');
+        btnExcluir.setAttribute('data-requer-role', 'MASTER');
 
         acaoTd.appendChild(btnEditar);
         acaoTd.appendChild(btnSalario);

@@ -1,5 +1,7 @@
 import { carregarAtendentes } from './listarAtendentes.js';
 
+exigirRole('MASTER');
+
 const urlParams = new URLSearchParams(window.location.search);
 const funcionarioId = urlParams.get("id");
 

@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const API_BASE_URL = 'http://localhost:8080';
 
 const state = {
@@ -83,8 +85,8 @@ function renderLista(content) {
             <td data-label="Notificações">${renderTags(d)}</td>
             <td data-label="Ações">
                 <div class="acoes-row">
-                    <button class="btn-row" data-editar="${d.id}">Editar</button>
-                    <button class="btn-row danger" data-excluir="${d.id}">Excluir</button>
+                    <button class="btn-row" data-editar="${d.id}" data-requer-role="MASTER">Editar</button>
+                    <button class="btn-row danger" data-excluir="${d.id}" data-requer-role="MASTER">Excluir</button>
                 </div>
             </td>
         </tr>`).join('');

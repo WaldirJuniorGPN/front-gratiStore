@@ -133,6 +133,7 @@ function initZerarButton() {
     const zerarButton = document.createElement("button");
     zerarButton.textContent = "Zerar Valores dos Atendentes";
     zerarButton.className = "zerar-button";
+    zerarButton.setAttribute("data-requer-role", "MASTER");
     zerarButton.addEventListener("click", zerarValoresAtendentes);
 
     const container = document.querySelector(".store-selection");
@@ -141,6 +142,7 @@ function initZerarButton() {
 
     container.appendChild(zerarButton);
     container.appendChild(messageContainer);
+    aplicarRoleNoDom(container);
 }
 
 // Chamada inicial

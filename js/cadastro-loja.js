@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const API_BASE_URL = 'http://localhost:8080';
 
 const tabelaBody = document.getElementById('corpoLojas');
@@ -123,6 +125,7 @@ function renderizarLista() {
         btnEditar.className = 'btn-icon-action';
         btnEditar.title = 'Editar loja';
         btnEditar.setAttribute('aria-label', `Editar ${loja.nome}`);
+        btnEditar.setAttribute('data-requer-role', 'MASTER');
         btnEditar.textContent = '✎';
         btnEditar.addEventListener('click', () => abrirModalEdicao(loja));
 
@@ -131,6 +134,7 @@ function renderizarLista() {
         btnExcluir.className = 'btn-icon-action btn-icon-danger';
         btnExcluir.title = 'Excluir loja';
         btnExcluir.setAttribute('aria-label', `Excluir ${loja.nome}`);
+        btnExcluir.setAttribute('data-requer-role', 'MASTER');
         btnExcluir.textContent = '🗑';
         btnExcluir.addEventListener('click', () => abrirModalExclusao(loja));
 

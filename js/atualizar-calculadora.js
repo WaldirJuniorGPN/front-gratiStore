@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 function getCalculadoraIdFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get('id');

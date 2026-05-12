@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 // Função para obter o parâmetro ID da URL
 function getLojaIdFromUrl() {
     const params = new URLSearchParams(window.location.search);

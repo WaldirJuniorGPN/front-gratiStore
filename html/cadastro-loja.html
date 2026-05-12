@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
     <title>Lojas</title>
     <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/cadastro-loja.css">
@@ -20,7 +21,7 @@
                 <p class="page-subtitle">Cadastre, edite e remova as lojas da rede.</p>
             </div>
             <div class="page-actions">
-                <button id="btnNovaLoja" class="btn btn-primary" type="button">
+                <button id="btnNovaLoja" class="btn btn-primary" type="button" data-requer-role="MASTER">
                     <span class="btn-icon">+</span> Nova Loja
                 </button>
             </div>
