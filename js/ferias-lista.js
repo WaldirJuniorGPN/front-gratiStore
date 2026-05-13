@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const GRAU_URGENCIA_LABEL = {
     sem_urgencia: 'Sem urgência',
     atencao: 'Atenção',
@@ -173,22 +171,15 @@ async function carregarTab() {
     setLoading(config.colunas.length);
 
     try {
-        const url = `${API_BASE_URL}${config.endpoint}?page=${state.page}&size=${state.size}`;
-        const resp = await fetch(url);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Erro ao carregar a lista.', 'erro');
-            renderEmpty(config);
-            return;
-        }
-        const data = await resp.json();
+        const data = await apiGet(`${config.endpoint}?page=${state.page}&size=${state.size}`);
         state.totalPages = data.totalPages || 1;
         state.totalElements = data.totalElements || 0;
         renderRows(config, data.content || []);
         atualizarPaginacao();
     } catch (err) {
         console.error('Erro ao carregar lista:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
         renderEmpty(config);
     }
 }

@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
     <title>Update Atrasos</title>
     <link rel="stylesheet" href="/css/update-atrasos.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
 </head>
 <body>
     <div id="header-container"></div>
@@ -19,7 +23,13 @@
         <p class="note">Selecione uma loja para atualizar os atrasos dos funcionários.</p>
         <div id="weeks-container"></div>
     </div>
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
     <script src="/js/update-atrasos.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
     <script src="/js/header.js"></script>
 </body>
 </html>

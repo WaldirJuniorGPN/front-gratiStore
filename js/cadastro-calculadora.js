@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+exigirRole('MASTER');
 
 const grid = document.getElementById('gridCalculadoras');
 const buscaInput = document.getElementById('busca');
@@ -89,42 +89,31 @@ function limparErroForm() {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
-            return;
-        }
-        estadoLojas = await resp.json();
+        estadoLojas = await apiGet('/lojas/listar');
         inputLoja.innerHTML = '<option value="">Selecione uma loja</option>';
-        estadoLojas.forEach(loja => {
+        estadoLojas.forEach((loja) => {
             const opt = document.createElement('option');
             opt.value = loja.id;
             opt.textContent = loja.nome;
             inputLoja.appendChild(opt);
         });
-        // Re-renderiza para que o nome da loja apareça nos cards já carregados
         renderizarLista();
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista de lojas.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
 async function carregarCalculadoras() {
     grid.innerHTML = '<p class="grid-loading">Carregando calculadoras...</p>';
     try {
-        const resp = await fetch(`${API_BASE_URL}/calculadoras/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar a lista de calculadoras.', 'erro');
-            estadoCalcs = [];
-            renderizarLista();
-            return;
-        }
-        estadoCalcs = await resp.json();
+        estadoCalcs = await apiGet('/calculadoras/listar');
         renderizarLista();
     } catch (err) {
         console.error('Erro ao carregar calculadoras:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista de calculadoras.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         estadoCalcs = [];
         renderizarLista();
     }
@@ -198,8 +187,12 @@ function criarCard(calc) {
     card.querySelector('[data-bn3]').textContent = formatarMoeda(calc.bonusTerceiroColocado);
 
     const acoes = card.querySelector('.calc-card-actions');
-    acoes.appendChild(botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc)));
-    acoes.appendChild(botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger'));
+    const btnEditar = botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc));
+    btnEditar.setAttribute('data-requer-role', 'MASTER');
+    const btnExcluir = botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger');
+    btnExcluir.setAttribute('data-requer-role', 'MASTER');
+    acoes.appendChild(btnEditar);
+    acoes.appendChild(btnExcluir);
 
     return card;
 }
@@ -284,30 +277,21 @@ async function salvarCalc(event) {
     btnConfirmar.disabled = true;
 
     try {
-        const url = calcEditandoId
-            ? `${API_BASE_URL}/calculadoras/${calcEditandoId}`
-            : `${API_BASE_URL}/calculadoras`;
-        const method = calcEditandoId ? 'PUT' : 'POST';
-        const resp = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
-
-        if (resp.ok) {
-            mostrarMensagem(
-                calcEditandoId ? 'Calculadora atualizada com sucesso!' : 'Calculadora cadastrada com sucesso!',
-                'sucesso'
-            );
-            fecharModalCalc();
-            await carregarCalculadoras();
+        if (calcEditandoId) {
+            await apiPut(`/calculadoras/${calcEditandoId}`, dados);
         } else {
-            const erro = await resp.json().catch(() => null);
-            mostrarErroForm(erro?.message || 'Erro ao salvar a calculadora.');
+            await apiPost('/calculadoras', dados);
         }
+        mostrarMensagem(
+            calcEditandoId ? 'Calculadora atualizada com sucesso!' : 'Calculadora cadastrada com sucesso!',
+            'sucesso'
+        );
+        fecharModalCalc();
+        await carregarCalculadoras();
     } catch (err) {
         console.error('Erro:', err);
-        mostrarErroForm('Erro de conexão com o servidor.');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar a calculadora.') : 'Erro de conexão com o servidor.';
+        mostrarErroForm(msg);
     } finally {
         btnConfirmar.disabled = false;
     }
@@ -328,20 +312,14 @@ async function confirmarExclusao() {
     if (!calcExcluindoId) return;
     btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/calculadoras/${calcExcluindoId}`, {
-            method: 'DELETE'
-        });
-        if (resp.ok) {
-            mostrarMensagem('Calculadora excluída com sucesso!', 'sucesso');
-            fecharModalExclusao();
-            await carregarCalculadoras();
-        } else {
-            mostrarMensagem('Erro ao excluir a calculadora.', 'erro');
-            fecharModalExclusao();
-        }
+        await apiDelete(`/calculadoras/${calcExcluindoId}`);
+        mostrarMensagem('Calculadora excluída com sucesso!', 'sucesso');
+        fecharModalExclusao();
+        await carregarCalculadoras();
     } catch (err) {
         console.error('Erro:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao excluir a calculadora.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         fecharModalExclusao();
     } finally {
         btnConfirmarExclusao.disabled = false;

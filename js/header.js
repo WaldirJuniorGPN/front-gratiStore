@@ -10,9 +10,64 @@
                 if (!container) return;
                 container.innerHTML = data;
                 initSidebar();
+                preencherPerfil();
+                ligarLogout();
+                // role-guard.js (TASK-04) processa `data-requer-role` no DOMContentLoaded
+                // inicial — antes do header existir. Reaplicamos aqui para esconder
+                // os itens MASTER-only quando o usuário logado é COMUM.
+                if (typeof aplicarRoleNoDom === 'function') {
+                    aplicarRoleNoDom(document);
+                }
+                // banner-senha-padrao.js (TASK-11) — só decide se mostra após o
+                // markup do banner ser injetado pelo header.
+                if (typeof inicializarBannerSenhaPadrao === 'function') {
+                    inicializarBannerSenhaPadrao();
+                }
+                // expiracao-sessao.js (TASK-12) — agenda o modal de aviso e o
+                // logout automático com base em `expiraEm`. Precisa rodar depois
+                // do header (markup do modal vive lá) e de ligarLogout (handler
+                // de logout manual cancela os timers).
+                if (typeof inicializarTimerExpiracao === 'function') {
+                    inicializarTimerExpiracao();
+                }
             })
             .catch((error) => console.error('Erro ao carregar o header:', error));
     });
+
+    function preencherPerfil() {
+        let sessao = null;
+        try {
+            sessao = JSON.parse(sessionStorage.getItem('gs:sessao'));
+        } catch (_) { /* sessão corrompida — silenciar */ }
+        if (!sessao) return;
+
+        const nomeEl = document.getElementById('perfilNome');
+        const emailEl = document.getElementById('perfilEmail');
+        const iniciaisEl = document.getElementById('perfilIniciais');
+        if (!nomeEl || !emailEl || !iniciaisEl) return;
+
+        const nome = sessao.nome || sessao.email || '';
+        nomeEl.textContent = nome || '—';
+        emailEl.textContent = sessao.email || '';
+        iniciaisEl.textContent = nome
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((parte) => parte[0].toUpperCase())
+            .join('');
+    }
+
+    function ligarLogout() {
+        const btn = document.getElementById('btnLogout');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            // Logout é puramente client-side (§11.2 do handoff): não há endpoint
+            // para invalidar o JWT no servidor. Limpar o storage descarta a sessão
+            // para todos os fins práticos no front.
+            sessionStorage.removeItem('gs:sessao');
+            window.location.replace('/html/login.html');
+        });
+    }
 
     function initSidebar() {
         const sidebar = document.getElementById('sidebar');

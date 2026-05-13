@@ -1,11 +1,10 @@
-const API_BASE_URL = 'http://localhost:8080';
+exigirRole('MASTER');
 
 const lojaSelect = document.getElementById('loja-select');
 const atendenteSelect = document.getElementById('atendente-select');
 const salarioAtualSpan = document.getElementById('salario-atual');
 const form = document.getElementById('form-salario');
 
-// Formata valor para moeda brasileira
 function formatarMoeda(valor) {
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
@@ -13,25 +12,20 @@ function formatarMoeda(valor) {
     }).format(valor);
 }
 
-// Carrega lojas para o select
 async function carregarLojas() {
     try {
-        const response = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (response.ok) {
-            const lojas = await response.json();
-            lojas.forEach(loja => {
-                const option = document.createElement('option');
-                option.value = loja.id;
-                option.textContent = loja.nome;
-                lojaSelect.appendChild(option);
-            });
-        }
-    } catch (error) {
-        console.error('Erro ao carregar lojas:', error);
+        const lojas = await apiGet('/lojas/listar');
+        lojas.forEach((loja) => {
+            const option = document.createElement('option');
+            option.value = loja.id;
+            option.textContent = loja.nome;
+            lojaSelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error('Erro ao carregar lojas:', err);
     }
 }
 
-// Carrega atendentes de uma loja selecionada
 async function carregarAtendentes(lojaId) {
     atendenteSelect.innerHTML = '<option value="">Selecione um atendente</option>';
     salarioAtualSpan.textContent = 'R$ 0,00';
@@ -41,40 +35,30 @@ async function carregarAtendentes(lojaId) {
     if (!lojaId) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/lojas/${lojaId}/atendentes`);
-        if (response.ok) {
-            const atendentes = await response.json();
-            atendentes.forEach(a => {
-                const option = document.createElement('option');
-                option.value = a.id;
-                option.textContent = a.nome;
-                atendenteSelect.appendChild(option);
-            });
-            atendenteSelect.disabled = false;
-        }
-    } catch (error) {
-        console.error('Erro ao carregar atendentes:', error);
+        const atendentes = await apiGet(`/lojas/${lojaId}/atendentes`);
+        atendentes.forEach((a) => {
+            const option = document.createElement('option');
+            option.value = a.id;
+            option.textContent = a.nome;
+            atendenteSelect.appendChild(option);
+        });
+        atendenteSelect.disabled = false;
+    } catch (err) {
+        console.error('Erro ao carregar atendentes:', err);
     }
 }
 
-// Busca o salário do atendente
 async function buscarSalario(atendenteId) {
     salarioAtualSpan.textContent = 'Carregando...';
     try {
-        const response = await fetch(`${API_BASE_URL}/atendentes/salario/${atendenteId}`);
-        if (response.ok) {
-            const data = await response.json();
-            salarioAtualSpan.textContent = formatarMoeda(data.salario);
-        } else {
-            salarioAtualSpan.textContent = 'Erro';
-        }
-    } catch (error) {
+        const data = await apiGet(`/atendentes/salario/${atendenteId}`);
+        salarioAtualSpan.textContent = formatarMoeda(data.salario);
+    } catch (err) {
         salarioAtualSpan.textContent = 'Erro';
-        console.error('Erro ao buscar salário:', error);
+        console.error('Erro ao buscar salário:', err);
     }
 }
 
-// Atualiza o salário usando PATCH
 async function atualizarSalario(event) {
     event.preventDefault();
 
@@ -88,29 +72,19 @@ async function atualizarSalario(event) {
     }
 
     const payload = {
-        id: parseInt(atendenteId),
+        id: parseInt(atendenteId, 10),
         salario: parseFloat(salario)
     };
 
     try {
-        const response = await fetch(`${API_BASE_URL}/atendentes/update/salario`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-            document.getElementById('mensagem').textContent = 'Salário atualizado com sucesso!';
-            await buscarSalario(atendenteId);
-            document.getElementById('novo-salario').value = '';
-        } else {
-            document.getElementById('mensagem').textContent = 'Erro ao atualizar salário.';
-        }
-    } catch (error) {
-        document.getElementById('mensagem').textContent = 'Erro de conexão com o servidor.';
-        console.error('Erro ao atualizar salário:', error);
+        await apiPatch('/atendentes/update/salario', payload);
+        document.getElementById('mensagem').textContent = 'Salário atualizado com sucesso!';
+        await buscarSalario(atendenteId);
+        document.getElementById('novo-salario').value = '';
+    } catch (err) {
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao atualizar salário.') : 'Erro de conexão com o servidor.';
+        document.getElementById('mensagem').textContent = msg;
+        console.error('Erro ao atualizar salário:', err);
     }
 }
 
@@ -133,16 +107,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if (atendenteParam) {
         try {
-            const resp = await fetch(`${API_BASE_URL}/atendentes/${atendenteParam}`);
-            if (resp.ok) {
-                const data = await resp.json();
-                lojaSelect.value = data.lojaId;
-                await carregarAtendentes(data.lojaId);
-                atendenteSelect.value = atendenteParam;
-                await buscarSalario(atendenteParam);
-            }
-        } catch (e) {
-            console.error('Erro ao carregar atendente:', e);
+            const data = await apiGet(`/atendentes/${atendenteParam}`);
+            lojaSelect.value = data.lojaId;
+            await carregarAtendentes(data.lojaId);
+            atendenteSelect.value = atendenteParam;
+            await buscarSalario(atendenteParam);
+        } catch (err) {
+            console.error('Erro ao carregar atendente:', err);
         }
     }
 });

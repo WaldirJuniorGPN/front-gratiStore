@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+exigirRole('MASTER');
 
 const tabelaBody = document.getElementById('corpoLojas');
 const buscaInput = document.getElementById('busca');
@@ -65,16 +65,12 @@ function limparErroForm() {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
-            return;
-        }
-        estadoLojas = await resp.json();
+        estadoLojas = await apiGet('/lojas/listar');
         renderizarLista();
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista de lojas.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -123,6 +119,7 @@ function renderizarLista() {
         btnEditar.className = 'btn-icon-action';
         btnEditar.title = 'Editar loja';
         btnEditar.setAttribute('aria-label', `Editar ${loja.nome}`);
+        btnEditar.setAttribute('data-requer-role', 'MASTER');
         btnEditar.textContent = '✎';
         btnEditar.addEventListener('click', () => abrirModalEdicao(loja));
 
@@ -131,6 +128,7 @@ function renderizarLista() {
         btnExcluir.className = 'btn-icon-action btn-icon-danger';
         btnExcluir.title = 'Excluir loja';
         btnExcluir.setAttribute('aria-label', `Excluir ${loja.nome}`);
+        btnExcluir.setAttribute('data-requer-role', 'MASTER');
         btnExcluir.textContent = '🗑';
         btnExcluir.addEventListener('click', () => abrirModalExclusao(loja));
 
@@ -190,30 +188,21 @@ async function salvarLoja(event) {
     btnConfirmar.disabled = true;
 
     try {
-        const url = lojaEditandoId
-            ? `${API_BASE_URL}/lojas/${lojaEditandoId}`
-            : `${API_BASE_URL}/lojas`;
-        const method = lojaEditandoId ? 'PUT' : 'POST';
-        const resp = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, cnpj })
-        });
-
-        if (resp.ok) {
-            mostrarMensagem(
-                lojaEditandoId ? 'Loja atualizada com sucesso!' : 'Loja cadastrada com sucesso!',
-                'sucesso'
-            );
-            fecharModalLoja();
-            await carregarLojas();
+        if (lojaEditandoId) {
+            await apiPut(`/lojas/${lojaEditandoId}`, { nome, cnpj });
         } else {
-            const erro = await resp.json().catch(() => null);
-            mostrarErroForm(erro?.message || 'Erro ao salvar a loja.');
+            await apiPost('/lojas', { nome, cnpj });
         }
+        mostrarMensagem(
+            lojaEditandoId ? 'Loja atualizada com sucesso!' : 'Loja cadastrada com sucesso!',
+            'sucesso'
+        );
+        fecharModalLoja();
+        await carregarLojas();
     } catch (err) {
         console.error('Erro:', err);
-        mostrarErroForm('Erro de conexão com o servidor.');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar a loja.') : 'Erro de conexão com o servidor.';
+        mostrarErroForm(msg);
     } finally {
         btnConfirmar.disabled = false;
     }
@@ -234,20 +223,14 @@ async function confirmarExclusao() {
     if (!lojaExcluindoId) return;
     btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/${lojaExcluindoId}`, {
-            method: 'DELETE'
-        });
-        if (resp.ok) {
-            mostrarMensagem('Loja excluída com sucesso!', 'sucesso');
-            fecharModalExclusao();
-            await carregarLojas();
-        } else {
-            mostrarMensagem('Erro ao excluir a loja.', 'erro');
-            fecharModalExclusao();
-        }
+        await apiDelete(`/lojas/${lojaExcluindoId}`);
+        mostrarMensagem('Loja excluída com sucesso!', 'sucesso');
+        fecharModalExclusao();
+        await carregarLojas();
     } catch (err) {
         console.error('Erro:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao excluir a loja.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         fecharModalExclusao();
     } finally {
         btnConfirmarExclusao.disabled = false;

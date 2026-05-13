@@ -1,26 +1,12 @@
-const API_BASE_URL = 'http://localhost:8080';
-const storesContainer = document.getElementById("stores");
+const storesContainer = document.getElementById('stores');
 
-// Função para buscar os resultados de todas as lojas usando POST
 async function fetchAllStoreResults() {
     try {
-        const response = await fetch(`${API_BASE_URL}/resultados`, {
-            method: "POST", // Define o método como POST
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        
-        if (response.ok) {
-            const stores = await response.json();
-            displayStoresResults(stores);
-        } else {
-            console.error("Erro ao buscar resultados:", response.status);
-            storesContainer.innerHTML = "<p>Erro ao carregar resultados.</p>";
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
-        storesContainer.innerHTML = "<p>Erro ao carregar resultados.</p>";
+        const stores = await apiPost('/resultados');
+        displayStoresResults(stores);
+    } catch (err) {
+        console.error('Erro ao buscar resultados:', err);
+        storesContainer.innerHTML = '<p>Erro ao carregar resultados.</p>';
     }
 }
 

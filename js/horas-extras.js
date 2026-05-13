@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const lojaSelect = document.getElementById('loja-select');
 const calcularBtn = document.getElementById('calcular-btn');
 const buscarBtn = document.getElementById('buscar-btn');
@@ -38,16 +36,13 @@ function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (resp.ok) {
-            const lojas = await resp.json();
-            lojas.forEach(loja => {
-                const opt = document.createElement('option');
-                opt.value = loja.id;
-                opt.textContent = loja.nome;
-                lojaSelect.appendChild(opt);
-            });
-        }
+        const lojas = await apiGet('/lojas/listar');
+        lojas.forEach((loja) => {
+            const opt = document.createElement('option');
+            opt.value = loja.id;
+            opt.textContent = loja.nome;
+            lojaSelect.appendChild(opt);
+        });
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
     }
@@ -70,20 +65,13 @@ async function calcularHorasExtras() {
         return;
     }
     try {
-        const resp = await fetch(`${API_BASE_URL}/horas-extras/calcular`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filtro)
-        });
-        if (resp.ok) {
-            mostrarMensagem('Cálculo realizado com sucesso!', 'sucesso');
-            await buscarResultados();
-        } else {
-            mostrarMensagem('Erro ao calcular horas extras.', 'erro');
-        }
+        await apiPost('/horas-extras/calcular', filtro);
+        mostrarMensagem('Cálculo realizado com sucesso!', 'sucesso');
+        await buscarResultados();
     } catch (err) {
         console.error('Erro ao calcular horas extras:', err);
-        mostrarMensagem('Erro ao calcular horas extras.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao calcular horas extras.') : 'Erro ao calcular horas extras.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -101,18 +89,12 @@ async function buscarResultados() {
     });
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/horas-extras?${params.toString()}`, {
-            method: 'GET'
-        });
-        if (resp.ok) {
-            const resultados = await resp.json();
-            renderizarTabela(resultados);
-        } else {
-            mostrarMensagem('Erro ao buscar resultados.', 'erro');
-        }
+        const resultados = await apiGet(`/horas-extras?${params.toString()}`);
+        renderizarTabela(resultados);
     } catch (err) {
         console.error('Erro ao buscar resultados:', err);
-        mostrarMensagem('Erro ao buscar resultados.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao buscar resultados.') : 'Erro ao buscar resultados.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 

@@ -1,0 +1,39 @@
+/* ===========================================================
+   Tela de Troca de Senha (TASK-05)
+   Reaproveita primitivos de cadastro-shared.css
+   (.panel, .form-row, .form-error, .btn, .mensagem, ...).
+   =========================================================== */
+
+.senha-card {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.senha-form {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.senha-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--secondary-light);
+}
+
+.senha-submit {
+    min-width: 170px;
+}
+
+@media (max-width: 720px) {
+    .senha-form { padding: 18px 16px; }
+    .senha-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .senha-actions .btn { width: 100%; }
+    .senha-submit { min-width: 0; }
+}

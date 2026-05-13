@@ -1,0 +1,99 @@
+/* GratiStore — Banner "altere a senha padrão" (TASK-11)
+   ------------------------------------------------------
+   Aviso warning sticky no topo do conteúdo principal, exibido apenas
+   quando o usuário logado é o MASTER default semeado pelo backend. */
+
+#banner-senha-padrao {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background-color: #FEF3C7;
+    border-left: 4px solid #D97706;
+    border-bottom: 1px solid #FCD34D;
+    color: #78350F;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.92rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+#banner-senha-padrao[hidden] {
+    display: none;
+}
+
+.banner-senha-icone {
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.banner-senha-conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.banner-senha-conteudo strong {
+    font-weight: 700;
+    color: #78350F;
+}
+
+.banner-senha-acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.banner-senha-acoes .btn {
+    white-space: nowrap;
+}
+
+.btn-banner-dispensar {
+    background: none;
+    border: none;
+    color: #78350F;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.btn-banner-dispensar:hover {
+    background-color: rgba(120, 53, 15, 0.08);
+}
+
+.btn-banner-dispensar:focus-visible {
+    outline: 2px solid #D97706;
+    outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+    #banner-senha-padrao {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    .banner-senha-acoes {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-banner-dispensar {
+        transition: none;
+    }
+}

@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const STATUS_LABEL = {
     COMUM: 'Comum',
     FERIADO: 'Feriado',
@@ -117,13 +115,8 @@ function limparErroForm() {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
-            return;
-        }
-        const lojas = await resp.json();
-        lojas.forEach(l => {
+        const lojas = await apiGet('/lojas/listar');
+        lojas.forEach((l) => {
             const opt = document.createElement('option');
             opt.value = l.id;
             opt.textContent = l.nome;
@@ -131,7 +124,8 @@ async function carregarLojas() {
         });
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista de lojas.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -142,13 +136,8 @@ async function carregarAtendentes(lojaId) {
         return;
     }
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/${lojaId}/atendentes`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar funcionários.', 'erro');
-            return;
-        }
-        const atendentes = await resp.json();
-        atendentes.forEach(a => {
+        const atendentes = await apiGet(`/lojas/${lojaId}/atendentes`);
+        atendentes.forEach((a) => {
             const opt = document.createElement('option');
             opt.value = a.id;
             opt.textContent = a.nome;
@@ -157,7 +146,8 @@ async function carregarAtendentes(lojaId) {
         atendenteSelect.disabled = false;
     } catch (err) {
         console.error('Erro ao carregar atendentes:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar funcionários.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -166,9 +156,7 @@ async function carregarHistorico(atendenteId, ano, mes) {
     let page = 0;
     while (true) {
         try {
-            const resp = await fetch(`${API_BASE_URL}/ponto?page=${page}&size=1000`);
-            if (!resp.ok) break;
-            const data = await resp.json();
+            const data = await apiGet(`/ponto?page=${page}&size=1000`);
             const lista = data.content || data;
             if (!Array.isArray(lista) || lista.length === 0) break;
             registros.push(...lista);
@@ -179,7 +167,7 @@ async function carregarHistorico(atendenteId, ano, mes) {
             break;
         }
     }
-    return registros.filter(r => r.atendenteId === atendenteId && r.data && r.data.startsWith(`${ano}-${mes}`));
+    return registros.filter((r) => r.atendenteId === atendenteId && r.data && r.data.startsWith(`${ano}-${mes}`));
 }
 
 function getSemanasDoMes(mes, ano) {
@@ -444,44 +432,35 @@ async function salvarPonto(event, opts = {}) {
     btnSalvarProximo.disabled = true;
 
     try {
-        const url = registroId
-            ? `${API_BASE_URL}/ponto/${registroId}`
-            : `${API_BASE_URL}/ponto`;
-        const method = registroId ? 'PUT' : 'POST';
-        const resp = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        if (registroId) {
+            await apiPut(`/ponto/${registroId}`, payload);
+        } else {
+            await apiPost('/ponto', payload);
+        }
+        mostrarMensagem(
+            registroId ? 'Ponto atualizado com sucesso!' : 'Ponto registrado com sucesso!',
+            'sucesso',
+            2000
+        );
+        await exibirCalendario();
 
-        if (resp.ok) {
-            mostrarMensagem(
-                registroId ? 'Ponto atualizado com sucesso!' : 'Ponto registrado com sucesso!',
-                'sucesso',
-                2000
-            );
-            await exibirCalendario();
-
-            if (opts.avancar) {
-                const proximo = obterProximoDiaDoMes(dataObj);
-                if (proximo) {
-                    const proximoIso = dateToIso(proximo);
-                    const proximoRegistro = registrosAtuais.find(r => r.data === proximoIso);
-                    abrirModalDia(proximo, proximoRegistro);
-                } else {
-                    fecharModalDia();
-                    mostrarMensagem('Último dia do mês registrado!', 'sucesso', 3000);
-                }
+        if (opts.avancar) {
+            const proximo = obterProximoDiaDoMes(dataObj);
+            if (proximo) {
+                const proximoIso = dateToIso(proximo);
+                const proximoRegistro = registrosAtuais.find((r) => r.data === proximoIso);
+                abrirModalDia(proximo, proximoRegistro);
             } else {
                 fecharModalDia();
+                mostrarMensagem('Último dia do mês registrado!', 'sucesso', 3000);
             }
         } else {
-            const erro = await resp.json().catch(() => null);
-            mostrarErroForm(erro?.message || 'Erro ao salvar o ponto.');
+            fecharModalDia();
         }
     } catch (err) {
         console.error('Erro ao salvar ponto:', err);
-        mostrarErroForm('Erro de conexão com o servidor.');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar o ponto.') : 'Erro de conexão com o servidor.';
+        mostrarErroForm(msg);
     } finally {
         btnSalvar.disabled = false;
         btnSalvarProximo.disabled = false;
@@ -504,21 +483,15 @@ async function confirmarExclusao() {
     if (!registroParaExcluir) return;
     btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/ponto/${registroParaExcluir}`, {
-            method: 'DELETE'
-        });
-        if (resp.ok) {
-            mostrarMensagem('Ponto excluído com sucesso!', 'sucesso');
-            fecharModalExclusao();
-            fecharModalDia();
-            await exibirCalendario();
-        } else {
-            mostrarMensagem('Erro ao excluir o ponto.', 'erro');
-            fecharModalExclusao();
-        }
+        await apiDelete(`/ponto/${registroParaExcluir}`);
+        mostrarMensagem('Ponto excluído com sucesso!', 'sucesso');
+        fecharModalExclusao();
+        fecharModalDia();
+        await exibirCalendario();
     } catch (err) {
         console.error('Erro ao excluir ponto:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao excluir o ponto.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         fecharModalExclusao();
     } finally {
         btnConfirmarExclusao.disabled = false;

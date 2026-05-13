@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const STATUS_LABEL = {
     em_aquisicao: 'Em aquisição',
     disponivel: 'Disponível',
@@ -46,13 +44,8 @@ function mostrarMensagem(texto, tipo = 'erro', timeout = 4000) {
 async function carregarLojas() {
     const select = document.getElementById('lojaSelect');
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Não foi possível carregar a lista de lojas.', 'erro');
-            return;
-        }
-        const lojas = await resp.json();
-        lojas.forEach(loja => {
+        const lojas = await apiGet('/lojas/listar');
+        lojas.forEach((loja) => {
             const opt = document.createElement('option');
             opt.value = loja.id;
             opt.textContent = loja.nome;
@@ -60,7 +53,8 @@ async function carregarLojas() {
         });
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível carregar a lista de lojas.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -144,18 +138,13 @@ async function carregarRelatorio(lojaId) {
     conteudo.innerHTML = `<div class="placeholder"><p>Carregando relatório...</p></div>`;
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/loja/${lojaId}`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Não foi possível carregar o relatório.', 'erro');
-            conteudo.innerHTML = `<div class="placeholder"><p>Não foi possível carregar o relatório.</p></div>`;
-            return;
-        }
-        renderRelatorio(await resp.json());
+        const data = await apiGet(`/ferias/loja/${lojaId}`);
+        renderRelatorio(data);
     } catch (err) {
         console.error('Erro ao carregar relatório:', err);
-        mostrarMensagem('Não foi possível conectar ao servidor.', 'erro');
-        conteudo.innerHTML = `<div class="placeholder"><p>Erro de conexão com o servidor.</p></div>`;
+        const msg = err instanceof ApiError ? (err.message || 'Não foi possível carregar o relatório.') : 'Não foi possível conectar ao servidor.';
+        mostrarMensagem(msg, 'erro');
+        conteudo.innerHTML = `<div class="placeholder"><p>Erro ao carregar o relatório.</p></div>`;
     }
 }
 
@@ -166,12 +155,7 @@ async function exportarPdf() {
     botao.innerHTML = '<span class="btn-icon">…</span> Gerando PDF';
 
     try {
-        const resp = await fetch(`${API_BASE_URL}/ferias/relatorio/pdf`);
-        if (!resp.ok) {
-            const err = await resp.json().catch(() => null);
-            mostrarMensagem(err?.message || 'Erro ao gerar o relatório PDF.', 'erro');
-            return;
-        }
+        const resp = await apiFetch('/ferias/relatorio/pdf');
 
         const disposition = resp.headers.get('content-disposition') || '';
         const match = disposition.match(/filename="?([^"]+)"?/i);
@@ -191,7 +175,8 @@ async function exportarPdf() {
         mostrarMensagem('Relatório PDF gerado com sucesso!', 'sucesso', 3500);
     } catch (err) {
         console.error('Erro ao exportar PDF:', err);
-        mostrarMensagem('Não foi possível baixar o relatório.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao gerar o relatório PDF.') : 'Não foi possível baixar o relatório.';
+        mostrarMensagem(msg, 'erro');
     } finally {
         botao.disabled = false;
         botao.innerHTML = textoOriginal;

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Usuários — GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/usuarios.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Usuários</h1>
+                <p class="page-subtitle">Gerencie os usuários que têm acesso ao painel administrativo.</p>
+            </div>
+            <div class="page-actions">
+                <a href="/html/cadastro-usuario.html" class="btn btn-primary">
+                    <span class="btn-icon">+</span> Novo Usuário
+                </a>
+            </div>
+        </header>
+
+        <div id="mensagem" class="mensagem" role="alert" aria-live="polite" hidden></div>
+
+        <section class="panel usuarios-card">
+            <header class="panel-header">
+                <div>
+                    <h2>Usuários ativos</h2>
+                    <p class="panel-subtitle" id="contagemTotal">—</p>
+                </div>
+                <div class="page-size">
+                    <label for="pageSize">Por página</label>
+                    <select id="pageSize">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </header>
+
+            <div class="table-wrapper">
+                <table class="data-table" id="tabelaUsuarios">
+                    <caption class="sr-only">Lista paginada de usuários ativos do sistema.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="th-id">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Papel</th>
+                            <th scope="col" class="th-acao">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoUsuarios">
+                        <tr class="row-loading"><td colspan="5">Carregando usuários...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="card-footer">
+                <span id="footerInfo" class="footer-info">—</span>
+                <nav class="paginacao" aria-label="Paginação">
+                    <button type="button" id="btnAnterior" class="btn-page" disabled>← Anterior</button>
+                    <span id="paginaAtual" class="pagina-atual">Página 1 de 1</span>
+                    <button type="button" id="btnProximo" class="btn-page" disabled>Próxima →</button>
+                </nav>
+            </footer>
+        </section>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/usuarios.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

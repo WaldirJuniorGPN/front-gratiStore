@@ -1,3 +1,5 @@
+exigirRole('MASTER');
+
 const storeSelect = document.getElementById("store-select");
 const weeksContainer = document.getElementById("weeks-container");
 const weeks = ["Primeira", "Segunda", "Terceira", "Quarta", "Quinta", "Sexta"];
@@ -118,31 +120,16 @@ async function saveAtraso(employeeId, week, atraso, row, isBulkOperation = false
     };
 
     try {
-        const response = await fetch("http://localhost:8080/atendentes/update/atrasos", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
-            if (!isBulkOperation) {
-                alert("Atraso registrado com sucesso!");
-            }
-            return true;
-        } else {
-            if (!isBulkOperation) {
-                alert("Erro ao registrar atraso.");
-            }
-            row.querySelector("select").classList.add("error");
-            return false;
-        }
-    } catch (error) {
-        console.error("Erro ao salvar atraso:", error);
+        await apiPatch('/atendentes/update/atrasos', data);
+        if (!isBulkOperation) alert('Atraso registrado com sucesso!');
+        return true;
+    } catch (err) {
+        console.error('Erro ao salvar atraso:', err);
         if (!isBulkOperation) {
-            alert("Erro ao registrar atraso.");
+            const msg = err instanceof ApiError ? (err.message || 'Erro ao registrar atraso.') : 'Erro ao registrar atraso.';
+            alert(msg);
         }
+        row.querySelector('select').classList.add('error');
         return false;
     }
 }
@@ -150,15 +137,10 @@ async function saveAtraso(employeeId, week, atraso, row, isBulkOperation = false
 // Função para buscar os atendentes de uma loja
 async function fetchEmployeesByStore(storeId) {
     try {
-        const response = await fetch(`http://localhost:8080/lojas/${storeId}/atendentes`);
-        if (response.ok) {
-            employeesData = await response.json();
-            loadWeeks();
-        } else {
-            console.error("Erro ao buscar atendentes:", response.status);
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
+        employeesData = await apiGet(`/lojas/${storeId}/atendentes`);
+        loadWeeks();
+    } catch (err) {
+        console.error('Erro ao buscar atendentes:', err);
     }
 }
 
@@ -175,20 +157,15 @@ storeSelect.addEventListener("change", () => {
 // Carregar a lista de lojas
 async function fetchStores() {
     try {
-        const response = await fetch("http://localhost:8080/lojas/listar");
-        if (response.ok) {
-            const stores = await response.json();
-            stores.forEach(store => {
-                const option = document.createElement("option");
-                option.value = store.id;
-                option.textContent = store.nome;
-                storeSelect.appendChild(option);
-            });
-        } else {
-            console.error("Erro ao buscar lojas:", response.status);
-        }
-    } catch (error) {
-        console.error("Erro na requisição:", error);
+        const stores = await apiGet('/lojas/listar');
+        stores.forEach((store) => {
+            const option = document.createElement('option');
+            option.value = store.id;
+            option.textContent = store.nome;
+            storeSelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error('Erro ao buscar lojas:', err);
     }
 }
 

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+exigirRole('MASTER');
 
 const tabelaBody = document.getElementById('corpoAtendentes');
 const filtroLojaSelect = document.getElementById('filtroLoja');
@@ -75,17 +75,13 @@ function limparErroForm() {
 
 async function carregarLojas() {
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/listar`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar a lista de lojas.', 'erro');
-            return;
-        }
-        estadoLojas = await resp.json();
+        estadoLojas = await apiGet('/lojas/listar');
         preencherSelectLojas(filtroLojaSelect, 'Selecione uma loja...');
         preencherSelectLojas(inputLoja, 'Selecione uma loja');
     } catch (err) {
         console.error('Erro ao carregar lojas:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar a lista de lojas.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
     }
 }
 
@@ -107,14 +103,7 @@ async function carregarAtendentes(lojaId) {
     }
     tabelaBody.innerHTML = '<tr class="row-loading"><td colspan="4">Carregando atendentes...</td></tr>';
     try {
-        const resp = await fetch(`${API_BASE_URL}/lojas/${lojaId}/atendentes`);
-        if (!resp.ok) {
-            mostrarMensagem('Erro ao carregar atendentes.', 'erro');
-            estadoAtendentes = [];
-            renderizarLista();
-            return;
-        }
-        const atendentes = await resp.json();
+        const atendentes = await apiGet(`/lojas/${lojaId}/atendentes`);
         const atendentesComSalario = await Promise.all(
             atendentes.map(async (a) => {
                 const salario = await obterSalario(a.id);
@@ -125,7 +114,8 @@ async function carregarAtendentes(lojaId) {
         renderizarLista();
     } catch (err) {
         console.error('Erro ao carregar atendentes:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao carregar atendentes.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         estadoAtendentes = [];
         renderizarLista();
     }
@@ -134,17 +124,14 @@ async function carregarAtendentes(lojaId) {
 async function obterSalario(id) {
     if (salariosCache[id] !== undefined) return salariosCache[id];
     try {
-        const resp = await fetch(`${API_BASE_URL}/atendentes/salario/${id}`);
-        if (resp.ok) {
-            const data = await resp.json();
-            salariosCache[id] = data.salario;
-            return data.salario;
-        }
+        const data = await apiGet(`/atendentes/salario/${id}`);
+        salariosCache[id] = data?.salario ?? null;
+        return salariosCache[id];
     } catch (err) {
         console.error('Erro ao buscar salário:', err);
+        salariosCache[id] = null;
+        return null;
     }
-    salariosCache[id] = null;
-    return null;
 }
 
 function renderizarLista() {
@@ -210,13 +197,16 @@ function renderizarLista() {
         acaoTd.className = 'cell-acao';
 
         const btnEditar = botaoAcao('✎', 'Editar atendente', () => abrirModalEdicao(at));
+        btnEditar.setAttribute('data-requer-role', 'MASTER');
         const btnSalario = botaoAcao('R$', 'Atualizar salário', () => {
             window.location.href = `/html/update-salario.html?id=${at.id}`;
         });
+        btnSalario.setAttribute('data-requer-role', 'MASTER');
         const btnFerias = botaoAcao('☼', 'Histórico de férias', () => {
             window.location.href = `/html/ferias-atendente.html?id=${at.id}`;
         }, 'btn-icon-accent');
         const btnExcluir = botaoAcao('🗑', 'Excluir atendente', () => abrirModalExclusao(at), 'btn-icon-danger');
+        btnExcluir.setAttribute('data-requer-role', 'MASTER');
 
         acaoTd.appendChild(btnEditar);
         acaoTd.appendChild(btnSalario);
@@ -304,47 +294,37 @@ async function salvarAtendente(event) {
 
     btnConfirmar.disabled = true;
 
+    const body = {
+        nome,
+        lojaId: parseInt(lojaId, 10),
+        salario,
+        dataAdmissao
+    };
+
     try {
-        const url = atendenteEditandoId
-            ? `${API_BASE_URL}/atendentes/${atendenteEditandoId}`
-            : `${API_BASE_URL}/atendentes`;
-        const method = atendenteEditandoId ? 'PUT' : 'POST';
-        const resp = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                nome,
-                lojaId: parseInt(lojaId),
-                salario,
-                dataAdmissao
-            })
-        });
-
-        if (resp.ok) {
-            mostrarMensagem(
-                atendenteEditandoId ? 'Atendente atualizado com sucesso!' : 'Atendente cadastrado com sucesso!',
-                'sucesso'
-            );
-            fecharModalAtendente();
-            // Limpar cache de salário para o atendente alterado
-            if (atendenteEditandoId) delete salariosCache[atendenteEditandoId];
-
-            // Se a loja do filtro coincide, recarregar
-            if (String(filtroLojaSelect.value) === String(lojaId)) {
-                await carregarAtendentes(lojaId);
-            } else if (!atendenteEditandoId) {
-                // Para novo cadastro: navegar o filtro para a loja recém criada
-                filtroLojaSelect.value = lojaId;
-                buscaInput.disabled = false;
-                await carregarAtendentes(lojaId);
-            }
+        if (atendenteEditandoId) {
+            await apiPut(`/atendentes/${atendenteEditandoId}`, body);
         } else {
-            const erro = await resp.json().catch(() => null);
-            mostrarErroForm(erro?.message || 'Erro ao salvar o atendente.');
+            await apiPost('/atendentes', body);
+        }
+        mostrarMensagem(
+            atendenteEditandoId ? 'Atendente atualizado com sucesso!' : 'Atendente cadastrado com sucesso!',
+            'sucesso'
+        );
+        fecharModalAtendente();
+        if (atendenteEditandoId) delete salariosCache[atendenteEditandoId];
+
+        if (String(filtroLojaSelect.value) === String(lojaId)) {
+            await carregarAtendentes(lojaId);
+        } else if (!atendenteEditandoId) {
+            filtroLojaSelect.value = lojaId;
+            buscaInput.disabled = false;
+            await carregarAtendentes(lojaId);
         }
     } catch (err) {
         console.error('Erro:', err);
-        mostrarErroForm('Erro de conexão com o servidor.');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao salvar o atendente.') : 'Erro de conexão com o servidor.';
+        mostrarErroForm(msg);
     } finally {
         btnConfirmar.disabled = false;
     }
@@ -365,21 +345,15 @@ async function confirmarExclusao() {
     if (!atendenteExcluindoId) return;
     btnConfirmarExclusao.disabled = true;
     try {
-        const resp = await fetch(`${API_BASE_URL}/atendentes/${atendenteExcluindoId}`, {
-            method: 'DELETE'
-        });
-        if (resp.ok) {
-            mostrarMensagem('Atendente excluído com sucesso!', 'sucesso');
-            delete salariosCache[atendenteExcluindoId];
-            fecharModalExclusao();
-            await carregarAtendentes(filtroLojaSelect.value);
-        } else {
-            mostrarMensagem('Erro ao excluir o atendente.', 'erro');
-            fecharModalExclusao();
-        }
+        await apiDelete(`/atendentes/${atendenteExcluindoId}`);
+        mostrarMensagem('Atendente excluído com sucesso!', 'sucesso');
+        delete salariosCache[atendenteExcluindoId];
+        fecharModalExclusao();
+        await carregarAtendentes(filtroLojaSelect.value);
     } catch (err) {
         console.error('Erro:', err);
-        mostrarMensagem('Erro de conexão com o servidor.', 'erro');
+        const msg = err instanceof ApiError ? (err.message || 'Erro ao excluir o atendente.') : 'Erro de conexão com o servidor.';
+        mostrarMensagem(msg, 'erro');
         fecharModalExclusao();
     } finally {
         btnConfirmarExclusao.disabled = false;

@@ -1,5 +1,3 @@
-const API_BASE_URL = 'http://localhost:8080';
-
 const mensagemDiv = document.getElementById('mensagem');
 const ultimaAtualizacaoEl = document.getElementById('ultimaAtualizacao');
 const btnAtualizar = document.getElementById('btnAtualizar');
@@ -41,13 +39,11 @@ function mostrarMensagem(texto, tipo = 'erro', timeout = 5000) {
     }
 }
 
-async function fetchJson(url, fallback = null) {
+async function safeApiGet(path, fallback = null) {
     try {
-        const resp = await fetch(url);
-        if (!resp.ok) return fallback;
-        return await resp.json();
+        return await apiGet(path);
     } catch (err) {
-        console.error(`Erro em ${url}:`, err);
+        console.error(`Erro em GET ${path}:`, err);
         return fallback;
     }
 }
@@ -58,26 +54,24 @@ async function carregarDashboard() {
     ultimaAtualizacaoEl.textContent = 'Carregando...';
     corpoRanking.innerHTML = '<tr class="row-loading"><td colspan="5">Carregando ranking...</td></tr>';
 
-    // Passo 1: lista de lojas (necessária para as buscas seguintes)
-    const lojas = await fetchJson(`${API_BASE_URL}/lojas/listar`, []);
+    const lojas = await safeApiGet('/lojas/listar', []);
 
-    // Passo 2: tudo em paralelo
     const [vendasPorLoja, atendentesPorLoja, calculadoras, ferias, destinatariosPage] = await Promise.all([
         Promise.all(
-            lojas.map(l =>
-                fetchJson(`${API_BASE_URL}/lojas/${l.id}/vendas`, { valor: 0 })
-                    .then(d => ({ lojaId: l.id, valor: Number(d?.valor || 0) }))
+            lojas.map((l) =>
+                safeApiGet(`/lojas/${l.id}/vendas`, { valor: 0 })
+                    .then((d) => ({ lojaId: l.id, valor: Number(d?.valor || 0) }))
             )
         ),
         Promise.all(
-            lojas.map(l =>
-                fetchJson(`${API_BASE_URL}/lojas/${l.id}/atendentes`, [])
-                    .then(d => ({ lojaId: l.id, qtd: Array.isArray(d) ? d.length : 0 }))
+            lojas.map((l) =>
+                safeApiGet(`/lojas/${l.id}/atendentes`, [])
+                    .then((d) => ({ lojaId: l.id, qtd: Array.isArray(d) ? d.length : 0 }))
             )
         ),
-        fetchJson(`${API_BASE_URL}/calculadoras/listar`, []),
-        fetchJson(`${API_BASE_URL}/ferias/dashboard`, null),
-        fetchJson(`${API_BASE_URL}/notificacoes/destinatarios?page=0&size=1`, null)
+        safeApiGet('/calculadoras/listar', []),
+        safeApiGet('/ferias/dashboard', null),
+        safeApiGet('/notificacoes/destinatarios?page=0&size=1', null)
     ]);
 
     renderizarKpis({ lojas, vendasPorLoja, atendentesPorLoja, calculadoras });

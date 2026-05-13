@@ -299,6 +299,84 @@ html body {
     }
 }
 
+/* ===== Bloco de perfil (rodapé do sidebar) — TASK-09 ===== */
+.sidebar__profile {
+    flex-shrink: 0;
+    padding: 14px 12px 16px;
+    border-top: 1px solid var(--sidebar-border);
+    background-color: var(--sidebar-brand-bg);
+}
+
+.sidebar__profile-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px 12px;
+}
+
+.sidebar__profile-iniciais {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--sidebar-brand);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.sidebar__profile-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.sidebar__profile-nome {
+    color: var(--sidebar-text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar__profile-email {
+    color: var(--sidebar-text-muted);
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar__profile-actions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar__link--logout {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    color: #B73B49;
+}
+
+.sidebar__link--logout:hover {
+    background-color: #FCE8EA;
+    color: #8E2C37;
+}
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
     body,
