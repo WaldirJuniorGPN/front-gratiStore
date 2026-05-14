@@ -13,8 +13,9 @@
  *    a role atual não bate. Chamado automaticamente no `DOMContentLoaded` e
  *    pode ser re-invocado após renderização dinâmica para reprocessar nós novos.
  *
- * Também escuta `gs:forbidden` (disparado pelo apiClient em 403) e exibe um
- * aviso simples — o toast estilizado virá em TASK-09/11.
+ * Também escuta `gs:forbidden` (disparado pelo apiClient em 403) e exibe o
+ * aviso via `mostrarToast` quando disponível, com fallback para `alert` em
+ * telas que ainda não carregam `toast.js`.
  */
 
 function obterRoleAtual() {
@@ -54,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => aplicarRoleNoDom(document));
 
 document.addEventListener('gs:forbidden', (event) => {
     const msg = event?.detail?.message || 'Você não tem permissão para essa operação.';
-    // Placeholder — substituir por toast estilizado em TASK-09/11.
-    alert(msg);
+    if (typeof mostrarToast === 'function') {
+        mostrarToast(msg, 'erro');
+    } else {
+        // Fallback para telas legadas que ainda não importaram `toast.js`.
+        alert(msg);
+    }
 });

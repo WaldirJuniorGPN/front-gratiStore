@@ -1,0 +1,116 @@
+/* ===========================================================
+   Estilos compartilhados da feature de Importação de Pontos
+   (TASK-02). Inclui badges, chips de batidas brutas e
+   grid de contadores reutilizada pelo dashboard do relatório
+   (Tela 3 — TASK-06).
+   =========================================================== */
+
+/* ---------- Badges ---------- */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.badge--sucesso { background: #e6ffed; color: #1e7e34; border: 1px solid #b2dfc9; }
+.badge--erro    { background: #ffe6e6; color: #b02a37; border: 1px solid #f5c6cb; }
+.badge--aviso   { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.badge--info    { background: #eef3f8; color: #2a4a6b; border: 1px solid #cdd9e4; }
+.badge--neutro  { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; }
+
+/* ---------- Chips de batidas brutas ---------- */
+
+.chips-batidas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--background-light);
+    border: 1px solid var(--secondary-light);
+    color: var(--text-dark);
+    font-size: 0.92em;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+}
+
+button.chip {
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+button.chip:hover {
+    background-color: var(--secondary-light);
+    border-color: var(--primary-blue);
+}
+
+button.chip:focus-visible {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.25);
+}
+
+button.chip:active {
+    transform: translateY(1px);
+}
+
+.chip--vazio {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ---------- Grid de contadores (dashboard do relatório) ---------- */
+
+.contador-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.contador-card {
+    background: #fff;
+    border: 1px solid var(--secondary-light);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contador-card__valor {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.contador-card__label {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.contador-card--ok    { border-left: 4px solid var(--success-green); }
+.contador-card--aviso { border-left: 4px solid #f59e0b; }
+.contador-card--info  { border-left: 4px solid var(--primary-blue); }
+.contador-card--erro  { border-left: 4px solid var(--error-red); }
+
+@media (max-width: 480px) {
+    .contador-card__valor { font-size: 1.5em; }
+}
