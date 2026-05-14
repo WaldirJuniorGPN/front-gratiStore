@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/atualizar-funcionario.css">
     <link rel="stylesheet" href="/css/banner-senha-padrao.css">
     <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -36,6 +37,10 @@
         <input type="date" id="dataAdmissao" name="dataAdmissao" required>
         <small class="campo-ajuda">Alterar esta data afeta o cálculo dos períodos aquisitivos de férias.</small>
 
+        <label for="idRelogioPonto">ID do relógio de ponto (opcional):</label>
+        <input type="number" id="idRelogioPonto" name="idRelogioPonto" min="1" step="1" inputmode="numeric" placeholder="Ex.: 42" autocomplete="off">
+        <small class="campo-ajuda">Número do colaborador no relógio biométrico. Preencher torna a importação de pontos 100% precisa para este atendente.</small>
+
         <button type="submit">Salvar Alterações</button>
     </form>
     <div id="mensagem"></div>
@@ -44,6 +49,8 @@
     <script src="/js/api/erros.js"></script>
     <script src="/js/api/sessao.js"></script>
     <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/importacao-pontos.js"></script>
+    <script src="/js/ui/toast.js"></script>
     <script src="/js/atualizar-funcionario.js"></script>
     <script src="/js/ui/banner-senha-padrao.js"></script>
     <script src="/js/ui/expiracao-sessao.js"></script>

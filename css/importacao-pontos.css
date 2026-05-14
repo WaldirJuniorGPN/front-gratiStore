@@ -1,0 +1,222 @@
+/* ===========================================================
+   Tela 2 — Upload da planilha de logs de comparecimento
+   (TASK-05). Divide o fluxo em 4 painéis numerados:
+   1) Selecionar  2) Processando  3) Pronto  ou  Falhou.
+   Visual coerente com cadastro-shared.css (`.panel`, `.btn`,
+   `.btn-icon-action`). Os estilos abaixo cobrem o que é
+   específico desta tela: dropzone, barra de progresso
+   indeterminada, painel concluído/erro e preview do relatório.
+   =========================================================== */
+
+/* ---------- Spacing helpers reaproveitados ---------- */
+
+.panel-body {
+    padding: 22px 24px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ---------- Dropzone (file picker drag-and-drop) ---------- */
+
+.dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 24px;
+    border: 2px dashed var(--secondary-light);
+    border-radius: 12px;
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+    min-height: 160px;
+}
+
+.dropzone:hover,
+.dropzone:focus-within {
+    border-color: var(--primary-blue);
+    background-color: #f1f5fa;
+}
+
+.dropzone--hover {
+    border-color: var(--primary-blue);
+    background-color: #e8eef6;
+    transform: translateY(-1px);
+}
+
+.dropzone__icon {
+    font-size: 2.4em;
+    line-height: 1;
+    color: var(--primary-blue);
+}
+
+.dropzone__primary {
+    font-size: 1.05em;
+    font-weight: 600;
+}
+
+.dropzone__primary u {
+    color: var(--primary-blue);
+}
+
+.dropzone__hint {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    max-width: 520px;
+    line-height: 1.5;
+}
+
+/* ---------- Arquivo selecionado (preview antes do upload) ---------- */
+
+.arquivo-selecionado {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 10px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.arquivo-selecionado__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.arquivo-selecionado__nome {
+    font-weight: 600;
+    color: var(--text-dark);
+    word-break: break-word;
+}
+
+.arquivo-selecionado__tamanho {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Barra de progresso indeterminada ---------- */
+
+.progress-bar {
+    position: relative;
+    height: 6px;
+    background-color: var(--secondary-light);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.progress-bar__indeterminate {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, var(--primary-blue), #94b3cf, var(--primary-blue));
+    border-radius: 999px;
+    animation: progress-slide 1.6s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+    0%   { left: -45%; }
+    100% { left: 105%; }
+}
+
+/* ---------- Preview do relatório (período / funcionários / status) ---------- */
+
+.preview-relatorio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px 22px;
+    margin: 0;
+}
+
+.preview-relatorio > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.preview-relatorio dt {
+    color: var(--text-muted);
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.preview-relatorio dd {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.05em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+}
+
+/* ---------- Variantes do painel para estados finais ---------- */
+
+.panel--sucesso {
+    border-top: 4px solid var(--success-green);
+}
+
+.panel--erro {
+    border-top: 4px solid var(--error-red);
+}
+
+.panel--erro .panel-subtitle {
+    color: var(--error-red);
+    font-weight: 600;
+}
+
+/* ---------- Contador-card clicável (para inconsistências/não-vinculados > 0) ---------- */
+
+a.contador-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+a.contador-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    border-color: var(--primary-blue);
+}
+
+.contador-card__cta {
+    margin-top: 6px;
+    color: var(--primary-blue);
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 480px) {
+    .dropzone {
+        min-height: 120px;
+        padding: 22px 16px;
+    }
+    .dropzone__icon { font-size: 2em; }
+    .panel-body { padding: 16px 18px; }
+    .form-actions { justify-content: stretch; }
+    .form-actions .btn { flex: 1; }
+    .arquivo-selecionado { flex-wrap: wrap; }
+}
