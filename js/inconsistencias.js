@@ -196,7 +196,7 @@ function renderizarLinhas(page) {
         tr.dataset.id = inc.id;
 
         const tdData = td(formatarData(inc.dataReferencia));
-        const tdAtendente = td(inc.nomeAtendente || inc.nomeBruto || '—');
+        const tdAtendente = td(inc.atendenteNome || '—');
         tdAtendente.classList.add('cell-name');
 
         const tdTipo = document.createElement('td');
@@ -316,7 +316,7 @@ function abrirModalResolver(inc) {
     erroResolverEl.hidden = true;
     erroResolverEl.textContent = '';
 
-    resolverAtendenteEl.textContent = inc.nomeAtendente || inc.nomeBruto || '—';
+    resolverAtendenteEl.textContent = inc.atendenteNome || '—';
     resolverDataEl.textContent = formatarData(inc.dataReferencia);
     resolverTipoEl.textContent = TIPO_LABEL[inc.tipo] || inc.tipo || '—';
 
@@ -430,7 +430,7 @@ function abrirModalDescartar(inc) {
     erroDescartarEl.hidden = true;
     erroDescartarEl.textContent = '';
 
-    const nome = inc.nomeAtendente || inc.nomeBruto || '—';
+    const nome = inc.atendenteNome || '—';
     descartarResumoEl.textContent = `${nome} em ${formatarData(inc.dataReferencia)}`;
     motivoInput.value = '';
     motivoCount.textContent = '0';

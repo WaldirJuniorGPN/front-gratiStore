@@ -29,6 +29,15 @@
             </div>
         </header>
 
+        <!-- Banner de contexto exibido só quando ?reimportar={id} está presente -->
+        <div id="bannerReimportacao" class="banner-info" hidden role="status" aria-live="polite">
+            <span class="banner-info__icon" aria-hidden="true">↻</span>
+            <div class="banner-info__body">
+                <strong>Reimportando relatório <span id="bannerReimpId">#—</span></strong>
+                <span id="bannerReimpContexto">Selecione a mesma loja e suba a planilha novamente para fechar o ciclo. Pontos já criados não são duplicados.</span>
+            </div>
+        </div>
+
         <!-- Estado VAZIO / ARQUIVO_SELECIONADO -->
         <section class="panel" id="painelUpload">
             <header class="panel-header">

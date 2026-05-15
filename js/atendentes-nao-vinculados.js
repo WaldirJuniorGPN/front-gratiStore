@@ -83,7 +83,7 @@ if (!Number.isFinite(relatorioId) || relatorioId <= 0) {
     corpo.innerHTML = '<tr class="row-empty"><td colspan="5">Sem relatório a exibir.</td></tr>';
 } else {
     linkVoltar.href = `/html/importacao-detalhes.html?id=${relatorioId}`;
-    ctaReimportarTudo.href = `/html/importacao-pontos.html?retomar=${relatorioId}`;
+    ctaReimportarTudo.href = `/html/importacao-pontos.html?reimportar=${relatorioId}`;
     inicializar();
 }
 
@@ -547,7 +547,7 @@ async function submitVincular(event) {
                 duracaoMs: 8000,
                 acaoTexto: 'Reimportar agora',
                 onAcao: () => {
-                    window.location.href = `/html/importacao-pontos.html?retomar=${relatorioId}`;
+                    window.location.href = `/html/importacao-pontos.html?reimportar=${relatorioId}`;
                 }
             }
         );

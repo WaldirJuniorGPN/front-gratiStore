@@ -36,6 +36,7 @@ let lojaSelecionadaId = null;
 let lojaSelecionadaNome = '';
 let relatorioIdEmCurso = null;
 let toastFuncionariosZero = null; // referência para fechar o toast persistente, se necessário
+let promessaCarregarLojas = Promise.resolve(); // resolvida quando o <select> de loja está populado
 
 // ============================================================================
 // Refs DOM
@@ -49,6 +50,10 @@ const arquivoTamanhoEl = document.getElementById('arquivoTamanho');
 const btnLimparArquivo = document.getElementById('btnLimparArquivo');
 const btnImportar = document.getElementById('btnImportar');
 const lojaSelect = document.getElementById('lojaImportacao');
+
+const bannerReimp = document.getElementById('bannerReimportacao');
+const bannerReimpId = document.getElementById('bannerReimpId');
+const bannerReimpContexto = document.getElementById('bannerReimpContexto');
 
 const modalConfirmar = document.getElementById('modalConfirmarUpload');
 const confirmArquivoNomeEl = document.getElementById('confirmArquivoNome');
@@ -542,5 +547,54 @@ ctaTentarNovamente.addEventListener('click', () => {
     atualizarEstadoBtnImportar();
 });
 
-document.addEventListener('DOMContentLoaded', carregarLojas);
+/**
+ * Se a URL trouxer `?reimportar={id}`, mostra um banner contextual com o
+ * arquivo + período do relatório anterior e trava o `<select>` na loja
+ * original (a partir do `lojaId` que o back devolve no DTO — doc 13).
+ *
+ * Aguarda `carregarLojas()` terminar de popular as `<option>` antes de
+ * setar `lojaSelect.value` — caso contrário a atribuição é ignorada.
+ */
+async function exibirContextoReimportacao() {
+    const params = new URLSearchParams(window.location.search);
+    const reimportarId = params.get('reimportar');
+    if (!reimportarId) return;
+
+    const id = parseInt(reimportarId, 10);
+    if (!Number.isFinite(id) || id <= 0) return;
+
+    try {
+        const [snapshot] = await Promise.all([
+            consultarRelatorio(id),
+            promessaCarregarLojas
+        ]);
+        bannerReimpId.textContent = `#${id}`;
+        const periodo = typeof formatarPeriodo === 'function'
+            ? formatarPeriodo(snapshot.periodoInicio, snapshot.periodoFim)
+            : `${snapshot.periodoInicio} a ${snapshot.periodoFim}`;
+        const arquivo = snapshot.nomeArquivo ? ` · ${snapshot.nomeArquivo}` : '';
+        const lojaTxt = snapshot.lojaNome ? ` · ${snapshot.lojaNome}` : '';
+        bannerReimpContexto.textContent =
+            `Suba a mesma planilha (${periodo}${arquivo}${lojaTxt}). ` +
+            'Pontos já criados não são duplicados.';
+        bannerReimp.hidden = false;
+
+        if (snapshot.lojaId) {
+            lojaSelect.value = String(snapshot.lojaId);
+            // Dispara `change` para sincronizar o state interno (lojaSelecionadaId/Nome
+            // e estado do botão Importar).
+            lojaSelect.dispatchEvent(new Event('change'));
+            // Trava o select — reimportação deve manter a mesma loja do relatório
+            // original, senão é uma importação nova (com `lojaId` diferente).
+            lojaSelect.disabled = true;
+        }
+    } catch {
+        // Sem contexto não atrapalha — o usuário ainda pode reimportar do zero.
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    promessaCarregarLojas = carregarLojas();
+});
 document.addEventListener('DOMContentLoaded', retomarSeNecessario);
+document.addEventListener('DOMContentLoaded', exibirContextoReimportacao);

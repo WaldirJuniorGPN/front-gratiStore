@@ -139,9 +139,14 @@ function preencherContadores(relatorio, pendencias) {
 function preencherCabecalho(relatorio) {
     tituloEl.textContent = `Importação #${relatorio.id} · ${relatorio.nomeArquivo || '—'}`;
     const periodo = formatarPeriodo(relatorio.periodoInicio, relatorio.periodoFim);
-    subtitleEl.textContent = `Período: ${periodo}`;
+    const loja = relatorio.lojaNome ? ` · Loja: ${relatorio.lojaNome}` : '';
+    subtitleEl.textContent = `Período: ${periodo}${loja}`;
     setBadgeStatus(relatorio.status);
-    ctaReimportar.href = `/html/importacao-pontos.html?retomar=${relatorio.id}`;
+    // `?reimportar=` (NÃO `?retomar=`): a tela de upload abre limpa, mostra o
+    // contexto do relatório anterior e exige que o usuário selecione loja +
+    // arquivo de novo. `?retomar=` só serve para reabrir o polling de um
+    // relatório AGENDADA/PROCESSANDO — não reimporta nada.
+    ctaReimportar.href = `/html/importacao-pontos.html?reimportar=${relatorio.id}`;
 }
 
 // ============================================================================
@@ -176,7 +181,7 @@ async function atualizarBannerReimportacao(relatorio) {
 }
 
 btnReimportarBanner.addEventListener('click', () => {
-    window.location.href = `/html/importacao-pontos.html?retomar=${relatorioId}`;
+    window.location.href = `/html/importacao-pontos.html?reimportar=${relatorioId}`;
 });
 
 // ============================================================================
@@ -241,9 +246,12 @@ function renderizarEmProcessamento(relatorio) {
     painelFalhou.hidden = true;
     painelOrientativo.hidden = true;
     preencherCabecalho(relatorio);
-    subtitleEl.textContent = relatorio.status === STATUS_IMPORTACAO.AGENDADA
-        ? `Período: ${formatarPeriodo(relatorio.periodoInicio, relatorio.periodoFim)} · Na fila de processamento…`
-        : `Período: ${formatarPeriodo(relatorio.periodoInicio, relatorio.periodoFim)} · Lendo a planilha…`;
+    const periodo = formatarPeriodo(relatorio.periodoInicio, relatorio.periodoFim);
+    const loja = relatorio.lojaNome ? ` · Loja: ${relatorio.lojaNome}` : '';
+    const sufixo = relatorio.status === STATUS_IMPORTACAO.AGENDADA
+        ? ' · Na fila de processamento…'
+        : ' · Lendo a planilha…';
+    subtitleEl.textContent = `Período: ${periodo}${loja}${sufixo}`;
 
     // Mantém os contadores como "—" enquanto processa.
     valorPontosOk.textContent = '—';

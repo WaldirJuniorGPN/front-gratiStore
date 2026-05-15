@@ -76,7 +76,7 @@ function atualizarUrl() {
 // ============================================================================
 
 async function carregar() {
-    corpo.innerHTML = '<tr class="row-loading"><td colspan="7">Carregando histórico…</td></tr>';
+    corpo.innerHTML = '<tr class="row-loading"><td colspan="8">Carregando histórico…</td></tr>';
     paginacao.hidden = true;
 
     try {
@@ -97,7 +97,7 @@ async function carregar() {
         if (err instanceof ApiError && (err.status === 404 || err.status === 405)) {
             // Provável: a TASK-00 (endpoint backend) ainda não foi entregue.
             corpo.innerHTML = `
-                <tr class="row-empty row-empty-cta"><td colspan="7">
+                <tr class="row-empty row-empty-cta"><td colspan="8">
                     <span class="empty-titulo">Histórico indisponível</span>
                     <span class="empty-desc">O endpoint de listagem (TASK-00 do backend) ainda não está disponível neste ambiente. Tente novamente quando o back expor a rota.</span>
                     <a class="btn btn-primary" href="/html/importacao-pontos.html">Importar nova planilha</a>
@@ -109,13 +109,13 @@ async function carregar() {
         } else {
             mostrarToast('Sem conexão com o servidor. Verifique sua internet.', 'erro');
         }
-        corpo.innerHTML = '<tr class="row-empty"><td colspan="7">Erro ao carregar. Tente novamente.</td></tr>';
+        corpo.innerHTML = '<tr class="row-empty"><td colspan="8">Erro ao carregar. Tente novamente.</td></tr>';
     }
 }
 
 function renderizarVazio() {
     corpo.innerHTML = `
-        <tr class="row-empty row-empty-cta"><td colspan="7">
+        <tr class="row-empty row-empty-cta"><td colspan="8">
             <span class="empty-titulo">Nenhuma importação realizada ainda</span>
             <span class="empty-desc">Suba a primeira planilha do relógio biométrico para começar a usar a feature.</span>
             <a class="btn btn-primary" href="/html/importacao-pontos.html">Importar nova planilha</a>
@@ -141,6 +141,7 @@ function renderizarLinhas(relatorios) {
 
         tr.appendChild(td(`#${r.id}`, 'cell-muted col-id'));
         tr.appendChild(td(r.nomeArquivo || '—', 'cell-name'));
+        tr.appendChild(td(r.lojaNome || '—', 'cell-name'));
         tr.appendChild(td(formatarPeriodo(r.periodoInicio, r.periodoFim), 'col-periodo'));
 
         const tdStatus = document.createElement('td');
