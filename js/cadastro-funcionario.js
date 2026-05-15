@@ -399,9 +399,10 @@ async function sincronizarIdRelogio(atendenteId, valorAtual, valorOriginal) {
         await vincularIdRelogio(atendenteId, idRelogio);
     } catch (err) {
         if (err instanceof ApiError && err.status === 409) {
+            // O back manda a mensagem definitiva (escopo de loja vem dele).
+            const motivo = err.message || `o ID ${idRelogio} já está em uso.`;
             mostrarToast(
-                `Atendente salvo, mas o ID ${idRelogio} já está vinculado a outro atendente. ` +
-                'Edite o outro registro primeiro para liberar este ID.',
+                `Atendente salvo, mas ${motivo} Edite o outro registro primeiro para liberar este ID.`,
                 'aviso',
                 { duracaoMs: 0 }
             );

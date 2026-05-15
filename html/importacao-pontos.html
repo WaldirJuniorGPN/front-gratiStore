@@ -33,16 +33,24 @@
         <section class="panel" id="painelUpload">
             <header class="panel-header">
                 <div>
-                    <h2>1. Selecionar arquivo</h2>
-                    <p class="panel-subtitle">Apenas arquivos <strong>.xls</strong> ou <strong>.xlsx</strong>, até 10 MB.</p>
+                    <h2>1. Selecionar loja e arquivo</h2>
+                    <p class="panel-subtitle">A planilha pertence a uma loja específica. Cada loja tem o seu próprio cadastro de IDs no relógio.</p>
                 </div>
             </header>
             <div class="panel-body">
+                <div class="campo-loja">
+                    <label for="lojaImportacao">Loja de destino <span class="required">*</span></label>
+                    <select id="lojaImportacao" required>
+                        <option value="">Selecione a loja…</option>
+                    </select>
+                    <small class="campo-ajuda">O backend usa essa loja para casar cada ID do relógio com o atendente correto.</small>
+                </div>
+
                 <label class="dropzone" id="dropzone">
                     <input type="file" id="inputArquivo" accept=".xls,.xlsx" hidden>
                     <span class="dropzone__icon" aria-hidden="true">⇪</span>
                     <span class="dropzone__primary">Arraste o arquivo aqui ou <u>clique para selecionar</u></span>
-                    <span class="dropzone__hint">A planilha deve ter a aba "Logs Comparecimento" com a célula C3 contendo o período no formato YYYY-MM-DD ~ MM-DD.</span>
+                    <span class="dropzone__hint">Apenas arquivos <strong>.xls</strong> ou <strong>.xlsx</strong> (até 10 MB). A planilha deve ter a aba "Logs Comparecimento" com a célula C3 contendo o período no formato YYYY-MM-DD ~ MM-DD.</span>
                 </label>
 
                 <div class="arquivo-selecionado" id="arquivoSelecionado" hidden>
@@ -114,6 +122,34 @@
                 </div>
             </div>
         </section>
+
+        <!-- Modal de confirmação de loja + arquivo (recomendado pelo back — §UX do doc 12) -->
+        <div class="modal" id="modalConfirmarUpload" hidden>
+            <div class="modal-backdrop" data-fechar-confirmar></div>
+            <div class="modal-dialog modal-dialog--small" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarTitulo">
+                <header class="modal-header">
+                    <h2 id="modalConfirmarTitulo">Confirmar importação</h2>
+                    <button type="button" class="modal-close" data-fechar-confirmar aria-label="Fechar">×</button>
+                </header>
+                <div class="modal-body">
+                    <p>Você está prestes a importar a planilha:</p>
+                    <dl class="info-vincular">
+                        <div><dt>Arquivo</dt><dd id="confirmArquivoNome">—</dd></div>
+                        <div><dt>Loja de destino</dt><dd id="confirmLojaNome">—</dd></div>
+                    </dl>
+                    <div class="banner-aviso banner-aviso--inline" role="note">
+                        <span class="banner-aviso__icon" aria-hidden="true">⚠</span>
+                        <div class="banner-aviso__body">
+                            Confirme se essa é a loja certa para esta planilha. O sistema usa o ID do relógio <strong>dentro desta loja</strong> para cruzar com os atendentes — escolher a loja errada pode gerar inconsistências e vínculos trocados.
+                        </div>
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-fechar-confirmar>Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarUpload">Confirmar upload</button>
+                </footer>
+            </div>
+        </div>
     </main>
 
     <script src="/js/api/config.js"></script>

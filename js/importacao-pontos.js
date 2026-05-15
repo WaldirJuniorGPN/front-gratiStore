@@ -5,11 +5,15 @@
  *  VAZIO → ARQUIVO_SELECIONADO → ENVIANDO → AGENDADA/PROCESSANDO → CONCLUIDA | FALHOU
  *
  * Implementa:
+ *  - Seleção obrigatória da loja de destino (doc 12 — `idRelogioPonto` é local
+ *    a cada loja). Importar fica desabilitado até loja + arquivo válidos.
  *  - Validação client-side de extensão e tamanho (`.xls`/`.xlsx`, ≤ 10 MB).
  *  - Drag-and-drop com fallback para clique no `<label class="dropzone">`.
- *  - `agendarImportacao(file)` (POST multipart) e `pollStatus(id, { onUpdate })`.
+ *  - `agendarImportacao(file, lojaId)` (POST multipart) e `pollStatus(id, { onUpdate })`.
+ *  - Modal de confirmação loja+arquivo antes do envio (recomendação §UX do doc 12).
  *  - Re-tomada do polling via `?retomar={relatorioId}` na URL (recomendação UX).
- *  - Tratamento específico de 400 (arquivo/aba inválidos) e 413 (>10 MB).
+ *  - Tratamento específico de 400 (arquivo/aba inválidos, lojaId ausente/loja
+ *    inexistente — mensagem do back) e 413 (>10 MB).
  *  - Botão de "Importar" desabilitado durante todo o processo para prevenir
  *    duplo-clique (§9.4 do guia — idempotência do upload NÃO é garantida).
  *
@@ -28,6 +32,8 @@ const TAMANHO_MAX = 10 * 1024 * 1024; // 10 MB
 const EXTENSOES_VALIDAS = ['.xls', '.xlsx'];
 
 let arquivoSelecionado = null;
+let lojaSelecionadaId = null;
+let lojaSelecionadaNome = '';
 let relatorioIdEmCurso = null;
 let toastFuncionariosZero = null; // referência para fechar o toast persistente, se necessário
 
@@ -42,6 +48,12 @@ const arquivoNomeEl = document.getElementById('arquivoNome');
 const arquivoTamanhoEl = document.getElementById('arquivoTamanho');
 const btnLimparArquivo = document.getElementById('btnLimparArquivo');
 const btnImportar = document.getElementById('btnImportar');
+const lojaSelect = document.getElementById('lojaImportacao');
+
+const modalConfirmar = document.getElementById('modalConfirmarUpload');
+const confirmArquivoNomeEl = document.getElementById('confirmArquivoNome');
+const confirmLojaNomeEl = document.getElementById('confirmLojaNome');
+const btnConfirmarUpload = document.getElementById('btnConfirmarUpload');
 
 const painelUpload = document.getElementById('painelUpload');
 const painelProcessando = document.getElementById('painelProcessando');
@@ -82,6 +94,15 @@ function validarArquivoCliente(file) {
         return 'Arquivo muito grande — limite de 10 MB.';
     }
     return null;
+}
+
+/**
+ * Habilita o botão "Importar" só quando há arquivo válido E loja selecionada.
+ * Centraliza para os handlers de `change` (loja e arquivo) não precisarem
+ * conhecer um ao outro.
+ */
+function atualizarEstadoBtnImportar() {
+    btnImportar.disabled = !(arquivoSelecionado && lojaSelecionadaId);
 }
 
 /**
@@ -129,14 +150,14 @@ function handleArquivoEscolhido(file) {
     arquivoNomeEl.textContent = file.name;
     arquivoTamanhoEl.textContent = formatarTamanho(file.size);
     arquivoSelecionadoEl.hidden = false;
-    btnImportar.disabled = false;
+    atualizarEstadoBtnImportar();
 }
 
 function limparArquivo() {
     arquivoSelecionado = null;
     inputArquivo.value = '';
     arquivoSelecionadoEl.hidden = true;
-    btnImportar.disabled = true;
+    atualizarEstadoBtnImportar();
 }
 
 inputArquivo.addEventListener('change', e => {
@@ -185,9 +206,13 @@ dropzone.addEventListener('drop', e => {
 // ============================================================================
 
 async function iniciarImportacao() {
-    const erro = validarArquivoCliente(arquivoSelecionado);
-    if (erro) {
-        mostrarToast(erro, 'erro');
+    const erroArquivo = validarArquivoCliente(arquivoSelecionado);
+    if (erroArquivo) {
+        mostrarToast(erroArquivo, 'erro');
+        return;
+    }
+    if (!lojaSelecionadaId) {
+        mostrarToast('Selecione a loja de destino antes de importar.', 'erro');
         return;
     }
 
@@ -195,7 +220,7 @@ async function iniciarImportacao() {
 
     let agendada;
     try {
-        agendada = await agendarImportacao(arquivoSelecionado);
+        agendada = await agendarImportacao(arquivoSelecionado, lojaSelecionadaId);
     } catch (err) {
         tratarFalhaAgendamento(err);
         return;
@@ -259,13 +284,14 @@ function atualizarPainelProcessando(snapshot) {
 
 function tratarFalhaAgendamento(err) {
     transicionarPara('VAZIO');
-    btnImportar.disabled = !arquivoSelecionado;
+    atualizarEstadoBtnImportar();
 
     if (err instanceof ApiError) {
         if (err.status === 413) {
             mostrarToast('Arquivo muito grande para o servidor (máx 10 MB).', 'erro');
         } else if (err.status === 400) {
-            // O back é específico: aba não encontrada, período mal formatado, etc.
+            // O back é específico: lojaId ausente/loja inexistente, aba não encontrada,
+            // período mal formatado, etc. — usamos a mensagem dele direto.
             mostrarToast(err.message || 'Arquivo inválido — confira a aba "Logs Comparecimento" e a célula C3.', 'erro', { duracaoMs: 6000 });
         } else {
             mostrarToast(err.message || 'Falha ao enviar o arquivo.', 'erro');
@@ -428,10 +454,81 @@ async function retomarSeNecessario() {
 }
 
 // ============================================================================
+// Modal de confirmação loja+arquivo (recomendação §UX do doc 12 do back)
+// ============================================================================
+
+function abrirModalConfirmacao() {
+    const erroArquivo = validarArquivoCliente(arquivoSelecionado);
+    if (erroArquivo) {
+        mostrarToast(erroArquivo, 'erro');
+        return;
+    }
+    if (!lojaSelecionadaId) {
+        mostrarToast('Selecione a loja de destino antes de importar.', 'erro');
+        return;
+    }
+    confirmArquivoNomeEl.textContent = arquivoSelecionado.name;
+    confirmLojaNomeEl.textContent = lojaSelecionadaNome || `Loja #${lojaSelecionadaId}`;
+    modalConfirmar.hidden = false;
+}
+
+function fecharModalConfirmacao() {
+    modalConfirmar.hidden = true;
+}
+
+modalConfirmar.querySelectorAll('[data-fechar-confirmar]').forEach(el => {
+    el.addEventListener('click', fecharModalConfirmacao);
+});
+
+btnConfirmarUpload.addEventListener('click', () => {
+    fecharModalConfirmacao();
+    iniciarImportacao();
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modalConfirmar.hidden) fecharModalConfirmacao();
+});
+
+// ============================================================================
+// Loja — carregamento e estado
+// ============================================================================
+
+async function carregarLojas() {
+    try {
+        const lojas = await apiGet('/lojas/listar');
+        lojas.forEach(loja => {
+            const option = document.createElement('option');
+            option.value = loja.id;
+            option.textContent = loja.nome;
+            lojaSelect.appendChild(option);
+        });
+    } catch (err) {
+        const msg = err instanceof ApiError
+            ? (err.message || 'Não foi possível carregar a lista de lojas.')
+            : 'Sem conexão para carregar a lista de lojas.';
+        mostrarToast(msg, 'erro', { duracaoMs: 0 });
+    }
+}
+
+lojaSelect.addEventListener('change', () => {
+    const valor = lojaSelect.value;
+    const id = parseInt(valor, 10);
+    if (Number.isInteger(id) && id > 0) {
+        lojaSelecionadaId = id;
+        const opt = lojaSelect.options[lojaSelect.selectedIndex];
+        lojaSelecionadaNome = opt ? opt.textContent : '';
+    } else {
+        lojaSelecionadaId = null;
+        lojaSelecionadaNome = '';
+    }
+    atualizarEstadoBtnImportar();
+});
+
+// ============================================================================
 // Wire-up
 // ============================================================================
 
-btnImportar.addEventListener('click', iniciarImportacao);
+btnImportar.addEventListener('click', abrirModalConfirmacao);
 
 ctaNovaImportacao.addEventListener('click', () => {
     relatorioIdEmCurso = null;
@@ -440,9 +537,10 @@ ctaNovaImportacao.addEventListener('click', () => {
 });
 
 ctaTentarNovamente.addEventListener('click', () => {
-    // Mantém o arquivo selecionado para que a MASTER possa simplesmente reclicar Importar.
+    // Mantém arquivo + loja selecionados para que a MASTER possa simplesmente reclicar Importar.
     transicionarPara('VAZIO');
-    btnImportar.disabled = !arquivoSelecionado;
+    atualizarEstadoBtnImportar();
 });
 
+document.addEventListener('DOMContentLoaded', carregarLojas);
 document.addEventListener('DOMContentLoaded', retomarSeNecessario);

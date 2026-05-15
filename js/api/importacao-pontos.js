@@ -134,19 +134,27 @@ function desvincularIdRelogio(atendenteId) {
 // ============================================================================
 
 /**
- * Agenda a importação de uma planilha de logs de comparecimento (§4.3 do guia).
+ * Agenda a importação de uma planilha de logs de comparecimento (§4.3 do guia,
+ * complementado pelo doc 12 — escopo de loja).
  *
  * O upload retorna `202 Accepted` imediatamente — o processamento real roda em
  * fila no backend. Use `pollStatus(relatorioId)` para acompanhar o progresso.
  *
+ * Importante: o `idRelogioPonto` é **local a cada loja** — duas lojas distintas
+ * podem ter atendentes diferentes com o mesmo ID no relógio. Por isso a loja
+ * de destino é obrigatória no upload (`@RequestParam lojaId` no back).
+ *
  * @param {File} arquivo Arquivo `.xls` ou `.xlsx` selecionado pelo usuário.
+ * @param {number} lojaId ID da loja de destino da planilha (obrigatório, positivo).
  * @returns {Promise<object>} `ImportacaoAgendadaResponse`
  *   `{ relatorioId, status, periodoInicio, periodoFim, funcionariosDetectados }`.
- * @throws {ApiError} 400 (arquivo inválido/aba ausente/período ilegível), 413 (>10 MB).
+ * @throws {ApiError} 400 (arquivo inválido/aba ausente/período ilegível; lojaId
+ *   ausente ou loja inexistente), 413 (>10 MB).
  */
-function agendarImportacao(arquivo) {
+function agendarImportacao(arquivo, lojaId) {
     const formData = new FormData();
     formData.append('arquivo', arquivo);
+    formData.append('lojaId', String(lojaId));
     // `apiUpload` default é PATCH (uso histórico do upload de vendas).
     // Aqui é POST — não esquecer o 3º argumento.
     return apiUpload('/importacoes/logs-comparecimento', formData, 'POST');
