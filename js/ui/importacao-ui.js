@@ -127,3 +127,107 @@ function formatarPeriodo(inicioIso, fimIso) {
     };
     return `${fmt(inicioIso)} a ${fmt(fimIso)}`;
 }
+
+// ============================================================================
+// Cross-cutting (TASK-10) — flag "Reimportação pendente" em sessionStorage
+// ============================================================================
+
+/**
+ * Chave única em `sessionStorage` onde guardamos o `Set` de relatórios com
+ * vínculos resolvidos que ainda não foram reimportados — usado para mostrar o
+ * banner "Reimportação pendente" na Tela 3 (TASK-06) sem depender de uma
+ * chamada extra ao backend a cada navegação.
+ *
+ * @internal
+ */
+const GS_KEY_REIMPORTACAO = 'gs:reimportacao-pendente';
+
+/**
+ * Lê o `Set` de IDs marcados como "reimportação pendente" da sessão atual.
+ *
+ * @returns {Set<number>}
+ * @internal
+ */
+function lerSetReimportacao() {
+    try {
+        const raw = sessionStorage.getItem(GS_KEY_REIMPORTACAO);
+        return new Set(raw ? JSON.parse(raw) : []);
+    } catch {
+        return new Set();
+    }
+}
+
+/**
+ * Persiste o `Set` de IDs marcados.
+ *
+ * @param {Set<number>} set
+ * @internal
+ */
+function gravarSetReimportacao(set) {
+    try {
+        sessionStorage.setItem(GS_KEY_REIMPORTACAO, JSON.stringify([...set]));
+    } catch {
+        /* sessionStorage indisponível (modo privado restrito): silenciar */
+    }
+}
+
+/**
+ * Marca um relatório como pendente de reimportação. Disparado pela Tela 5
+ * (TASK-08) após qualquer `vincularNaoVinculado` bem-sucedido.
+ *
+ * @param {number} relatorioId
+ */
+function marcarReimportacaoPendente(relatorioId) {
+    const set = lerSetReimportacao();
+    set.add(Number(relatorioId));
+    gravarSetReimportacao(set);
+}
+
+/**
+ * Remove a marcação. Disparado pela Tela 2 (TASK-05) quando uma reimportação
+ * conclui com sucesso.
+ *
+ * @param {number} relatorioId
+ */
+function limparReimportacaoPendente(relatorioId) {
+    const set = lerSetReimportacao();
+    set.delete(Number(relatorioId));
+    gravarSetReimportacao(set);
+}
+
+/**
+ * Consultor síncrono — útil para condicionar UI sem precisar bater na API.
+ *
+ * @param {number} relatorioId
+ * @returns {boolean}
+ */
+function temReimportacaoPendente(relatorioId) {
+    return lerSetReimportacao().has(Number(relatorioId));
+}
+
+// ============================================================================
+// Cross-cutting (TASK-10) — distinção entre ApiError e queda de rede
+// ============================================================================
+
+/**
+ * Mostra um toast adequado ao tipo do erro lançado por uma chamada da camada
+ * de API:
+ *  - `ApiError` → usa `err.message` (vem do back).
+ *  - Qualquer outro (TypeError de fetch sem rede, CORS) → mensagem amigável
+ *    sinalizando falta de conexão.
+ *
+ * Não engole o erro: re-lança para o chamador decidir se aborta o fluxo.
+ *
+ * @param {unknown} err
+ * @param {string} [contexto] Verbo da ação ("vincular", "resolver"…) usado no
+ *   fallback quando o `ApiError.message` é vazio.
+ * @returns {never}
+ */
+function reportarErroRede(err, contexto = 'concluir a ação') {
+    if (typeof ApiError !== 'undefined' && err instanceof ApiError) {
+        mostrarToast(err.message || `Erro ao ${contexto}.`, 'erro');
+    } else {
+        mostrarToast('Sem conexão com o servidor. Verifique sua internet.', 'erro');
+    }
+    throw err;
+}

@@ -1,0 +1,142 @@
+/* ===========================================================
+   Tela 5 — Atendentes não-vinculados (TASK-08).
+   Específico: autocomplete (combobox + listbox), checkbox de
+   "atualizar idRelogio" e modal "Tudo pronto".
+   =========================================================== */
+
+/* ---------- Autocomplete ---------- */
+
+.form-row[data-autocomplete] {
+    position: relative;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    max-height: 260px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.autocomplete-list[hidden] { display: none; }
+
+.autocomplete-list li {
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--secondary-light);
+    transition: background-color 0.12s ease;
+}
+
+.autocomplete-list li:last-child { border-bottom: none; }
+
+.autocomplete-list li:hover,
+.autocomplete-list li[aria-selected="true"] {
+    background-color: #eef3f8;
+}
+
+.autocomplete-list li.is-vazio {
+    color: var(--text-muted);
+    font-style: italic;
+    cursor: default;
+    justify-content: center;
+}
+
+.autocomplete-list .autocomplete__nome {
+    flex: 1;
+    min-width: 0;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.autocomplete-list .autocomplete__loja {
+    color: var(--text-muted);
+    font-size: 0.88em;
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+/* ---------- Checkbox de "Atualizar idRelogio" ---------- */
+
+.form-row--checkbox {
+    background-color: var(--background-light);
+    border: 1px solid var(--secondary-light);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.checkbox-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 500;
+    color: var(--text-dark);
+    cursor: pointer;
+    line-height: 1.4;
+    font-size: 0.95em;
+}
+
+.checkbox-wrap input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--primary-blue);
+    flex-shrink: 0;
+}
+
+.checkbox-wrap code {
+    background: #e8eef6;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.92em;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: var(--primary-blue-dark, #5A7B9C);
+}
+
+/* ---------- Modal "Tudo pronto" ---------- */
+
+.modal-dialog--celebracao .modal-header h2 {
+    color: var(--success-green);
+    text-align: center;
+}
+
+.modal-dialog--celebracao .modal-body {
+    text-align: center;
+    line-height: 1.55;
+}
+
+.modal-dialog--celebracao .modal-body p:first-of-type {
+    font-size: 1.05em;
+}
+
+/* ---------- Cell helpers desta tela ---------- */
+
+.cell-id-relogio {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+}
+
+.cell-id-relogio code {
+    background: #e8eef6;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.92em;
+    color: var(--primary-blue-dark, #5A7B9C);
+}
+
+.badge--info-small {
+    margin-left: 6px;
+}

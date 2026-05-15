@@ -307,6 +307,41 @@ function renderizarConcluido(snapshot) {
 
     ctaVerDetalhes.href = `/html/importacao-detalhes.html?id=${snapshot.id}`;
     transicionarPara('CONCLUIDO');
+
+    // TASK-10 — limpa flag "reimportação pendente" para o relatório atual e
+    // (heurística) para qualquer relatório anterior com o mesmo período. Isso
+    // cobre o caso da MASTER tê-la marcado em outro relatório (vinculou na
+    // Tela 5 → reimportou aqui).
+    if (typeof limparReimportacaoPendente === 'function') {
+        limparReimportacaoPendente(snapshot.id);
+        limparPendenciasPorPeriodo(snapshot);
+    }
+}
+
+/**
+ * Heurística complementar para a flag de "reimportação pendente":
+ * remove do `Set` qualquer relatório anterior cujo período coincida com o
+ * recém-importado (mesmo `nomeArquivo` ou mesmo intervalo `periodoInicio/Fim`).
+ *
+ * Funciona em background — qualquer falha de listagem é silenciada porque a
+ * Tela 3 ainda fará o check via API.
+ */
+async function limparPendenciasPorPeriodo(snapshot) {
+    try {
+        const page = await listarRelatorios({ page: 0, size: 50, sort: 'inputDate,desc' });
+        const conteudo = Array.isArray(page?.content) ? page.content : [];
+        conteudo.forEach(r => {
+            if (r.id === snapshot.id) return;
+            const mesmoArquivo = r.nomeArquivo && r.nomeArquivo === snapshot.nomeArquivo;
+            const mesmoPeriodo = r.periodoInicio === snapshot.periodoInicio
+                              && r.periodoFim   === snapshot.periodoFim;
+            if (mesmoArquivo || mesmoPeriodo) {
+                limparReimportacaoPendente(r.id);
+            }
+        });
+    } catch {
+        /* silenciar — é só um cache local */
+    }
 }
 
 /**
