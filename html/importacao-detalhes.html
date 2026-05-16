@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Detalhes da importação · GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/importacao-comum.css">
+    <link rel="stylesheet" href="/css/importacao-pontos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header page-header--breadcrumb">
+            <a href="/html/importacoes-historico.html" class="link-back">← Voltar ao histórico</a>
+            <div class="page-title-row">
+                <div>
+                    <h1 id="tituloRelatorio">Importação #—</h1>
+                    <p class="page-subtitle" id="subtitleRelatorio">Carregando…</p>
+                </div>
+                <div class="page-actions" id="acoesTopo">
+                    <span id="badgeStatus"></span>
+                </div>
+            </div>
+        </header>
+
+        <div id="aviso-reimportacao" class="banner-aviso" hidden role="status" aria-live="polite">
+            <span class="banner-aviso__icon" aria-hidden="true">ℹ</span>
+            <div class="banner-aviso__body">
+                <strong>Reimportação pendente.</strong>
+                <span id="aviso-reimportacao-texto">Você resolveu vínculos sem reimportar — as batidas desses colaboradores ainda não viraram ponto. Reimporte para fechar.</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btnReimportarBanner">Reimportar agora</button>
+        </div>
+
+        <!-- Conteúdo principal — Aparece apenas se status ∈ {CONCLUIDA, AGENDADA, PROCESSANDO} -->
+        <div id="conteudoPrincipal" aria-busy="true">
+            <section class="contador-grid contador-grid--detalhes" id="contadoresGrid" aria-live="polite">
+                <article class="contador-card contador-card--ok">
+                    <span class="contador-card__icone" aria-hidden="true">✓</span>
+                    <span class="contador-card__label">Pontos OK</span>
+                    <span class="contador-card__valor" id="valorPontosOk">—</span>
+                    <span class="contador-card__hint" id="hintPontosOk">Dias completos importados sem ambiguidade.</span>
+                </article>
+                <article class="contador-card contador-card--alerta" id="cardInconsistencias">
+                    <span class="contador-card__icone" aria-hidden="true">⚠</span>
+                    <span class="contador-card__label">Inconsistências</span>
+                    <span class="contador-card__valor" id="valorInconsistencias">—</span>
+                    <span class="contador-card__hint" id="hintInconsistencias">—</span>
+                    <a class="btn btn-secondary btn-sm" id="ctaInconsistencias" hidden>Ver e tratar</a>
+                </article>
+                <article class="contador-card contador-card--alerta" id="cardNaoVinculados">
+                    <span class="contador-card__icone" aria-hidden="true">❓</span>
+                    <span class="contador-card__label">Atendentes não-vinculados</span>
+                    <span class="contador-card__valor" id="valorNaoVinculados">—</span>
+                    <span class="contador-card__hint" id="hintNaoVinculados">—</span>
+                    <a class="btn btn-secondary btn-sm" id="ctaNaoVinculados" hidden>Ver e tratar</a>
+                </article>
+            </section>
+
+            <section class="panel" id="painelAcoes">
+                <header class="panel-header">
+                    <div>
+                        <h2>Ações</h2>
+                        <p class="panel-subtitle">Reimportar é seguro — o sistema não duplica pontos já criados.</p>
+                    </div>
+                </header>
+                <div class="panel-body acoes-relatorio">
+                    <a class="btn btn-primary" id="ctaReimportar" href="#">Reimportar esta planilha</a>
+                    <a class="btn btn-secondary" href="/html/importacao-pontos.html">Importar nova planilha</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- Estado FALHOU -->
+        <section class="panel panel--erro" id="painelFalhou" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2>Falha no processamento</h2>
+                    <p class="panel-subtitle" id="falhouMensagem">—</p>
+                </div>
+            </header>
+            <div class="panel-body acoes-relatorio">
+                <a class="btn btn-primary" href="/html/importacao-pontos.html">Tentar nova importação</a>
+                <a class="btn btn-secondary" href="/html/importacoes-historico.html">Voltar ao histórico</a>
+            </div>
+        </section>
+
+        <!-- Estado: id inválido / não encontrado -->
+        <section class="panel" id="painelOrientativo" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2 id="orientativoTitulo">Relatório não encontrado</h2>
+                    <p class="panel-subtitle" id="orientativoSubtitle">—</p>
+                </div>
+            </header>
+            <div class="panel-body acoes-relatorio">
+                <a class="btn btn-primary" href="/html/importacoes-historico.html">Ir para o histórico</a>
+                <a class="btn btn-secondary" href="/html/importacao-pontos.html">Importar nova planilha</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/importacao-pontos.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/importacao-ui.js"></script>
+    <script src="/js/importacao-detalhes.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

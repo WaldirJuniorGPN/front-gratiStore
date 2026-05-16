@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Inconsistências · GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/importacao-comum.css">
+    <link rel="stylesheet" href="/css/inconsistencias.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header page-header--breadcrumb">
+            <a class="link-back" id="linkVoltar" href="/html/importacoes-historico.html">← Voltar ao relatório</a>
+            <div class="page-title-row">
+                <div>
+                    <h1>Inconsistências</h1>
+                    <p class="page-subtitle" id="subtitle">Carregando…</p>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tabs" role="tablist" aria-label="Filtrar por status">
+            <button type="button" class="tab" role="tab" aria-selected="true" aria-controls="painelLista" tabindex="0" data-status="PENDENTE">
+                Pendentes <span class="tab__contador" id="contagemPendente">—</span>
+            </button>
+            <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="painelLista" tabindex="-1" data-status="RESOLVIDA">
+                Resolvidas <span class="tab__contador" id="contagemResolvida">—</span>
+            </button>
+            <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="painelLista" tabindex="-1" data-status="DESCARTADA">
+                Descartadas <span class="tab__contador" id="contagemDescartada">—</span>
+            </button>
+        </nav>
+
+        <section class="panel" id="painelLista" role="tabpanel" aria-busy="true">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Atendente</th>
+                            <th>Tipo</th>
+                            <th>Batidas brutas</th>
+                            <th class="th-acao" aria-label="Ações"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo">
+                        <tr class="row-loading"><td colspan="5">Carregando inconsistências…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <footer class="panel-footer paginacao" id="paginacao" hidden>
+                <span class="paginacao__info" id="paginacaoInfo">—</span>
+                <div class="paginacao__controles">
+                    <button type="button" class="paginacao__btn" id="paginaAnterior" aria-label="Página anterior">←</button>
+                    <span>Página <span class="paginacao__atual" id="paginaAtual">1</span> de <span class="paginacao__atual" id="paginaTotal">1</span></span>
+                    <button type="button" class="paginacao__btn" id="paginaProxima" aria-label="Próxima página">→</button>
+                </div>
+            </footer>
+        </section>
+
+        <!-- Modal Resolver -->
+        <div class="modal" id="modalResolver" hidden>
+            <div class="modal-backdrop" data-fechar-resolver></div>
+            <div class="modal-dialog modal-dialog--wide" role="dialog" aria-modal="true" aria-labelledby="modalResolverTitulo">
+                <header class="modal-header">
+                    <h2 id="modalResolverTitulo">Resolver inconsistência</h2>
+                    <button type="button" class="modal-close" data-fechar-resolver aria-label="Fechar">×</button>
+                </header>
+                <form id="formResolver">
+                    <div class="modal-body">
+                        <dl class="info-resolver">
+                            <div><dt>Atendente</dt><dd id="resolverAtendente">—</dd></div>
+                            <div><dt>Data</dt><dd id="resolverData">—</dd></div>
+                            <div><dt>Tipo</dt><dd id="resolverTipo">—</dd></div>
+                        </dl>
+
+                        <div class="batidas-brutas-bloco">
+                            <p class="form-hint">Batidas registradas no relógio — <strong>clique em uma para preencher o input em foco</strong>:</p>
+                            <div id="chipsResolver"></div>
+                        </div>
+
+                        <div class="form-grid--4">
+                            <div class="form-row">
+                                <label for="entrada">Entrada <span class="required">*</span></label>
+                                <input type="time" id="entrada" step="60" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="inicioAlmoco">Início almoço <span class="required">*</span></label>
+                                <input type="time" id="inicioAlmoco" step="60" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="fimAlmoco">Fim almoço <span class="required">*</span></label>
+                                <input type="time" id="fimAlmoco" step="60" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="saida">Saída <span class="required">*</span></label>
+                                <input type="time" id="saida" step="60" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="observacao">Observação <span class="form-optional">(opcional, máx 500)</span></label>
+                            <textarea id="observacao" rows="3" maxlength="500" placeholder="Ex.: 'Corrigido conforme apontamento manual do gerente'"></textarea>
+                            <small class="form-hint"><span id="observacaoCount">0</span>/500</small>
+                        </div>
+
+                        <div class="form-error" id="erroResolver" hidden></div>
+                    </div>
+                    <footer class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-fechar-resolver>Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnConfirmarResolver">Resolver e criar ponto</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Descartar -->
+        <div class="modal" id="modalDescartar" hidden>
+            <div class="modal-backdrop" data-fechar-descartar></div>
+            <div class="modal-dialog modal-dialog--small" role="alertdialog" aria-modal="true" aria-labelledby="modalDescartarTitulo">
+                <header class="modal-header">
+                    <h2 id="modalDescartarTitulo">Descartar inconsistência</h2>
+                    <button type="button" class="modal-close" data-fechar-descartar aria-label="Fechar">×</button>
+                </header>
+                <form id="formDescartar">
+                    <div class="modal-body">
+                        <p>Você está descartando a inconsistência de <strong id="descartarResumo">—</strong>.</p>
+                        <p class="text-muted">Nenhum ponto diário será criado para esse dia.</p>
+                        <div class="form-row">
+                            <label for="motivo">Motivo <span class="required">*</span></label>
+                            <textarea id="motivo" rows="3" maxlength="500" required placeholder="Ex.: férias, atestado médico, falha do relógio…"></textarea>
+                            <small class="form-hint"><span id="motivoCount">0</span>/500</small>
+                        </div>
+                        <div class="form-error" id="erroDescartar" hidden></div>
+                    </div>
+                    <footer class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-fechar-descartar>Voltar</button>
+                        <button type="submit" class="btn btn-danger" id="btnConfirmarDescartar">Descartar</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/importacao-pontos.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/importacao-ui.js"></script>
+    <script src="/js/inconsistencias.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

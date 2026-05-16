@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Importar Logs de Ponto</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/importacao-comum.css">
+    <link rel="stylesheet" href="/css/importacao-pontos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header">
+            <div>
+                <h1>Importar Logs de Ponto</h1>
+                <p class="page-subtitle">Suba a planilha exportada pelo relógio biométrico — o sistema cria os pontos diários automaticamente e separa o que precisa de revisão.</p>
+            </div>
+            <div class="page-actions">
+                <a href="/html/importacoes-historico.html" class="btn btn-secondary">Histórico</a>
+            </div>
+        </header>
+
+        <!-- Banner de contexto exibido só quando ?reimportar={id} está presente -->
+        <div id="bannerReimportacao" class="banner-info" hidden role="status" aria-live="polite">
+            <span class="banner-info__icon" aria-hidden="true">↻</span>
+            <div class="banner-info__body">
+                <strong>Reimportando relatório <span id="bannerReimpId">#—</span></strong>
+                <span id="bannerReimpContexto">Selecione a mesma loja e suba a planilha novamente para fechar o ciclo. Pontos já criados não são duplicados.</span>
+            </div>
+        </div>
+
+        <!-- Estado VAZIO / ARQUIVO_SELECIONADO -->
+        <section class="panel" id="painelUpload">
+            <header class="panel-header">
+                <div>
+                    <h2>1. Selecionar loja e arquivo</h2>
+                    <p class="panel-subtitle">A planilha pertence a uma loja específica. Cada loja tem o seu próprio cadastro de IDs no relógio.</p>
+                </div>
+            </header>
+            <div class="panel-body">
+                <div class="campo-loja">
+                    <label for="lojaImportacao">Loja de destino <span class="required">*</span></label>
+                    <select id="lojaImportacao" required>
+                        <option value="">Selecione a loja…</option>
+                    </select>
+                    <small class="campo-ajuda">O backend usa essa loja para casar cada ID do relógio com o atendente correto.</small>
+                </div>
+
+                <label class="dropzone" id="dropzone">
+                    <input type="file" id="inputArquivo" accept=".xls,.xlsx" hidden>
+                    <span class="dropzone__icon" aria-hidden="true">⇪</span>
+                    <span class="dropzone__primary">Arraste o arquivo aqui ou <u>clique para selecionar</u></span>
+                    <span class="dropzone__hint">Apenas arquivos <strong>.xls</strong> ou <strong>.xlsx</strong> (até 10 MB). A planilha deve ter a aba "Logs Comparecimento" com a célula C3 contendo o período no formato YYYY-MM-DD ~ MM-DD.</span>
+                </label>
+
+                <div class="arquivo-selecionado" id="arquivoSelecionado" hidden>
+                    <div class="arquivo-selecionado__info">
+                        <span class="arquivo-selecionado__nome" id="arquivoNome">—</span>
+                        <span class="arquivo-selecionado__tamanho" id="arquivoTamanho">—</span>
+                    </div>
+                    <button type="button" class="btn-icon-action btn-icon-danger" id="btnLimparArquivo"
+                            title="Remover arquivo selecionado" aria-label="Remover arquivo selecionado">✕</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="btnImportar" disabled>Importar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estado ENVIANDO / AGENDADA / PROCESSANDO -->
+        <section class="panel" id="painelProcessando" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2>2. Processando…</h2>
+                    <p class="panel-subtitle" id="processandoSubtitle">Aguarde — isso costuma levar poucos segundos.</p>
+                </div>
+            </header>
+            <div class="panel-body">
+                <div class="progress-bar" role="status" aria-live="polite" aria-label="Importação em andamento">
+                    <div class="progress-bar__indeterminate"></div>
+                </div>
+
+                <dl class="preview-relatorio" id="previewRelatorio" hidden>
+                    <div><dt>Período detectado</dt><dd id="previewPeriodo">—</dd></div>
+                    <div><dt>Funcionários detectados</dt><dd id="previewFuncionarios">—</dd></div>
+                    <div><dt>Status</dt><dd id="previewStatus">—</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <!-- Estado CONCLUIDA -->
+        <section class="panel panel--sucesso" id="painelConcluido" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2>3. Pronto!</h2>
+                    <p class="panel-subtitle">A importação terminou. Confira os números abaixo.</p>
+                </div>
+            </header>
+            <div class="panel-body">
+                <div class="contador-grid" id="contadoresGrid">
+                    <!-- preenchido via JS -->
+                </div>
+                <div class="form-actions">
+                    <a class="btn btn-primary" id="ctaVerDetalhes" href="#">Ver detalhes do relatório</a>
+                    <button type="button" class="btn btn-secondary" id="ctaNovaImportacao">Importar outro</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estado FALHOU -->
+        <section class="panel panel--erro" id="painelFalhou" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2>Falha no processamento</h2>
+                    <p class="panel-subtitle" id="falhouMensagem">—</p>
+                </div>
+            </header>
+            <div class="panel-body">
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="ctaTentarNovamente">Tentar novamente</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal de confirmação de loja + arquivo (recomendado pelo back — §UX do doc 12) -->
+        <div class="modal" id="modalConfirmarUpload" hidden>
+            <div class="modal-backdrop" data-fechar-confirmar></div>
+            <div class="modal-dialog modal-dialog--small" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarTitulo">
+                <header class="modal-header">
+                    <h2 id="modalConfirmarTitulo">Confirmar importação</h2>
+                    <button type="button" class="modal-close" data-fechar-confirmar aria-label="Fechar">×</button>
+                </header>
+                <div class="modal-body">
+                    <p>Você está prestes a importar a planilha:</p>
+                    <dl class="info-vincular">
+                        <div><dt>Arquivo</dt><dd id="confirmArquivoNome">—</dd></div>
+                        <div><dt>Loja de destino</dt><dd id="confirmLojaNome">—</dd></div>
+                    </dl>
+                    <div class="banner-aviso banner-aviso--inline" role="note">
+                        <span class="banner-aviso__icon" aria-hidden="true">⚠</span>
+                        <div class="banner-aviso__body">
+                            Confirme se essa é a loja certa para esta planilha. O sistema usa o ID do relógio <strong>dentro desta loja</strong> para cruzar com os atendentes — escolher a loja errada pode gerar inconsistências e vínculos trocados.
+                        </div>
+                    </div>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-fechar-confirmar>Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarUpload">Confirmar upload</button>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/importacao-pontos.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/importacao-ui.js"></script>
+    <script src="/js/importacao-pontos.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

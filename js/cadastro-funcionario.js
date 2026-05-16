@@ -14,6 +14,7 @@ const inputNome = document.getElementById('nome');
 const inputLoja = document.getElementById('loja');
 const inputSalario = document.getElementById('salario');
 const inputDataAdmissao = document.getElementById('dataAdmissao');
+const inputIdRelogio = document.getElementById('idRelogioPonto');
 const erroFormulario = document.getElementById('erroFormulario');
 const btnConfirmar = document.getElementById('btnConfirmar');
 const btnNovoAtendente = document.getElementById('btnNovoAtendente');
@@ -101,7 +102,7 @@ async function carregarAtendentes(lojaId) {
         renderizarLista();
         return;
     }
-    tabelaBody.innerHTML = '<tr class="row-loading"><td colspan="4">Carregando atendentes...</td></tr>';
+    tabelaBody.innerHTML = '<tr class="row-loading"><td colspan="5">Carregando atendentes...</td></tr>';
     try {
         const atendentes = await apiGet(`/lojas/${lojaId}/atendentes`);
         const atendentesComSalario = await Promise.all(
@@ -156,7 +157,7 @@ function renderizarLista() {
         const tr = document.createElement('tr');
         tr.className = 'row-empty';
         const td = document.createElement('td');
-        td.colSpan = 4;
+        td.colSpan = 5;
         td.textContent = 'Selecione uma loja para visualizar seus atendentes.';
         tr.appendChild(td);
         tabelaBody.appendChild(tr);
@@ -167,7 +168,7 @@ function renderizarLista() {
         const tr = document.createElement('tr');
         tr.className = 'row-empty';
         const td = document.createElement('td');
-        td.colSpan = 4;
+        td.colSpan = 5;
         td.textContent = termo
             ? 'Nenhum atendente encontrado para a busca.'
             : 'Nenhum atendente cadastrado para esta loja.';
@@ -193,6 +194,14 @@ function renderizarLista() {
         admissaoTd.className = 'cell-muted';
         admissaoTd.textContent = formatarDataAdmissao(at.dataAdmissao);
 
+        const relogioTd = document.createElement('td');
+        relogioTd.className = 'cell-muted';
+        relogioTd.style.fontVariantNumeric = 'tabular-nums';
+        relogioTd.textContent = at.idRelogioPonto ?? '—';
+        relogioTd.title = at.idRelogioPonto
+            ? 'ID do relógio biométrico'
+            : 'Sem ID — importação dependerá de fuzzy match';
+
         const acaoTd = document.createElement('td');
         acaoTd.className = 'cell-acao';
 
@@ -216,6 +225,7 @@ function renderizarLista() {
         tr.appendChild(nomeTd);
         tr.appendChild(salarioTd);
         tr.appendChild(admissaoTd);
+        tr.appendChild(relogioTd);
         tr.appendChild(acaoTd);
         tabelaBody.appendChild(tr);
     });
@@ -241,6 +251,8 @@ function abrirModalCriacao() {
     inputSalario.value = '';
     inputDataAdmissao.value = '';
     inputDataAdmissao.max = new Date().toISOString().slice(0, 10);
+    inputIdRelogio.value = '';
+    inputIdRelogio.dataset.original = '';
     limparErroForm();
     modalAtendente.hidden = false;
     setTimeout(() => inputNome.focus(), 50);
@@ -257,6 +269,9 @@ function abrirModalEdicao(atendente) {
         : '';
     inputDataAdmissao.value = atendente.dataAdmissao || '';
     inputDataAdmissao.max = new Date().toISOString().slice(0, 10);
+    const idRelogioOriginal = atendente.idRelogioPonto != null ? String(atendente.idRelogioPonto) : '';
+    inputIdRelogio.value = idRelogioOriginal;
+    inputIdRelogio.dataset.original = idRelogioOriginal;
     limparErroForm();
     modalAtendente.hidden = false;
     setTimeout(() => inputNome.focus(), 50);
@@ -292,6 +307,16 @@ async function salvarAtendente(event) {
         return;
     }
 
+    const valorIdRelogio = inputIdRelogio.value.trim();
+    const valorIdRelogioOriginal = inputIdRelogio.dataset.original ?? '';
+    if (valorIdRelogio !== '') {
+        const idRelogioParsed = parseInt(valorIdRelogio, 10);
+        if (!Number.isInteger(idRelogioParsed) || idRelogioParsed <= 0) {
+            mostrarErroForm('O ID do relógio de ponto deve ser um número inteiro positivo.');
+            return;
+        }
+    }
+
     btnConfirmar.disabled = true;
 
     const body = {
@@ -302,11 +327,17 @@ async function salvarAtendente(event) {
     };
 
     try {
+        let atendenteIdSalvo;
         if (atendenteEditandoId) {
             await apiPut(`/atendentes/${atendenteEditandoId}`, body);
+            atendenteIdSalvo = atendenteEditandoId;
         } else {
-            await apiPost('/atendentes', body);
+            const novoAtendente = await apiPost('/atendentes', body);
+            atendenteIdSalvo = novoAtendente?.id;
         }
+
+        await sincronizarIdRelogio(atendenteIdSalvo, valorIdRelogio, valorIdRelogioOriginal);
+
         mostrarMensagem(
             atendenteEditandoId ? 'Atendente atualizado com sucesso!' : 'Atendente cadastrado com sucesso!',
             'sucesso'
@@ -327,6 +358,61 @@ async function salvarAtendente(event) {
         mostrarErroForm(msg);
     } finally {
         btnConfirmar.disabled = false;
+    }
+}
+
+/**
+ * Sincroniza o `idRelogioPonto` do atendente com o valor informado no formulário.
+ *
+ * Estratégia: o atendente já está salvo antes desta chamada. Falha aqui é tratada
+ * como aviso secundário (toast) — não desfaz o save. A MASTER pode reabrir depois
+ * para corrigir.
+ *
+ * - Sem alteração → no-op (evita 409 espúrio).
+ * - Esvaziamento → `DELETE /atendentes/{id}/id-relogio` (idempotente; 404 é ignorado).
+ * - Preenchimento/alteração → `PATCH /atendentes/{id}/id-relogio` (409 vira toast persistente).
+ *
+ * @param {number|undefined} atendenteId
+ * @param {string} valorAtual
+ * @param {string} valorOriginal
+ */
+async function sincronizarIdRelogio(atendenteId, valorAtual, valorOriginal) {
+    if (!atendenteId) return;
+    if (valorAtual === valorOriginal) return;
+
+    if (valorAtual === '') {
+        try {
+            await desvincularIdRelogio(atendenteId);
+        } catch (err) {
+            if (err instanceof ApiError && err.status === 404) return; // idempotente
+            mostrarToast(
+                'Atendente salvo, mas houve erro ao remover o ID do relógio: ' + err.message,
+                'aviso',
+                { duracaoMs: 6000 }
+            );
+        }
+        return;
+    }
+
+    const idRelogio = parseInt(valorAtual, 10);
+    try {
+        await vincularIdRelogio(atendenteId, idRelogio);
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 409) {
+            // O back manda a mensagem definitiva (escopo de loja vem dele).
+            const motivo = err.message || `o ID ${idRelogio} já está em uso.`;
+            mostrarToast(
+                `Atendente salvo, mas ${motivo} Edite o outro registro primeiro para liberar este ID.`,
+                'aviso',
+                { duracaoMs: 0 }
+            );
+        } else {
+            mostrarToast(
+                'Atendente salvo, mas falhou ao vincular o ID do relógio: ' + err.message,
+                'erro',
+                { duracaoMs: 6000 }
+            );
+        }
     }
 }
 

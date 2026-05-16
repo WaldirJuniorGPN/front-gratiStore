@@ -25,6 +25,12 @@ async function carregarDadosFuncionario() {
         if (atendente.dataAdmissao) {
             document.getElementById('dataAdmissao').value = atendente.dataAdmissao;
         }
+        const inputIdRelogio = document.getElementById('idRelogioPonto');
+        if (inputIdRelogio) {
+            const valor = atendente.idRelogioPonto != null ? String(atendente.idRelogioPonto) : '';
+            inputIdRelogio.value = valor;
+            inputIdRelogio.dataset.original = valor;
+        }
     } catch (err) {
         const mensagem = err instanceof ApiError ? (err.message || 'Erro ao carregar dados do funcionário.') : 'Erro de conexão com o servidor.';
         document.getElementById('mensagem').innerText = mensagem;
@@ -40,6 +46,9 @@ async function atualizarFuncionario(event) {
     const salarioRaw = document.getElementById('salario').value;
     const dataAdmissao = document.getElementById('dataAdmissao').value;
     const salario = salarioRaw.replace(/\./g, '').replace(/,/g, '.');
+    const inputIdRelogio = document.getElementById('idRelogioPonto');
+    const valorIdRelogio = inputIdRelogio ? inputIdRelogio.value.trim() : '';
+    const valorIdRelogioOriginal = inputIdRelogio ? (inputIdRelogio.dataset.original ?? '') : '';
 
     if (!nome || !lojaId || !salario || !dataAdmissao) {
         document.getElementById('mensagem').innerText = 'Preencha todos os campos antes de salvar.';
@@ -52,6 +61,14 @@ async function atualizarFuncionario(event) {
         return;
     }
 
+    if (valorIdRelogio !== '') {
+        const idRelogioParsed = parseInt(valorIdRelogio, 10);
+        if (!Number.isInteger(idRelogioParsed) || idRelogioParsed <= 0) {
+            document.getElementById('mensagem').innerText = 'O ID do relógio de ponto deve ser um número inteiro positivo.';
+            return;
+        }
+    }
+
     try {
         await apiPut(`/atendentes/${funcionarioId}`, {
             nome,
@@ -59,11 +76,63 @@ async function atualizarFuncionario(event) {
             salario: parseFloat(salario),
             dataAdmissao
         });
+        await sincronizarIdRelogio(funcionarioId, valorIdRelogio, valorIdRelogioOriginal);
+        if (inputIdRelogio) inputIdRelogio.dataset.original = valorIdRelogio;
         document.getElementById('mensagem').innerText = 'Funcionário atualizado com sucesso!';
     } catch (err) {
         const mensagem = err instanceof ApiError ? (err.message || 'Erro ao atualizar o funcionário.') : 'Erro de conexão com o servidor.';
         document.getElementById('mensagem').innerText = mensagem;
         console.error('Erro:', err);
+    }
+}
+
+/**
+ * Sincroniza o `idRelogioPonto` do atendente após o PUT principal.
+ * Falha aqui não desfaz o save — vira toast de aviso/erro.
+ *
+ * @param {string|number} atendenteId
+ * @param {string} valorAtual
+ * @param {string} valorOriginal
+ */
+async function sincronizarIdRelogio(atendenteId, valorAtual, valorOriginal) {
+    if (valorAtual === valorOriginal) return;
+
+    if (valorAtual === '') {
+        try {
+            await desvincularIdRelogio(atendenteId);
+        } catch (err) {
+            if (err instanceof ApiError && err.status === 404) return;
+            if (typeof mostrarToast === 'function') {
+                mostrarToast(
+                    'Funcionário salvo, mas houve erro ao remover o ID do relógio: ' + err.message,
+                    'aviso',
+                    { duracaoMs: 6000 }
+                );
+            }
+        }
+        return;
+    }
+
+    const idRelogio = parseInt(valorAtual, 10);
+    try {
+        await vincularIdRelogio(atendenteId, idRelogio);
+    } catch (err) {
+        if (typeof mostrarToast !== 'function') return;
+        if (err instanceof ApiError && err.status === 409) {
+            // O back manda a mensagem definitiva (escopo de loja vem dele).
+            const motivo = err.message || `o ID ${idRelogio} já está em uso.`;
+            mostrarToast(
+                `Funcionário salvo, mas ${motivo} Edite o outro registro primeiro para liberar este ID.`,
+                'aviso',
+                { duracaoMs: 0 }
+            );
+        } else {
+            mostrarToast(
+                'Funcionário salvo, mas falhou ao vincular o ID do relógio: ' + err.message,
+                'erro',
+                { duracaoMs: 6000 }
+            );
+        }
     }
 }
 

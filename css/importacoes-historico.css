@@ -1,0 +1,64 @@
+/* ===========================================================
+   Tela 1 — Histórico de Importações (TASK-09).
+   Linhas inteiras clicáveis levam à Tela 3. Em viewports
+   estreitos, escondemos colunas menos importantes para
+   evitar scroll horizontal.
+   =========================================================== */
+
+.data-table tbody tr.row-clicavel td {
+    transition: background-color 0.15s ease;
+}
+
+.cell-resumo-ok {
+    color: var(--success-green);
+    font-weight: 700;
+}
+
+.cell-pendencias {
+    color: #92400e;
+    font-weight: 700;
+}
+
+.btn-icon-action.btn-link {
+    color: var(--primary-blue);
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+/* ---------- Estado vazio com CTA ---------- */
+
+.row-empty-cta td {
+    padding: 36px 18px !important;
+    text-align: center !important;
+}
+
+.row-empty-cta .empty-titulo {
+    display: block;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    font-size: 1.02em;
+}
+
+.row-empty-cta .empty-desc {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    font-style: normal;
+}
+
+/* ---------- Responsividade ---------- */
+
+@media (max-width: 720px) {
+    .data-table .col-id,
+    .data-table .col-pontos-ok {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .data-table .col-periodo {
+        display: none;
+    }
+}

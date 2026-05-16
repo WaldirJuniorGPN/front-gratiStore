@@ -1,0 +1,117 @@
+/* ===========================================================
+   Tela 4 — Inconsistências (TASK-07).
+   A maior parte dos estilos vem dos primitivos compartilhados
+   (cadastro-shared.css + importacao-comum.css). Este arquivo
+   cobre o que é específico da revisão de inconsistências:
+   modais Resolver/Descartar com 4 inputs `time` + chips.
+   =========================================================== */
+
+/* ---------- Grid de 4 inputs time (entrada → saida) ---------- */
+
+.form-grid--4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 16px;
+}
+
+.form-grid--4 .form-row {
+    margin-bottom: 0;
+}
+
+.form-grid--4 input[type="time"] {
+    padding: 11px 14px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    font-size: 0.97em;
+    font-family: inherit;
+    color: var(--text-dark);
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+}
+
+.form-grid--4 input[type="time"]:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.18);
+}
+
+@media (max-width: 720px) {
+    .form-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 380px) {
+    .form-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* ---------- Bloco de batidas brutas no modal Resolver ---------- */
+
+.batidas-brutas-bloco {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background-color: var(--background-light);
+    border: 1px solid var(--secondary-light);
+}
+
+.batidas-brutas-bloco .form-hint {
+    margin: 0 0 8px;
+    font-size: 0.88em;
+    color: var(--text-dark);
+}
+
+.batidas-brutas-bloco .chips-batidas {
+    gap: 8px;
+}
+
+/* ---------- Textarea com contador de caracteres ---------- */
+
+.form-row textarea {
+    padding: 11px 14px;
+    border: 1px solid var(--secondary-light);
+    border-radius: 8px;
+    font-size: 0.97em;
+    font-family: inherit;
+    color: var(--text-dark);
+    background-color: #fff;
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.45;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-row textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(106, 142, 174, 0.18);
+}
+
+/* ---------- Cell com observação resolvida/descartada ---------- */
+
+.cell-status-tratado {
+    color: var(--text-muted);
+    font-style: italic;
+    cursor: help;
+}
+
+.cell-status-tratado strong {
+    color: var(--text-dark);
+    font-style: normal;
+}
+
+/* ---------- Coluna "Batidas brutas" ---------- */
+
+.cell-batidas {
+    max-width: 320px;
+}
+
+.cell-batidas .chips-batidas {
+    gap: 4px;
+}
+
+.cell-batidas .chip {
+    font-size: 0.85em;
+    padding: 3px 8px;
+}

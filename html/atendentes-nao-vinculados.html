@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <title>Atendentes não-vinculados · GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/importacao-comum.css">
+    <link rel="stylesheet" href="/css/atendentes-nao-vinculados.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main>
+        <header class="page-header page-header--breadcrumb">
+            <a class="link-back" id="linkVoltar" href="/html/importacoes-historico.html">← Voltar ao relatório</a>
+            <div class="page-title-row">
+                <div>
+                    <h1>Atendentes não-vinculados</h1>
+                    <p class="page-subtitle" id="subtitle">Colaboradores da planilha que o sistema não conseguiu casar com o cadastro.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="banner-info" role="note">
+            <span class="banner-info__icon" aria-hidden="true">ℹ</span>
+            <div class="banner-info__body">
+                <strong>Vincular não cria pontos retroativos.</strong>
+                Para que as batidas dos colaboradores vinculados virem pontos, é necessário reimportar a planilha após resolver os vínculos.
+            </div>
+        </div>
+
+        <nav class="tabs" role="tablist" aria-label="Filtrar por status">
+            <button type="button" class="tab" role="tab" aria-selected="true" aria-controls="painelLista" tabindex="0" data-resolvido="false">
+                Pendentes <span class="tab__contador" id="contagemPendentes">—</span>
+            </button>
+            <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="painelLista" tabindex="-1" data-resolvido="true">
+                Vinculados <span class="tab__contador" id="contagemVinculados">—</span>
+            </button>
+        </nav>
+
+        <section class="panel" id="painelLista" role="tabpanel" aria-busy="true">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome (planilha)</th>
+                            <th>ID relógio</th>
+                            <th class="th-num">Dias com batida</th>
+                            <th>Status</th>
+                            <th class="th-acao" aria-label="Ações"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo">
+                        <tr class="row-loading"><td colspan="5">Carregando…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <footer class="panel-footer paginacao" id="paginacao" hidden>
+                <span class="paginacao__info" id="paginacaoInfo">—</span>
+                <div class="paginacao__controles">
+                    <button type="button" class="paginacao__btn" id="paginaAnterior" aria-label="Página anterior">←</button>
+                    <span>Página <span class="paginacao__atual" id="paginaAtual">1</span> de <span class="paginacao__atual" id="paginaTotal">1</span></span>
+                    <button type="button" class="paginacao__btn" id="paginaProxima" aria-label="Próxima página">→</button>
+                </div>
+            </footer>
+        </section>
+
+        <!-- Modal Vincular -->
+        <div class="modal" id="modalVincular" hidden>
+            <div class="modal-backdrop" data-fechar-vincular></div>
+            <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalVincularTitulo">
+                <header class="modal-header">
+                    <h2 id="modalVincularTitulo">Vincular a um atendente</h2>
+                    <button type="button" class="modal-close" data-fechar-vincular aria-label="Fechar">×</button>
+                </header>
+                <form id="formVincular">
+                    <div class="modal-body">
+                        <dl class="info-vincular">
+                            <div><dt>Nome na planilha</dt><dd id="vincNomeBruto">—</dd></div>
+                            <div><dt>ID relógio</dt><dd id="vincIdRelogioBruto">—</dd></div>
+                            <div><dt>Dias com batida</dt><dd id="vincDias">—</dd></div>
+                        </dl>
+
+                        <div class="form-row" data-autocomplete>
+                            <label for="atendenteBusca">Atendente do cadastro <span class="required">*</span></label>
+                            <input
+                                type="search"
+                                id="atendenteBusca"
+                                placeholder="Digite ao menos 2 letras do nome…"
+                                autocomplete="off"
+                                role="combobox"
+                                aria-controls="atendenteListbox"
+                                aria-autocomplete="list"
+                                aria-expanded="false"
+                                required>
+                            <ul id="atendenteListbox" class="autocomplete-list" role="listbox" hidden></ul>
+                            <input type="hidden" id="atendenteId">
+                            <small class="form-hint" id="hintAtendente">Selecione um item da lista.</small>
+                        </div>
+
+                        <div class="form-row form-row--checkbox">
+                            <label class="checkbox-wrap">
+                                <input type="checkbox" id="atualizarIdRelogio" checked>
+                                <span>Atualizar <code>idRelogioPonto</code> do atendente para casamento automático em importações futuras</span>
+                            </label>
+                            <small class="form-hint" id="hintAtualizarIdRelogio">—</small>
+                        </div>
+
+                        <div class="banner-aviso banner-aviso--inline" role="note">
+                            <span class="banner-aviso__icon" aria-hidden="true">⚠</span>
+                            <div class="banner-aviso__body">
+                                <strong>Atenção:</strong> ao vincular, as batidas deste colaborador <strong>não viram ponto automaticamente</strong>. Reimporte a planilha para fechar o ciclo.
+                            </div>
+                        </div>
+
+                        <div class="form-error" id="erroVincular" hidden></div>
+                    </div>
+                    <footer class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-fechar-vincular>Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnConfirmarVincular">Vincular</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal "Tudo pronto" -->
+        <div class="modal" id="modalTudoPronto" hidden>
+            <div class="modal-backdrop" data-fechar-tudo-pronto></div>
+            <div class="modal-dialog modal-dialog--small modal-dialog--celebracao" role="dialog" aria-modal="true" aria-labelledby="modalTudoProntoTitulo">
+                <header class="modal-header">
+                    <h2 id="modalTudoProntoTitulo">✓ Vínculos finalizados!</h2>
+                </header>
+                <div class="modal-body">
+                    <p>Todos os atendentes não-vinculados deste relatório foram tratados.</p>
+                    <p><strong>Para que as batidas virem pontos, é necessário reimportar a planilha.</strong></p>
+                    <p class="text-muted">A reimportação é segura: pontos já criados não são duplicados.</p>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-fechar-tudo-pronto>Mais tarde</button>
+                    <a class="btn btn-primary" id="ctaReimportarTudo" href="/html/importacao-pontos.html">Reimportar agora</a>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/importacao-pontos.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/importacao-ui.js"></script>
+    <script src="/js/atendentes-nao-vinculados.js"></script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>

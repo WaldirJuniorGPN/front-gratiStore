@@ -461,6 +461,13 @@ main {
 
 .required { color: var(--error-red); }
 
+.form-optional {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.85em;
+    margin-left: 6px;
+}
+
 .form-row input[type="text"],
 .form-row input[type="number"],
 .form-row input[type="date"],
