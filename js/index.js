@@ -48,49 +48,141 @@ async function safeApiGet(path, fallback = null) {
     }
 }
 
+/**
+ * Tira um widget do dashboard de cena por completo (TASK-03): some do fluxo
+ * (o grid reflui sem coluna fantasma — ver css/index.css) e sai da árvore de
+ * acessibilidade. Usado quando a página dona do widget está bloqueada para o
+ * usuário — o card NÃO é renderizado com "—"/"R$ 0,00" (mentira), ele não
+ * existe. `[data-widget]` casa o mapa do Apêndice B da TASK-00.
+ * @param {string} id ID do widget (ex.: `'kpi-vendas'`).
+ */
+function removerWidget(id) {
+    document.querySelectorAll(`[data-widget="${id}"]`).forEach((el) => {
+        el.hidden = true;
+        el.setAttribute('aria-hidden', 'true');
+    });
+}
+
+/**
+ * Mantém o par Ranking + Férias equilibrado conforme quantos sobraram:
+ *  - 2 visíveis  → layout normal (2 colunas).
+ *  - 1 visível   → `--solo`: o que restou ocupa a largura toda (sem metade vazia).
+ *  - 0 visíveis  → esconde o wrapper inteiro (sem faixa vazia entre seções).
+ * Idempotente (recalcula do estado atual) — seguro a cada "Atualizar".
+ */
+function ajustarDashboardGrid() {
+    const grid = document.querySelector('.dashboard-grid');
+    if (!grid) return;
+    const ranking = grid.querySelector('[data-widget="ranking-vendas"]');
+    const ferias = grid.querySelector('[data-widget="ferias-mini"]');
+    const visiveis = (ranking && !ranking.hidden ? 1 : 0) + (ferias && !ferias.hidden ? 1 : 0);
+
+    if (visiveis === 0) {
+        grid.hidden = true;
+        grid.setAttribute('aria-hidden', 'true');
+        grid.classList.remove('dashboard-grid--solo');
+    } else {
+        grid.hidden = false;
+        grid.removeAttribute('aria-hidden');
+        grid.classList.toggle('dashboard-grid--solo', visiveis === 1);
+    }
+}
+
 async function carregarDashboard() {
+    // "Modo tolerante" durante a carga: se um 403 residual escapar (revogação
+    // no meio da sessão — TASK-00 §3), o listener global de `gs:forbidden`
+    // (role-guard.js / TASK-06) não deve cuspir o toast vermelho de "acesso
+    // negado" na Início — aqui o widget só some (princípio nº 2). O flag é
+    // baixado no `finally`, restaurando o comportamento normal fora da Início.
+    window.__gsDashboardTolerante = true;
     kpiGrid.setAttribute('aria-busy', 'true');
     btnAtualizar.disabled = true;
     ultimaAtualizacaoEl.textContent = 'Carregando...';
-    corpoRanking.innerHTML = '<tr class="row-loading"><td colspan="5">Carregando ranking...</td></tr>';
 
-    const lojas = await safeApiGet('/lojas/listar', []);
+    // Decide ANTES de chamar: sem a página dona, nem fetch nem render do
+    // widget. `temPermissao` (TASK-01) lê as permissões da sessão; MASTER
+    // bypassa. Fail-open de UX se o guard não estiver carregado — a barreira
+    // real é o 403 do backend (TASK-00 §B3), nunca o front.
+    const podeVendas = typeof temPermissao !== 'function' || temPermissao('resultados');
+    const podeFerias = typeof temPermissao !== 'function' || temPermissao('ferias-painel');
 
-    const [vendasPorLoja, atendentesPorLoja, calculadoras, ferias, destinatariosPage] = await Promise.all([
-        Promise.all(
-            lojas.map((l) =>
-                safeApiGet(`/lojas/${l.id}/vendas`, { valor: 0 })
-                    .then((d) => ({ lojaId: l.id, valor: Number(d?.valor || 0) }))
-            )
-        ),
-        Promise.all(
-            lojas.map((l) =>
-                safeApiGet(`/lojas/${l.id}/atendentes`, [])
-                    .then((d) => ({ lojaId: l.id, qtd: Array.isArray(d) ? d.length : 0 }))
-            )
-        ),
-        safeApiGet('/calculadoras/listar', []),
-        safeApiGet('/ferias/dashboard', null),
-        safeApiGet('/notificacoes/destinatarios?page=0&size=1', null)
-    ]);
+    if (podeVendas) {
+        corpoRanking.innerHTML = '<tr class="row-loading"><td colspan="5">Carregando ranking...</td></tr>';
+    } else {
+        // Sem "Resultados": o KPI de vendas e o ranking não existem para ele,
+        // e `/lojas/*/vendas` nem é chamado (Network coerente — princípio nº 3).
+        removerWidget('kpi-vendas');
+        removerWidget('ranking-vendas');
+    }
+    if (!podeFerias) {
+        removerWidget('ferias-mini');
+    }
+    ajustarDashboardGrid();
 
-    renderizarKpis({ lojas, vendasPorLoja, atendentesPorLoja, calculadoras });
-    renderizarRanking({ lojas, vendasPorLoja, atendentesPorLoja });
-    renderizarFerias(ferias);
-    renderizarStatus({ lojas, calculadoras, destinatariosPage });
+    try {
+        const lojas = await safeApiGet('/lojas/listar', []);
 
-    const agora = new Date();
-    ultimaAtualizacaoEl.textContent = `Atualizado às ${formatarHora(agora)}`;
-    kpiGrid.setAttribute('aria-busy', 'false');
-    btnAtualizar.disabled = false;
+        const [vendasRaw, atendentesPorLoja, calculadoras, ferias, destinatariosPage] = await Promise.all([
+            podeVendas
+                ? Promise.all(
+                    lojas.map((l) =>
+                        safeApiGet(`/lojas/${l.id}/vendas`, null)
+                            .then((d) => ({ lojaId: l.id, valor: Number(d?.valor || 0), ok: d !== null }))
+                    )
+                )
+                : Promise.resolve(null),
+            Promise.all(
+                lojas.map((l) =>
+                    safeApiGet(`/lojas/${l.id}/atendentes`, [])
+                        .then((d) => ({ lojaId: l.id, qtd: Array.isArray(d) ? d.length : 0 }))
+                )
+            ),
+            safeApiGet('/calculadoras/listar', []),
+            podeFerias ? safeApiGet('/ferias/dashboard', null) : Promise.resolve(null),
+            safeApiGet('/notificacoes/destinatarios?page=0&size=1', null)
+        ]);
+
+        // Defesa em profundidade: se há lojas mas TODAS as chamadas distintivas
+        // de vendas falharam (revogação no meio da sessão → 403 residual em
+        // `/lojas/*/vendas`, ou o endpoint fora), não há dado algum — o widget
+        // é removido, não exibido zerado ("R$ 0,00" fake é mentira; melhor não
+        // existir — TASK-03 "honestidade dos totais"). Falha pontual de uma
+        // loja segue contando 0, como antes (comportamento idêntico ao de hoje).
+        let vendasPorLoja = vendasRaw;
+        if (vendasRaw && lojas.length && vendasRaw.every((v) => !v.ok)) {
+            vendasPorLoja = null;
+            removerWidget('kpi-vendas');
+            removerWidget('ranking-vendas');
+        }
+
+        renderizarKpis({ lojas, vendasPorLoja, atendentesPorLoja, calculadoras });
+        if (vendasPorLoja) {
+            renderizarRanking({ lojas, vendasPorLoja, atendentesPorLoja });
+        }
+        renderizarFerias(ferias, podeFerias);
+        renderizarStatus({ lojas, calculadoras, destinatariosPage });
+        ajustarDashboardGrid();
+
+        const agora = new Date();
+        ultimaAtualizacaoEl.textContent = `Atualizado às ${formatarHora(agora)}`;
+        kpiGrid.setAttribute('aria-busy', 'false');
+        btnAtualizar.disabled = false;
+    } finally {
+        window.__gsDashboardTolerante = false;
+    }
 }
 
 function renderizarKpis({ lojas, vendasPorLoja, atendentesPorLoja, calculadoras }) {
     kpiLojasEl.textContent = formatarNumero(lojas.length);
     const totalAtendentes = atendentesPorLoja.reduce((acc, x) => acc + x.qtd, 0);
     kpiAtendentesEl.textContent = formatarNumero(totalAtendentes);
-    const totalVendas = vendasPorLoja.reduce((acc, x) => acc + x.valor, 0);
-    kpiVendasEl.textContent = formatarMoeda(totalVendas);
+    // Totais honestos: só soma o que foi carregado. Sem "Resultados"
+    // (`vendasPorLoja === null`) o card já foi removido — não escrever
+    // "R$ 0,00" nele seria mentir sobre um dado que o usuário não pode ver.
+    if (vendasPorLoja) {
+        const totalVendas = vendasPorLoja.reduce((acc, x) => acc + x.valor, 0);
+        kpiVendasEl.textContent = formatarMoeda(totalVendas);
+    }
     kpiCalcsEl.textContent = formatarNumero(Array.isArray(calculadoras) ? calculadoras.length : 0);
 }
 
@@ -142,11 +234,14 @@ function renderizarRanking({ lojas, vendasPorLoja, atendentesPorLoja }) {
     });
 }
 
-function renderizarFerias(ferias) {
-    if (!ferias) {
-        document.querySelectorAll('[data-ferias]').forEach(el => { el.textContent = '—'; });
-        feriasMiniInfo.textContent = 'Não foi possível carregar os dados de férias.';
-        feriasMiniInfo.hidden = false;
+function renderizarFerias(ferias, podeFerias) {
+    // Sem o "Painel de Férias": o widget não existe para este usuário
+    // (`/ferias/dashboard` nem foi chamado). Defesa em profundidade: se
+    // tinha acesso mas a chamada falhou — inclusive 403 residual por
+    // revogação no meio da sessão (TASK-00 §3) — o `safeApiGet` devolveu o
+    // fallback `null` e o widget é removido, não exibido com erro/"—".
+    if (!podeFerias || !ferias) {
+        removerWidget('ferias-mini');
         return;
     }
     const map = {

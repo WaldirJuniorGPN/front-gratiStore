@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/js/auth/auth-guard.js"></script>
     <script src="/js/auth/role-guard.js"></script>
+    <script src="/js/auth/permissao-catalogo.js"></script>
+    <script src="/js/auth/permissao-guard.js"></script>
     <title>GratiStore</title>
     <!-- Primitivos compartilhados (panel, data-table, btn, mensagem) -->
     <link rel="stylesheet" href="/css/cadastro-shared.css">
@@ -35,22 +37,22 @@
 
         <!-- KPI cards principais -->
         <section class="kpi-grid" aria-busy="true" id="kpiGrid">
-            <div class="kpi-card kpi-card--lojas">
+            <div class="kpi-card kpi-card--lojas" data-widget="kpi-lojas">
                 <span class="kpi-label">Lojas</span>
                 <span class="kpi-value" id="kpiLojas">—</span>
                 <span class="kpi-hint">Unidades cadastradas</span>
             </div>
-            <div class="kpi-card kpi-card--atendentes">
+            <div class="kpi-card kpi-card--atendentes" data-widget="kpi-atendentes">
                 <span class="kpi-label">Funcionários</span>
                 <span class="kpi-value" id="kpiAtendentes">—</span>
                 <span class="kpi-hint">Total ativo na rede</span>
             </div>
-            <div class="kpi-card kpi-card--vendas">
+            <div class="kpi-card kpi-card--vendas" data-widget="kpi-vendas">
                 <span class="kpi-label">Vendas Totais</span>
                 <span class="kpi-value" id="kpiVendas">—</span>
                 <span class="kpi-hint">Soma de todas as lojas</span>
             </div>
-            <div class="kpi-card kpi-card--calculadoras">
+            <div class="kpi-card kpi-card--calculadoras" data-widget="kpi-calculadoras">
                 <span class="kpi-label">Calculadoras</span>
                 <span class="kpi-value" id="kpiCalculadoras">—</span>
                 <span class="kpi-hint">Regras de gratificação</span>
@@ -59,7 +61,7 @@
 
         <!-- Painéis lado a lado: Ranking + Férias -->
         <div class="dashboard-grid">
-            <section class="panel">
+            <section class="panel" data-widget="ranking-vendas">
                 <header class="panel-header">
                     <div>
                         <h2>Ranking de Lojas por Vendas</h2>
@@ -84,7 +86,7 @@
                 </div>
             </section>
 
-            <aside class="panel panel-side">
+            <aside class="panel panel-side" data-widget="ferias-mini">
                 <header class="panel-header">
                     <div>
                         <h2>Atenção a Férias</h2>
@@ -134,12 +136,12 @@
                 </div>
             </header>
             <div class="actions-grid">
-                <a href="/html/registro-vendas.html" class="action-card">
+                <a href="/html/registro-vendas.html" class="action-card" data-requer-permissao="registro-vendas">
                     <span class="action-icon">📊</span>
                     <span class="action-title">Registro de Vendas</span>
                     <span class="action-desc">Lançar e acompanhar vendas</span>
                 </a>
-                <a href="/html/upload-vendas.html" class="action-card">
+                <a href="/html/upload-vendas.html" class="action-card" data-requer-permissao="upload-vendas">
                     <span class="action-icon">⬆</span>
                     <span class="action-title">Upload de Vendas</span>
                     <span class="action-desc">Importar planilha semanal</span>
@@ -149,7 +151,7 @@
                     <span class="action-title">Lançar Atrasos</span>
                     <span class="action-desc">Registrar minutos perdidos</span>
                 </a>
-                <a href="/html/ponto-registro.html" class="action-card">
+                <a href="/html/ponto-registro.html" class="action-card" data-requer-permissao="ponto-registro">
                     <span class="action-icon">🕒</span>
                     <span class="action-title">Registrar Ponto</span>
                     <span class="action-desc">Entradas e saídas do dia</span>
@@ -159,12 +161,12 @@
                     <span class="action-title">Importar Logs de Ponto</span>
                     <span class="action-desc">Subir planilha do relógio biométrico</span>
                 </a>
-                <a href="/html/horas-extras.html" class="action-card">
+                <a href="/html/horas-extras.html" class="action-card" data-requer-permissao="horas-extras">
                     <span class="action-icon">＋</span>
                     <span class="action-title">Horas Extras</span>
                     <span class="action-desc">Calcular e consultar</span>
                 </a>
-                <a href="/html/ferias-dashboard.html" class="action-card">
+                <a href="/html/ferias-dashboard.html" class="action-card" data-requer-permissao="ferias-painel">
                     <span class="action-icon">☼</span>
                     <span class="action-title">Painel de Férias</span>
                     <span class="action-desc">KPIs e funcionários em risco</span>
@@ -174,7 +176,7 @@
                     <span class="action-title">Funcionários</span>
                     <span class="action-desc">Cadastrar e gerenciar</span>
                 </a>
-                <a href="/html/resultado.html" class="action-card">
+                <a href="/html/resultado.html" class="action-card" data-requer-permissao="resultados">
                     <span class="action-icon">🏆</span>
                     <span class="action-title">Resultados</span>
                     <span class="action-desc">Gratificações calculadas</span>
@@ -183,7 +185,7 @@
         </section>
 
         <!-- Status da rede -->
-        <section class="panel status-panel">
+        <section class="panel status-panel" data-widget="status-rede">
             <header class="panel-header">
                 <div>
                     <h2>Estado da rede</h2>
