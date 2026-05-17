@@ -2,7 +2,9 @@
  * Gerenciamento da sessão do usuário autenticado.
  *
  * O token JWT é opaco para o front (§3.2 do handoff): nunca tentar fazer parse local.
- * Usar sempre os campos vindos no `LoginResponse` (email, nome, role, expiraEm).
+ * Usar sempre os campos vindos no `LoginResponse` (email, nome, role, expiraEm,
+ * `permissoes`). Decisão de acesso por página lê `permissoes` da sessão — nunca
+ * o JWT (TASK-01 / TASK-00 §B2).
  *
  * Armazenamento: `sessionStorage` sob a chave `gs:sessao`.
  * `sessionStorage` foi escolhido sobre `localStorage` para limitar exposição a XSS
@@ -62,6 +64,33 @@ function obterUsuario() {
 function obterRole() {
     const sessao = obterSessao();
     return sessao ? sessao.role || null : null;
+}
+
+/**
+ * Chaves de página liberadas para o usuário da sessão atual.
+ *
+ * `MASTER` nunca depende de `permissoes`: `role === 'MASTER'` ⇒ `['*']`. Essa
+ * salvaguarda é deliberada — blinda contra o pior cenário (um bug no backfill
+ * de permissões trancando justamente o admin que configura tudo).
+ *
+ * @returns {string[]} chaves liberadas; MASTER → `['*']`; sem sessão → `[]`.
+ */
+function obterPermissoes() {
+    const s = obterSessao();
+    if (!s) return [];
+    if (s.role === 'MASTER') return ['*'];
+    return Array.isArray(s.permissoes) ? s.permissoes : [];
+}
+
+/**
+ * Indica se a sessão atual tem acesso a uma página pela chave do catálogo.
+ * MASTER (`'*'`) sempre `true`.
+ * @param {string} chave Chave estável da página (ex.: `'resultados'`).
+ * @returns {boolean}
+ */
+function temAcessoPagina(chave) {
+    const p = obterPermissoes();
+    return p.includes('*') || p.includes(chave);
 }
 
 /**
