@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-loja');
 
 const tabelaBody = document.getElementById('corpoLojas');
 const buscaInput = document.getElementById('busca');
@@ -119,7 +119,7 @@ function renderizarLista() {
         btnEditar.className = 'btn-icon-action';
         btnEditar.title = 'Editar loja';
         btnEditar.setAttribute('aria-label', `Editar ${loja.nome}`);
-        btnEditar.setAttribute('data-requer-role', 'MASTER');
+        btnEditar.setAttribute('data-requer-permissao', 'cadastro-loja');
         btnEditar.textContent = '✎';
         btnEditar.addEventListener('click', () => abrirModalEdicao(loja));
 
@@ -128,7 +128,7 @@ function renderizarLista() {
         btnExcluir.className = 'btn-icon-action btn-icon-danger';
         btnExcluir.title = 'Excluir loja';
         btnExcluir.setAttribute('aria-label', `Excluir ${loja.nome}`);
-        btnExcluir.setAttribute('data-requer-role', 'MASTER');
+        btnExcluir.setAttribute('data-requer-permissao', 'cadastro-loja');
         btnExcluir.textContent = '🗑';
         btnExcluir.addEventListener('click', () => abrirModalExclusao(loja));
 

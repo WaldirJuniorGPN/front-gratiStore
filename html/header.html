@@ -26,15 +26,15 @@
         <a href="/index.html" class="sidebar__link" data-path="/index.html">Início</a>
       </li>
 
-      <li class="sidebar__item sidebar__item--group" data-requer-role="MASTER">
+      <li class="sidebar__item sidebar__item--group">
         <button type="button" class="sidebar__group-toggle" aria-expanded="false" data-group="cadastros">
           <span>Cadastros</span>
           <span class="sidebar__chevron" aria-hidden="true"></span>
         </button>
         <ul class="sidebar__submenu" data-group-content="cadastros">
-          <li><a href="/html/cadastro-loja.html" class="sidebar__link" data-path="/html/cadastro-loja.html">Cadastro de Loja</a></li>
-          <li><a href="/html/cadastro-funcionario.html" class="sidebar__link" data-path="/html/cadastro-funcionario.html">Cadastro de Funcionário</a></li>
-          <li><a href="/html/cadastro-calculadora.html" class="sidebar__link" data-path="/html/cadastro-calculadora.html">Cadastro de Calculadora</a></li>
+          <li data-requer-permissao="cadastro-loja"><a href="/html/cadastro-loja.html" class="sidebar__link" data-path="/html/cadastro-loja.html">Cadastro de Loja</a></li>
+          <li data-requer-permissao="cadastro-funcionario"><a href="/html/cadastro-funcionario.html" class="sidebar__link" data-path="/html/cadastro-funcionario.html">Cadastro de Funcionário</a></li>
+          <li data-requer-permissao="cadastro-calculadora"><a href="/html/cadastro-calculadora.html" class="sidebar__link" data-path="/html/cadastro-calculadora.html">Cadastro de Calculadora</a></li>
         </ul>
       </li>
 
@@ -45,10 +45,10 @@
       <li class="sidebar__item" data-requer-permissao="upload-vendas">
         <a href="/html/upload-vendas.html" class="sidebar__link" data-path="/html/upload-vendas.html">Upload</a>
       </li>
-      <li class="sidebar__item" data-requer-role="MASTER">
+      <li class="sidebar__item" data-requer-permissao="lancamento-atrasos">
         <a href="/html/update-atrasos.html" class="sidebar__link" data-path="/html/update-atrasos.html">Lançamento Atrasos</a>
       </li>
-      <li class="sidebar__item" data-requer-role="MASTER">
+      <li class="sidebar__item" data-requer-permissao="atualizar-salario">
         <a href="/html/update-salario.html" class="sidebar__link" data-path="/html/update-salario.html">Atualizar Salário</a>
       </li>
       <li class="sidebar__item" data-requer-permissao="horas-extras">
@@ -63,10 +63,10 @@
         <ul class="sidebar__submenu" data-group-content="ponto">
           <li data-requer-permissao="ponto-registro"><a href="/html/ponto-registro.html" class="sidebar__link" data-path="/html/ponto-registro.html">Registrar Ponto</a></li>
           <li data-requer-permissao="ponto-consulta"><a href="/html/ponto-consulta.html" class="sidebar__link" data-path="/html/ponto-consulta.html">Consultar Pontos</a></li>
-          <li data-requer-role="MASTER">
+          <li data-requer-permissao="importacao-pontos">
             <a href="/html/importacao-pontos.html" class="sidebar__link" data-path="/html/importacao-pontos.html">Importar Planilha</a>
           </li>
-          <li data-requer-role="MASTER">
+          <li data-requer-permissao="importacao-pontos">
             <a href="/html/importacoes-historico.html" class="sidebar__link" data-path="/html/importacoes-historico.html">Histórico de Importações</a>
           </li>
         </ul>
@@ -75,7 +75,7 @@
       <li class="sidebar__item" data-requer-permissao="registro-vendas">
         <a href="/html/registro-vendas.html" class="sidebar__link" data-path="/html/registro-vendas.html">Registro de Vendas</a>
       </li>
-      <li class="sidebar__item" data-requer-role="MASTER">
+      <li class="sidebar__item" data-requer-permissao="resultados">
         <a href="/html/resultado.html" class="sidebar__link" data-path="/html/resultado.html">Resultados</a>
       </li>
 
@@ -88,7 +88,7 @@
           <li data-requer-permissao="ferias-painel"><a href="/html/ferias-dashboard.html" class="sidebar__link" data-path="/html/ferias-dashboard.html">Painel de Férias</a></li>
           <li data-requer-permissao="ferias-lista"><a href="/html/ferias-lista.html" class="sidebar__link" data-path="/html/ferias-lista.html">Listagens</a></li>
           <li data-requer-permissao="ferias-relatorio-loja"><a href="/html/ferias-relatorio-loja.html" class="sidebar__link" data-path="/html/ferias-relatorio-loja.html">Relatório por Loja</a></li>
-          <li data-requer-role="MASTER"><a href="/html/notificacoes-destinatarios.html" class="sidebar__link" data-path="/html/notificacoes-destinatarios.html">Destinatários de Notificação</a></li>
+          <li data-requer-permissao="notificacoes-destinatarios"><a href="/html/notificacoes-destinatarios.html" class="sidebar__link" data-path="/html/notificacoes-destinatarios.html">Destinatários de Notificação</a></li>
         </ul>
       </li>
     </ul>

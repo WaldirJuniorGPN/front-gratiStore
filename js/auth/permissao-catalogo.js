@@ -46,7 +46,8 @@ const FALLBACK_CATALOGO = {
     grupos: [
         { chave: 'operacao', rotulo: 'operacao' },
         { chave: 'ponto', rotulo: 'ponto' },
-        { chave: 'ferias', rotulo: 'ferias' }
+        { chave: 'ferias', rotulo: 'ferias' },
+        { chave: 'administracao', rotulo: 'administracao' }
     ],
     paginas: [
         {
@@ -178,6 +179,113 @@ const FALLBACK_CATALOGO = {
                 { metodo: 'GET', padrao: '/ferias/relatorio/pdf' }
             ],
             widgetsDashboard: []
+        },
+        {
+            chave: 'registro-ferias',
+            rotulo: 'registro-ferias',
+            descricao: '',
+            grupo: 'ferias',
+            // Sub-ação embutida nas telas de férias (registrar/cancelar).
+            // Sem rota navegável própria — não casa guard de rota; só
+            // governa botões via `data-requer-permissao`.
+            rota: null,
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/ferias/registrar' },
+                { metodo: 'DELETE', padrao: '/ferias/registro/*' }
+            ],
+            widgetsDashboard: []
+        },
+        // --- Grupo Administração (TASK acesso-administrativo-configuravel) ---
+        // Páginas que eram MASTER-only e agora são configuráveis para COMUM.
+        // O painel de Usuários NÃO entra aqui (invariante: nunca configurável).
+        {
+            chave: 'cadastro-loja',
+            rotulo: 'cadastro-loja',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/cadastro-loja.html',
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/lojas' },
+                { metodo: 'PUT', padrao: '/lojas/*' },
+                { metodo: 'DELETE', padrao: '/lojas/*' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'cadastro-funcionario',
+            rotulo: 'cadastro-funcionario',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/cadastro-funcionario.html',
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/atendentes' },
+                { metodo: 'PUT', padrao: '/atendentes/*' },
+                { metodo: 'DELETE', padrao: '/atendentes/*' },
+                { metodo: 'PATCH', padrao: '/atendentes/*/id-relogio' },
+                { metodo: 'DELETE', padrao: '/atendentes/*/id-relogio' },
+                { metodo: 'GET', padrao: '/atendentes/salario/*' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'cadastro-calculadora',
+            rotulo: 'cadastro-calculadora',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/cadastro-calculadora.html',
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/calculadoras' },
+                { metodo: 'PUT', padrao: '/calculadoras/*' },
+                { metodo: 'DELETE', padrao: '/calculadoras/*' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'lancamento-atrasos',
+            rotulo: 'lancamento-atrasos',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/update-atrasos.html',
+            endpointsDistintivos: [
+                { metodo: 'PATCH', padrao: '/atendentes/update/atrasos' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'atualizar-salario',
+            rotulo: 'atualizar-salario',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/update-salario.html',
+            endpointsDistintivos: [
+                { metodo: 'PATCH', padrao: '/atendentes/update/salario' },
+                { metodo: 'GET', padrao: '/atendentes/salario/*' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'importacao-pontos',
+            rotulo: 'importacao-pontos',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/importacao-pontos.html',
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/importacoes/logs-comparecimento' }
+            ],
+            widgetsDashboard: []
+        },
+        {
+            chave: 'notificacoes-destinatarios',
+            rotulo: 'notificacoes-destinatarios',
+            descricao: '',
+            grupo: 'administracao',
+            rota: '/html/notificacoes-destinatarios.html',
+            endpointsDistintivos: [
+                { metodo: 'POST', padrao: '/notificacoes/destinatarios' },
+                { metodo: 'PUT', padrao: '/notificacoes/destinatarios/*' },
+                { metodo: 'DELETE', padrao: '/notificacoes/destinatarios/*' }
+            ],
+            widgetsDashboard: []
         }
     ],
     endpointsBase: [
@@ -187,7 +295,9 @@ const FALLBACK_CATALOGO = {
         { metodo: 'GET', padrao: '/lojas/*' },
         { metodo: 'GET', padrao: '/lojas/cnpj/*' },
         { metodo: 'GET', padrao: '/atendentes/*' },
-        { metodo: 'GET', padrao: '/atendentes/salario/*' },
+        // `/atendentes/salario/*` saiu de `base`: virou distintivo de
+        // `cadastro-funcionario`/`atualizar-salario` (salário é sensível —
+        // alinhado à decisão Q3 e ao enum `EndpointBase` do backend).
         { metodo: 'POST', padrao: '/auth/trocar-senha' }
     ]
 };

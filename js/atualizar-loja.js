@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-loja');
 
 function getLojaIdFromUrl() {
     const params = new URLSearchParams(window.location.search);

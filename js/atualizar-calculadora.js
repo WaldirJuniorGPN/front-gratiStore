@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-calculadora');
 
 function getCalculadoraIdFromUrl() {
     const params = new URLSearchParams(window.location.search);

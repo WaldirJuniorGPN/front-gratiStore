@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-funcionario');
 
 const urlParams = new URLSearchParams(window.location.search);
 const funcionarioId = urlParams.get('id');

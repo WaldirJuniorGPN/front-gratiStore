@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-calculadora');
 
 const grid = document.getElementById('gridCalculadoras');
 const buscaInput = document.getElementById('busca');
@@ -188,9 +188,9 @@ function criarCard(calc) {
 
     const acoes = card.querySelector('.calc-card-actions');
     const btnEditar = botaoAcao('✎', 'Editar calculadora', () => abrirModalEdicao(calc));
-    btnEditar.setAttribute('data-requer-role', 'MASTER');
+    btnEditar.setAttribute('data-requer-permissao', 'cadastro-calculadora');
     const btnExcluir = botaoAcao('🗑', 'Excluir calculadora', () => abrirModalExclusao(calc), 'btn-icon-danger');
-    btnExcluir.setAttribute('data-requer-role', 'MASTER');
+    btnExcluir.setAttribute('data-requer-permissao', 'cadastro-calculadora');
     acoes.appendChild(btnEditar);
     acoes.appendChild(btnExcluir);
 

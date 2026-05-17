@@ -109,7 +109,7 @@ function initZerarButton() {
     const zerarButton = document.createElement('button');
     zerarButton.textContent = 'Zerar Valores dos Atendentes';
     zerarButton.className = 'zerar-button';
-    zerarButton.setAttribute('data-requer-role', 'MASTER');
+    zerarButton.setAttribute('data-requer-permissao', 'upload-vendas');
     zerarButton.addEventListener('click', zerarValoresAtendentes);
 
     const container = document.querySelector('.store-selection');

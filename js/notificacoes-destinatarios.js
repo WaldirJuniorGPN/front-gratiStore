@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('notificacoes-destinatarios');
 
 const state = {
     page: 0,
@@ -81,8 +81,8 @@ function renderLista(content) {
             <td data-label="Notificações">${renderTags(d)}</td>
             <td data-label="Ações">
                 <div class="acoes-row">
-                    <button class="btn-row" data-editar="${d.id}" data-requer-role="MASTER">Editar</button>
-                    <button class="btn-row danger" data-excluir="${d.id}" data-requer-role="MASTER">Excluir</button>
+                    <button class="btn-row" data-editar="${d.id}" data-requer-permissao="notificacoes-destinatarios">Editar</button>
+                    <button class="btn-row danger" data-excluir="${d.id}" data-requer-permissao="notificacoes-destinatarios">Excluir</button>
                 </div>
             </td>
         </tr>`).join('');
