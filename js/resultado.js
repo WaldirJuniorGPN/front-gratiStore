@@ -1,4 +1,12 @@
-exigirPermissao('resultados');
+// MASTER-only: a tela inteira é alimentada por `POST /resultados`, que o
+// backend enforça como `hasRole('MASTER')` (PRD api-gratiStore §3.1 C1 [FATO];
+// sempre foi). A chave de página `resultados` continua existindo e sendo
+// configurável para COMUM, mas seu efeito no front é apenas o dashboard
+// (widgets kpi-vendas/ranking-vendas, alimentados por `GET /lojas/{id}/vendas`
+// — esse sim COMUM-distintivo; ver js/index.js). Gatear esta tela por
+// `exigirPermissao('resultados')` criava a pior incoerência da feature
+// (menu/página discordando: COMUM com a chave abria a tela e tomava 403).
+exigirRole('MASTER');
 
 const storesContainer = document.getElementById('stores');
 
