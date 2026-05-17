@@ -1,3 +1,5 @@
+exigirPermissao('ponto-eletronico');
+
 const storeSelect = document.getElementById('lojaSelect');
 const dateInput = document.getElementById('data');
 const attendeesContainer = document.getElementById('atendentesContainer');

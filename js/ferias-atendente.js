@@ -1,3 +1,5 @@
+exigirPermissao('ferias-lista');
+
 const STATUS_LABEL = {
     em_aquisicao: 'Em aquisição',
     disponivel: 'Disponível',

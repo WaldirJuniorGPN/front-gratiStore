@@ -1,3 +1,5 @@
+exigirPermissao('resultados');
+
 const storesContainer = document.getElementById('stores');
 
 async function fetchAllStoreResults() {

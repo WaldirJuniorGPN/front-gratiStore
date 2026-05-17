@@ -18,6 +18,18 @@
                 if (typeof aplicarRoleNoDom === 'function') {
                     aplicarRoleNoDom(document);
                 }
+                // permissao-guard.js (TASK-02): mesma lógica para itens
+                // controláveis por permissão de página. Páginas MASTER-only não
+                // carregam o guard — daí o typeof. COMUM sem a chave perde o
+                // item; MASTER bypassa via temAcessoPagina.
+                if (typeof aplicarPermissoesNoDom === 'function') {
+                    aplicarPermissoesNoDom(document);
+                }
+                // Depois de ocultar itens por role/permissão, um grupo pode ter
+                // ficado só com filhos escondidos. Esconder o grupo inteiro
+                // evita um cabeçalho que abre num submenu vazio (princípio nº 2:
+                // o sistema nunca deve parecer quebrado).
+                esconderGruposVazios(document);
                 // banner-senha-padrao.js (TASK-11) — só decide se mostra após o
                 // markup do banner ser injetado pelo header.
                 if (typeof inicializarBannerSenhaPadrao === 'function') {
@@ -66,6 +78,22 @@
             // para todos os fins práticos no front.
             sessionStorage.removeItem('gs:sessao');
             window.location.replace('/html/login.html');
+        });
+    }
+
+    // Esconde grupos do menu cujos filhos foram todos ocultados por
+    // role/permissão. Sem isto, um COMUM veria "Férias ▸" abrindo num
+    // submenu vazio. Roda DEPOIS de aplicarRoleNoDom + aplicarPermissoesNoDom.
+    function esconderGruposVazios(root) {
+        root.querySelectorAll('.sidebar__item--group').forEach((grupo) => {
+            const itens = grupo.querySelectorAll('.sidebar__submenu > li');
+            if (itens.length === 0) return;
+            const todosOcultos = [...itens].every((li) =>
+                li.hidden || li.querySelector('.sidebar__link')?.hidden);
+            if (todosOcultos) {
+                grupo.hidden = true;
+                grupo.setAttribute('aria-hidden', 'true');
+            }
         });
     }
 

@@ -1,3 +1,5 @@
+exigirPermissao('horas-extras');
+
 const lojaSelect = document.getElementById('loja-select');
 const calcularBtn = document.getElementById('calcular-btn');
 const buscarBtn = document.getElementById('buscar-btn');

@@ -1,3 +1,5 @@
+exigirPermissao('ferias-lista');
+
 const GRAU_URGENCIA_LABEL = {
     sem_urgencia: 'Sem urgência',
     atencao: 'Atenção',
