@@ -1,0 +1,90 @@
+/* ===========================================================
+   Tela "Página indisponível" (TASK-06)
+   Tom informativo, não punitivo: é uma limitação de
+   configuração, não uma falha do usuário. Nada de vermelho
+   de alarme nem cadeado — o operador não é um invasor.
+   Reusa tokens/.btn de cadastro-shared.css (carregado antes).
+   =========================================================== */
+
+.indisponivel-wrap {
+    min-height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 640px;
+}
+
+.indisponivel-card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+    border: 1px solid var(--secondary-light);
+    padding: 44px 40px 38px;
+    text-align: center;
+    width: 100%;
+}
+
+.indisponivel-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Azul da marca em tom suave — convida a seguir adiante,
+       não bloqueia com agressividade. */
+    background-color: rgba(106, 142, 174, 0.12);
+    color: var(--primary-blue);
+}
+
+.indisponivel-kicker {
+    margin: 0 0 10px;
+    font-size: 0.82em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.indisponivel-kicker strong {
+    color: var(--primary-blue);
+}
+
+.indisponivel-card h1 {
+    margin: 0 0 12px;
+    font-size: 1.55em;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.3;
+}
+
+.indisponivel-subtitle {
+    margin: 0 auto 28px;
+    max-width: 420px;
+    color: var(--text-muted);
+    font-size: 1.02em;
+    line-height: 1.55;
+}
+
+.indisponivel-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+    .indisponivel-wrap {
+        min-height: calc(100vh - 40px);
+    }
+    .indisponivel-card {
+        padding: 36px 22px 30px;
+    }
+    .indisponivel-card h1 {
+        font-size: 1.32em;
+    }
+    .indisponivel-actions .btn {
+        flex: 1 1 auto;
+    }
+}

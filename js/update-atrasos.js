@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('lancamento-atrasos');
 
 const storeSelect = document.getElementById("store-select");
 const weeksContainer = document.getElementById("weeks-container");

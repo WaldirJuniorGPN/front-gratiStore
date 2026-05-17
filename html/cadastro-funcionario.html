@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/js/auth/auth-guard.js"></script>
     <script src="/js/auth/role-guard.js"></script>
+    <script src="/js/auth/permissao-catalogo.js"></script>
+    <script src="/js/auth/permissao-guard.js"></script>
     <title>Atendentes</title>
     <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <!-- header.css no head estatico (render-blocking) evita o FOUC da sidebar; header.html mantem o link como fallback -->
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/expiracao-sessao.css">
     <link rel="stylesheet" href="/css/cadastro-funcionario.css">
     <link rel="stylesheet" href="/css/toast.css">
@@ -24,7 +28,7 @@
                 <p class="page-subtitle">Cadastre atendentes, atualize informações e acesse rapidamente férias e salário.</p>
             </div>
             <div class="page-actions">
-                <button id="btnNovoAtendente" class="btn btn-primary" type="button" data-requer-role="MASTER">
+                <button id="btnNovoAtendente" class="btn btn-primary" type="button" data-requer-permissao="cadastro-funcionario">
                     <span class="btn-icon">+</span> Novo Atendente
                 </button>
             </div>

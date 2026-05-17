@@ -3,7 +3,11 @@
  *
  * Tela MASTER-only que consome `POST /usuarios`. Valida campos no client
  * (nome, email, senha >= 8, role), submete e trata respostas:
- *  - 201 → sucesso + redirect para `usuarios.html`.
+ *  - 201 `COMUM` → "defina o que ele pode acessar" + redirect para
+ *    `gestao-acessos.html?id={id}&novo=1` (id vem do corpo da resposta —
+ *    TASK-05; o backend ainda devolve o header `Location` como alternativa).
+ *  - 201 `MASTER` → sucesso + redirect para `usuarios.html` (MASTER tem
+ *    acesso total — não há acesso a configurar).
  *  - 400 → exibe `message` (validações concatenadas pelo backend).
  *  - 409 → "Já existe usuário ativo com esse e-mail" (texto fixo — o
  *          `error` do envelope ainda menciona CNPJ por motivos históricos;
@@ -114,14 +118,25 @@ async function cadastrarUsuario(event) {
     btnCadastrar.textContent = 'Cadastrando...';
 
     try {
-        await apiPost('/usuarios', { nome, email, senha, role });
+        const criado = await apiPost('/usuarios', { nome, email, senha, role });
         // Limpa o campo de senha imediatamente, mesmo em caso de sucesso.
         inputSenha.value = '';
         formUsuario.reset();
-        mostrarMensagem('Usuário criado com sucesso!', 'sucesso');
-        setTimeout(() => {
-            window.location.href = '/html/usuarios.html';
-        }, 1500);
+
+        // COMUM → fluxo natural de "defina o acesso no cadastro" (TASK-05):
+        // cai direto na tela de acessos do recém-criado. MASTER (ou ausência
+        // defensiva do id) segue o fluxo atual para a listagem.
+        if (role === 'COMUM' && criado && criado.id != null) {
+            mostrarMensagem('Usuário criado! Agora defina o que ele pode acessar.', 'sucesso');
+            setTimeout(() => {
+                window.location.href = `/html/gestao-acessos.html?id=${criado.id}&novo=1`;
+            }, 1500);
+        } else {
+            mostrarMensagem('Usuário criado com sucesso!', 'sucesso');
+            setTimeout(() => {
+                window.location.href = '/html/usuarios.html';
+            }, 1500);
+        }
     } catch (err) {
         // Limpa o campo de senha imediatamente em caso de erro também,
         // para não manter o valor em memória (§ Notas do TASK-07).

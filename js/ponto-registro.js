@@ -1,3 +1,5 @@
+exigirPermissao('ponto-registro');
+
 const STATUS_LABEL = {
     COMUM: 'Comum',
     FERIADO: 'Feriado',

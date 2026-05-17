@@ -1,3 +1,5 @@
+exigirPermissao('registro-vendas');
+
 const employeesContainer = document.getElementById("employees");
 const leftArrow = document.getElementById("left-arrow");
 const rightArrow = document.getElementById("right-arrow");

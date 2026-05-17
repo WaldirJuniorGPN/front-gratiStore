@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('cadastro-funcionario');
 
 const tabelaBody = document.getElementById('corpoAtendentes');
 const filtroLojaSelect = document.getElementById('filtroLoja');
@@ -206,16 +206,16 @@ function renderizarLista() {
         acaoTd.className = 'cell-acao';
 
         const btnEditar = botaoAcao('✎', 'Editar atendente', () => abrirModalEdicao(at));
-        btnEditar.setAttribute('data-requer-role', 'MASTER');
+        btnEditar.setAttribute('data-requer-permissao', 'cadastro-funcionario');
         const btnSalario = botaoAcao('R$', 'Atualizar salário', () => {
             window.location.href = `/html/update-salario.html?id=${at.id}`;
         });
-        btnSalario.setAttribute('data-requer-role', 'MASTER');
+        btnSalario.setAttribute('data-requer-permissao', 'atualizar-salario');
         const btnFerias = botaoAcao('☼', 'Histórico de férias', () => {
             window.location.href = `/html/ferias-atendente.html?id=${at.id}`;
         }, 'btn-icon-accent');
         const btnExcluir = botaoAcao('🗑', 'Excluir atendente', () => abrirModalExclusao(at), 'btn-icon-danger');
-        btnExcluir.setAttribute('data-requer-role', 'MASTER');
+        btnExcluir.setAttribute('data-requer-permissao', 'cadastro-funcionario');
 
         acaoTd.appendChild(btnEditar);
         acaoTd.appendChild(btnSalario);

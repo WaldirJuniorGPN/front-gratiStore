@@ -22,7 +22,7 @@
  *  - toast.js, importacao-ui.js (UI compartilhada — TASK-02)
  */
 
-exigirRole('MASTER');
+exigirPermissao('importacao-pontos');
 
 // ============================================================================
 // Constantes / state

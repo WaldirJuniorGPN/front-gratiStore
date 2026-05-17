@@ -1,3 +1,5 @@
+exigirPermissao('ferias-lista');
+
 const STATUS_LABEL = {
     em_aquisicao: 'Em aquisição',
     disponivel: 'Disponível',
@@ -68,7 +70,7 @@ function renderRegistros(periodo) {
             <td data-label="Dias gozados">${r.dias} dia(s)</td>
             <td data-label="Abono">${r.abonoPecuniario ? `<span class="badge badge-abono">${r.diasAbono} dia(s)</span>` : '—'}</td>
             <td data-label="Ações">
-                <button class="btn-danger" data-cancelar="${r.id}" data-requer-role="MASTER">Cancelar</button>
+                <button class="btn-danger" data-cancelar="${r.id}" data-requer-permissao="registro-ferias">Cancelar</button>
             </td>
         </tr>`).join('');
 
@@ -95,7 +97,7 @@ function renderPeriodo(periodo) {
 
     const podeRegistrar = periodo.status && periodo.status !== 'em_aquisicao' && restantes > 0;
     const acaoRegistrar = podeRegistrar
-        ? `<button class="btn btn-primary" data-registrar="${periodo.id}" data-requer-role="MASTER">＋ Registrar férias</button>`
+        ? `<button class="btn btn-primary" data-registrar="${periodo.id}" data-requer-permissao="registro-ferias">＋ Registrar férias</button>`
         : `<button class="btn btn-secondary" disabled title="Sem saldo ou ainda em aquisição">Sem saldo disponível</button>`;
 
     return `

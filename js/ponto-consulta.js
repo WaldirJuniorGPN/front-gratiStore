@@ -1,3 +1,5 @@
+exigirPermissao('ponto-consulta');
+
 const STATUS_LABEL = {
     COMUM: 'Comum',
     FERIADO: 'Feriado',

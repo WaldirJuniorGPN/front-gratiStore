@@ -1,3 +1,13 @@
+// Gateada por `exigirPermissao('resultados')`. A chave `resultados` governa
+// de forma COERENTE as três superfícies: item de menu, esta tela
+// (`POST /resultados`) e os widgets de dashboard kpi-vendas/ranking-vendas
+// (`GET /lojas/{id}/vendas`). Isto REVERTE a decisão C1/A3 (que mantinha a
+// tela MASTER-only por `POST /resultados` ser `hasRole('MASTER')`): o backend
+// passou a enforçar `POST /resultados` via `@RequerPagina("resultados")`.
+// Ver relatorios/tasks/acesso-administrativo-configuravel/00-*.md (C5) —
+// resolve, em vez de contornar, a antiga incoerência menu × página.
+exigirPermissao('resultados');
+
 const storesContainer = document.getElementById('stores');
 
 async function fetchAllStoreResults() {

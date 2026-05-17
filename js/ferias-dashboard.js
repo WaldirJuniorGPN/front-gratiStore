@@ -1,3 +1,5 @@
+exigirPermissao('ferias-painel');
+
 const GRAU_URGENCIA_LABEL = {
     sem_urgencia: 'Sem urgência',
     atencao: 'Atenção',

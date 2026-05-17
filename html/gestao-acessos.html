@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +7,14 @@
     <script src="/js/auth/role-guard.js"></script>
     <script src="/js/auth/permissao-catalogo.js"></script>
     <script src="/js/auth/permissao-guard.js"></script>
-    <title>Upload de Vendas</title>
-    <link rel="stylesheet" href="/css/upload-vendas.css">
+    <title>Acessos do Usuário — GratiStore</title>
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/banner-senha-padrao.css">
     <!-- header.css no head estatico (render-blocking) evita o FOUC da sidebar; header.html mantem o link como fallback -->
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/gestao-acessos.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -20,25 +22,35 @@
 <body>
     <div id="header-container"></div>
     <main>
-        <div class="container">
-            <h1>Upload de Vendas</h1>
-            <div class="store-selection">
-                <label for="store-select">Selecione a loja:</label>
-                <select id="store-select">
-                    <option value="">Selecione uma loja</option>
-                </select>
+        <header class="page-header">
+            <div>
+                <button type="button" class="link-back" id="btnVoltar">← Voltar para usuários</button>
+                <h1>Acessos do usuário</h1>
+                <p class="page-subtitle">Marque as páginas que este usuário pode acessar. O que estiver desligado some do menu e fica indisponível para ele.</p>
             </div>
-            <div id="weeks-container" class="weeks-container">
-                <!-- Campos das semanas serão gerados dinamicamente -->
+        </header>
+
+        <div id="mensagem" class="mensagem" role="alert" aria-live="polite" hidden></div>
+
+        <div id="bannerNovo" class="banner-novo" role="status" hidden>
+            <div class="banner-novo__texto">
+                <strong>Usuário recém-criado.</strong>
+                Ele já vem com o acesso padrão — ajuste abaixo apenas o que precisar.
             </div>
+            <a href="/html/usuarios.html" class="btn btn-secondary banner-novo__skip">Configurar depois</a>
         </div>
+
+        <section class="panel" id="painelAcessos"></section>
     </main>
 
     <script src="/js/api/config.js"></script>
     <script src="/js/api/erros.js"></script>
     <script src="/js/api/sessao.js"></script>
     <script src="/js/api/apiClient.js"></script>
-    <script src="/js/upload-vendas.js"></script>
+    <script src="/js/api/permissoes-api.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/painel-acessos.js"></script>
+    <script src="/js/gestao-acessos.js"></script>
     <script src="/js/ui/banner-senha-padrao.js"></script>
     <script src="/js/ui/expiracao-sessao.js"></script>
     <script src="/js/header.js"></script>

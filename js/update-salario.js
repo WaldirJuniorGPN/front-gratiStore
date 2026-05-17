@@ -1,4 +1,4 @@
-exigirRole('MASTER');
+exigirPermissao('atualizar-salario');
 
 const lojaSelect = document.getElementById('loja-select');
 const atendenteSelect = document.getElementById('atendente-select');

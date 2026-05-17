@@ -8,9 +8,13 @@
     <title>Editar Usuário — GratiStore</title>
     <link rel="stylesheet" href="/css/cadastro-shared.css">
     <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <!-- header.css no head estatico (render-blocking) evita o FOUC da sidebar; header.html mantem o link como fallback -->
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/expiracao-sessao.css">
     <link rel="stylesheet" href="/css/cadastro-usuario.css">
     <link rel="stylesheet" href="/css/atualizar-usuario.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/gestao-acessos.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -85,12 +89,25 @@
                 <button type="button" id="btnDesativar" class="btn btn-danger">Desativar usuário</button>
             </footer>
         </section>
+
+        <section class="panel" id="painelAcessosWrapper" hidden>
+            <header class="panel-header">
+                <div>
+                    <h2>Acessos</h2>
+                    <p class="panel-subtitle">Marque as páginas que este usuário pode acessar. As alterações são salvas junto com o botão <strong>“Salvar alterações”</strong> acima.</p>
+                </div>
+            </header>
+            <div id="painelAcessos"></div>
+        </section>
     </main>
 
     <script src="/js/api/config.js"></script>
     <script src="/js/api/erros.js"></script>
     <script src="/js/api/sessao.js"></script>
     <script src="/js/api/apiClient.js"></script>
+    <script src="/js/api/permissoes-api.js"></script>
+    <script src="/js/ui/toast.js"></script>
+    <script src="/js/ui/painel-acessos.js"></script>
     <script src="/js/atualizar-usuario.js"></script>
     <script src="/js/ui/banner-senha-padrao.js"></script>
     <script src="/js/ui/expiracao-sessao.js"></script>

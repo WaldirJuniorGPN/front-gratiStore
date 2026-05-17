@@ -1,5 +1,5 @@
 /**
- * Edição e desativação (soft-delete) de usuário — TASK-08.
+ * Edição e desativação (soft-delete) de usuário — TASK-08 + TASK-05.
  *
  * Fluxo:
  *  1. Lê `?id=` da URL; se inválido → mensagem + redirect para usuarios.html.
@@ -10,8 +10,20 @@
  *         · desabilita botão "Desativar usuário",
  *         · desabilita a opção `COMUM` no select de role,
  *         · exibe banner de alerta.
- *  4. Submit → `PUT /usuarios/{id}` com `{ nome, role }`.
+ *  4. Submit (um único botão "Salvar alterações") — TASK-05, salvamento
+ *     coordenado em até dois passos independentes:
+ *       a) `PUT /usuarios/{id}` com `{ nome, role }` — como antes.
+ *       b) Se a role final é COMUM e a seção "Acessos" está suja:
+ *          `painelApi.salvar()` (`PUT /usuarios/{id}/permissoes`).
+ *     Sucesso só quando ambos OK; falha no passo (b) NÃO desfaz (a) — a tela
+ *     reporta especificamente o que faltou e preserva o que foi configurado.
  *  5. Desativar → `confirm` + `DELETE /usuarios/{id}`.
+ *
+ * Seção "Acessos" (TASK-05): o mesmo componente `PainelAcessos` da TASK-04,
+ * montado em `modoEmbutido`. Reage ao select de role sem novo round-trip
+ * (`definirRoleVisivel`): MASTER colapsa para a faixa "acesso total"; COMUM
+ * reexibe os toggles. A regra do "último MASTER" continua intocada (quando
+ * MASTER único, o select COMUM já fica desabilitado e nem chega aqui).
  *
  * Tratamento de respostas (§7 do handoff):
  *  - 200 (PUT) → "Usuário atualizado" + redirect 1,5s.
@@ -25,6 +37,9 @@
  *  - js/api/erros.js
  *  - js/api/sessao.js
  *  - js/api/apiClient.js
+ *  - js/api/permissoes-api.js   (catálogo + permissões — usado pelo painel)
+ *  - js/ui/toast.js             (feedback do painel; degrada sem ele)
+ *  - js/ui/painel-acessos.js    (componente reaproveitável da TASK-04)
  *  - js/auth/role-guard.js
  */
 
@@ -43,11 +58,16 @@ const mensagemDiv = document.getElementById('mensagem');
 const btnSalvar = document.getElementById('btnSalvar');
 const btnDesativar = document.getElementById('btnDesativar');
 const alertaMaster = document.getElementById('alertaMaster');
+const painelAcessosWrapper = document.getElementById('painelAcessosWrapper');
+const painelContainer = document.getElementById('painelAcessos');
+
+let painelApi = null;
 
 const state = {
     id: null,
     roleOriginal: null,
-    isLastMaster: false
+    isLastMaster: false,
+    acessosSujos: false
 };
 
 function mostrarMensagem(texto, tipo = 'sucesso') {
@@ -124,11 +144,32 @@ function preencherFormulario(usuario) {
     state.roleOriginal = usuario.role;
 }
 
+/**
+ * Monta a seção "Acessos" embutida (TASK-05) reusando o componente da TASK-04.
+ * O próprio painel decide o que renderizar pela role real do usuário (faixa
+ * "acesso total" para MASTER, toggles para COMUM); aqui só o ligamos ao select
+ * de role e à coordenação de salvamento. Idempotente.
+ */
+function montarPainelAcessos() {
+    if (painelApi) return;
+    painelAcessosWrapper.hidden = false;
+    painelApi = PainelAcessos.montar(painelContainer, {
+        usuarioId: state.id,
+        modoEmbutido: true,
+        onDirtyChange: (sujo) => { state.acessosSujos = sujo; },
+        onUsuarioNaoEncontrado: () => {
+            mostrarMensagem('Usuário não encontrado ou já inativo.', 'erro');
+            redirecionarParaListagem(2000);
+        }
+    });
+}
+
 async function carregarUsuario() {
     try {
         const usuario = await apiGet(`/usuarios/${state.id}`);
         preencherFormulario(usuario);
         painelFormulario.hidden = false;
+        montarPainelAcessos();
 
         if (usuario.role === 'MASTER') {
             const total = await contarMastersAtivos();
@@ -157,6 +198,12 @@ function validarFormulario(nome, role) {
     return null;
 }
 
+function restaurarBotoes(textoSalvar) {
+    btnSalvar.disabled = false;
+    if (!state.isLastMaster) btnDesativar.disabled = false;
+    btnSalvar.textContent = textoSalvar;
+}
+
 async function salvarUsuario(event) {
     event.preventDefault();
     setErroFormulario(null);
@@ -175,20 +222,43 @@ async function salvarUsuario(event) {
     const textoOriginal = btnSalvar.textContent;
     btnSalvar.textContent = 'Salvando...';
 
+    // Passo 1 — nome/role (como antes). Falha aqui: nada foi persistido,
+    // erro inline no form, sem mexer na seção de acessos.
     try {
         await apiPut(`/usuarios/${state.id}`, { nome, role });
-        mostrarMensagem('Usuário atualizado com sucesso!', 'sucesso');
-        redirecionarParaListagem();
     } catch (err) {
         console.error('Erro ao atualizar usuário:', err);
         setErroFormulario(mensagemParaErro(err, 'Não foi possível atualizar o usuário.'));
-        btnSalvar.disabled = false;
-        if (!state.isLastMaster) btnDesativar.disabled = false;
-        btnSalvar.textContent = textoOriginal;
+        restaurarBotoes(textoOriginal);
         if (err instanceof ApiError && err.status === 404) {
             redirecionarParaListagem(2000);
         }
+        return;
     }
+
+    // Passo 2 — acessos: só quando a role final é COMUM e a seção está suja.
+    // `painelApi.estaSujo()` já devolve false quando a role efetiva é MASTER,
+    // mas checamos `role` também para deixar a intenção explícita.
+    if (role === 'COMUM' && painelApi && painelApi.estaSujo()) {
+        try {
+            await painelApi.salvar();
+        } catch (err) {
+            // Nome/role JÁ foram persistidos no passo 1 — não redirecionar
+            // nem desfazer; reportar só o que faltou, preservando os toggles.
+            console.error('Erro ao salvar acessos:', err);
+            mostrarMensagem(
+                'Nome e papel foram salvos, mas os acessos não puderam ser salvos. ' +
+                'Revise a seção “Acessos” abaixo e clique em salvar novamente.',
+                'erro'
+            );
+            restaurarBotoes(textoOriginal);
+            return;
+        }
+    }
+
+    // Sucesso só quando ambos os passos terminaram OK.
+    mostrarMensagem('Usuário atualizado com sucesso!', 'sucesso');
+    redirecionarParaListagem();
 }
 
 async function desativarUsuario() {
@@ -235,3 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 formUsuario.addEventListener('submit', salvarUsuario);
 btnDesativar.addEventListener('click', desativarUsuario);
+
+// Reatividade ao select de role (TASK-05): MASTER colapsa a seção para a
+// faixa "acesso total"; COMUM reexibe os toggles. Valores fora de
+// MASTER/COMUM (placeholder) são ignorados pelo próprio componente.
+selectRole.addEventListener('change', () => {
+    if (painelApi) painelApi.definirRoleVisivel(selectRole.value);
+});
