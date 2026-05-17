@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- auth-guard: sem sessão → login. Isto mantém a distinção 401 vs 403:
+         indisponível é "você está logado, mas a página não é pra você". -->
+    <script src="/js/auth/auth-guard.js"></script>
+    <script src="/js/auth/role-guard.js"></script>
+    <script src="/js/auth/permissao-catalogo.js"></script>
+    <script src="/js/auth/permissao-guard.js"></script>
+    <title>Página indisponível — GratiStore</title>
+    <!-- Primitivos compartilhados (tokens de cor, .btn, main, page-header) -->
+    <link rel="stylesheet" href="/css/cadastro-shared.css">
+    <link rel="stylesheet" href="/css/banner-senha-padrao.css">
+    <link rel="stylesheet" href="/css/expiracao-sessao.css">
+    <link rel="stylesheet" href="/css/indisponivel.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main class="indisponivel-wrap">
+        <section class="indisponivel-card" role="region" aria-labelledby="indisponivelTitulo">
+            <div class="indisponivel-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="none"
+                     stroke="currentColor" stroke-width="1.7"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6"></path>
+                    <line x1="3" y1="12" x2="15" y2="12"></line>
+                </svg>
+            </div>
+            <p class="indisponivel-kicker" id="indisponivelPagina" hidden>
+                Página: <strong id="indisponivelPaginaNome"></strong>
+            </p>
+            <h1 id="indisponivelTitulo">Esta página não está disponível para o seu acesso</h1>
+            <p class="indisponivel-subtitle">
+                Se você precisa dela, peça ao administrador para liberar.
+            </p>
+            <div class="indisponivel-actions">
+                <a href="/index.html" class="btn btn-primary">Ir para o Início</a>
+                <button type="button" id="btnVoltar" class="btn btn-secondary">Voltar</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/api/config.js"></script>
+    <script src="/js/api/erros.js"></script>
+    <script src="/js/api/sessao.js"></script>
+    <script src="/js/api/apiClient.js"></script>
+    <script>
+        (function () {
+            // `?de=<rota>` da página que barrou o usuário. Só aceitamos um
+            // caminho relativo de mesma origem (começa com "/" e não com
+            // "//") — nunca um destino externo (evita open redirect).
+            const param = new URLSearchParams(location.search).get('de') || '';
+            const de = decodeURIComponent(param);
+            const rotaSegura = /^\/(?!\/)/.test(de) ? de : '';
+
+            // MASTER tem bypass total: nunca deveria ver esta tela. Se chegou
+            // aqui (link velho, URL digitada), mandamos de volta — para a
+            // página de origem se for segura, senão para a Início.
+            if (typeof obterRole === 'function' && obterRole() === 'MASTER') {
+                window.location.replace(rotaSegura || '/index.html');
+                return;
+            }
+
+            // "Voltar": history.back() volta para ANTES da página barrada
+            // (o redirect veio de location.replace, sem entrada nova no
+            // histórico) — não há risco de loop. Sem histórico, vai à Início.
+            const btnVoltar = document.getElementById('btnVoltar');
+            if (btnVoltar) {
+                btnVoltar.addEventListener('click', () => {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.location.assign('/index.html');
+                    }
+                });
+            }
+
+            // Personaliza com o rótulo humano do catálogo (TASK-01). Se a
+            // rota não resolver (catálogo fora / rota desconhecida), fica o
+            // texto genérico — nunca um nome técnico no lugar.
+            if (rotaSegura && typeof carregarCatalogo === 'function') {
+                carregarCatalogo().then(() => {
+                    const pagina = typeof paginaPorRota === 'function'
+                        ? paginaPorRota(rotaSegura)
+                        : null;
+                    if (pagina && pagina.rotulo) {
+                        const nomeEl = document.getElementById('indisponivelPaginaNome');
+                        const wrapEl = document.getElementById('indisponivelPagina');
+                        nomeEl.textContent = pagina.rotulo;
+                        wrapEl.hidden = false;
+                    }
+                }).catch(() => { /* degrada para o texto genérico */ });
+            }
+        })();
+    </script>
+    <script src="/js/ui/banner-senha-padrao.js"></script>
+    <script src="/js/ui/expiracao-sessao.js"></script>
+    <script src="/js/header.js"></script>
+</body>
+</html>
