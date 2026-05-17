@@ -7,6 +7,10 @@
  * `atualizar-usuario.js`); id inválido → mensagem + redirect para
  * `usuarios.html`.
  *
+ * `?novo=1` (TASK-05): chegada vinda do cadastro de um COMUM recém-criado —
+ * exibe um banner explicando que ele já tem o acesso padrão e oferece
+ * "Configurar depois" (volta à listagem; o default do backend cobre).
+ *
  * O trabalho de UI é todo do componente reaproveitável `PainelAcessos`
  * (`js/ui/painel-acessos.js`) — esta tela só resolve o `id`, monta o
  * componente e guarda a navegação "Voltar" quando há alterações não salvas.
@@ -30,6 +34,7 @@ const URL_LISTAGEM = '/html/usuarios.html';
 const mensagemDiv = document.getElementById('mensagem');
 const painelContainer = document.getElementById('painelAcessos');
 const btnVoltar = document.getElementById('btnVoltar');
+const bannerNovo = document.getElementById('bannerNovo');
 
 let painelApi = null;
 
@@ -76,6 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
         mostrarMensagem('ID de usuário inválido ou ausente na URL.', 'erro');
         irParaListagem(REDIRECT_DELAY_MS);
         return;
+    }
+
+    // Vindo do cadastro de um COMUM recém-criado (TASK-05): banner explicando
+    // que ele já tem o acesso padrão; "Configurar depois" volta à listagem.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('novo') === '1') {
+        bannerNovo.hidden = false;
     }
 
     painelApi = PainelAcessos.montar(painelContainer, {

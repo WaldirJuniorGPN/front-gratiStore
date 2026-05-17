@@ -15,7 +15,12 @@
  *     onDirtyChange,            // (bool) → habilita/desabilita Salvar externo
  *     modoEmbutido: false,      // true quando dentro do form de usuário (TASK-05)
  *     onUsuarioNaoEncontrado    // opcional: 404 do usuário (a tela decide o redirect)
- *   }) -> { salvar(), estaSujo(), recarregar(), destruir() }
+ *   }) -> { salvar(), estaSujo(), definirRoleVisivel(role), recarregar(), destruir() }
+ *
+ * `definirRoleVisivel(role)` (TASK-05): a edição de usuário informa a role
+ * escolhida no select para o painel colapsar para "acesso total" (MASTER) ou
+ * reexibir os toggles (COMUM) sem novo round-trip — `estaSujo()`/`salvar()`
+ * passam a respeitar essa role efetiva (MASTER ⇒ nada a salvar).
  *
  * Catálogo: vem SEMPRE do backend real via `getCatalogo()`. Diferente do guard
  * de rota/menu (TASK-01/02), esta tela NÃO degrada para o fallback estático —
@@ -98,7 +103,9 @@ const PainelAcessos = (function () {
             container,
             catalogo: null,
             usuario: null,            // { nome, email }
-            role: null,
+            role: null,               // role REAL do usuário no backend
+            roleSelecionada: null,    // role escolhida no form (TASK-05); null = usar a real
+            comumInicializado: false, // já houve uma base COMUM (perms carregadas ou base vazia)
             paginasToggle: [],        // páginas do catálogo, exceto `inicio`
             grupos: [],               // grupos com ao menos uma página de toggle
             preservadas: new Set(),   // chaves do usuário fora do universo de toggles (ex.: `inicio`)
@@ -116,7 +123,17 @@ const PainelAcessos = (function () {
             return s;
         }
 
+        /** Role que vale para o que será persistido: a escolhida no form
+         *  (TASK-05, modo embutido) tem prioridade sobre a real do backend;
+         *  na tela dedicada `roleSelecionada` é null ⇒ usa a real. */
+        function roleEfetiva() {
+            return estado.roleSelecionada || estado.role;
+        }
+
         function estaSujo() {
+            // Se o usuário vai terminar como MASTER, não há acesso a configurar
+            // nem a salvar — a seção está "limpa" para a coordenação externa.
+            if (roleEfetiva() === 'MASTER') return false;
             return !setsIguais(conjuntoEfetivo(), estado.salvoSet);
         }
 
@@ -551,6 +568,38 @@ const PainelAcessos = (function () {
             }
         }
 
+        /** Renderiza o painel no modo coerente com a role efetiva.
+         *  - MASTER  → faixa "acesso total" (somente leitura).
+         *  - COMUM   → toggles. Se o usuário é MASTER no backend e está sendo
+         *    rebaixado (não há permissões COMUM a carregar), começa de uma base
+         *    vazia; o salvamento só é aceito pelo backend depois que o
+         *    `PUT /usuarios` efetivar a role COMUM (coordenado pela TASK-05). */
+        function renderConformeRole() {
+            if (roleEfetiva() === 'MASTER') {
+                renderMaster();
+                return;
+            }
+            if (estado.role === 'MASTER' && !estado.comumInicializado) {
+                recomputarDe(new Set());
+                estado.comumInicializado = true;
+            }
+            renderComum();
+            notificarSujo();
+        }
+
+        /** TASK-05: o form de edição informa a role escolhida no select sem um
+         *  novo round-trip. Colapsa para "acesso total" (MASTER) ou reexibe os
+         *  toggles (COMUM), preservando o que já foi marcado na sessão. */
+        function definirRoleVisivel(role) {
+            if (estado.destruido) return;
+            if (role !== 'MASTER' && role !== 'COMUM') return;
+            if (estado.roleSelecionada === role) return;
+            estado.roleSelecionada = role;
+            // Catálogo ainda carregando: `carregar()` aplica ao terminar.
+            if (!estado.catalogo) return;
+            renderConformeRole();
+        }
+
         async function carregar() {
             if (estado.destruido) return;
             renderCarregando();
@@ -589,22 +638,20 @@ const PainelAcessos = (function () {
             estado.usuario = { nome: usuario?.nome, email: usuario?.email };
             estado.role = perm?.role || usuario?.role || null;
 
-            if (estado.role === 'MASTER') {
-                renderMaster();
-                return;
+            if (estado.role !== 'MASTER') {
+                const permissoes = Array.isArray(perm?.permissoes) ? perm.permissoes : [];
+                recomputarDe(new Set(permissoes));
+                estado.comumInicializado = true;
             }
-
-            const permissoes = Array.isArray(perm?.permissoes) ? perm.permissoes : [];
-            recomputarDe(new Set(permissoes));
-            renderComum();
+            renderConformeRole();
         }
 
         /* ------------------------------ salvar --------------------------- */
 
         async function salvar() {
-            if (estado.role === 'MASTER') {
-                return Promise.reject(new Error('Usuário MASTER não tem acessos a configurar.'));
-            }
+            // Termina como MASTER ⇒ nada a persistir (no-op, não erro: a
+            // coordenação da TASK-05 já não chama, mas defendemos aqui também).
+            if (roleEfetiva() === 'MASTER') return Promise.resolve(false);
             if (!estaSujo() || estado.salvando) return Promise.resolve(false);
 
             estado.salvando = true;
@@ -662,6 +709,7 @@ const PainelAcessos = (function () {
         return {
             salvar,
             estaSujo,
+            definirRoleVisivel,
             recarregar: carregar,
             destruir
         };

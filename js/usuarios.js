@@ -10,6 +10,10 @@
  * ficam para TASKs 07 e 08 — o botão "Desativar" é renderizado aqui (com
  * `data-desativar`), mas o click handler vem na TASK-08.
  *
+ * TASK-05: a coluna "Ações" ganha o atalho "Acessos" (Editar · Acessos ·
+ * Desativar) só em linhas COMUM, levando a `gestao-acessos.html?id=`. Linhas
+ * MASTER não têm o atalho (nada a configurar) e exibem um chip "acesso total".
+ *
  * Dependências (carregar antes deste script):
  *  - js/api/config.js
  *  - js/api/erros.js
@@ -68,11 +72,27 @@ function renderRoleBadge(role) {
     return `<span class="role-badge ${cls}">${escapeHtml(role || '—')}</span>`;
 }
 
+/**
+ * Coluna do meio das ações (TASK-05). Só linhas COMUM (e nunca o próprio
+ * usuário) ganham o atalho "Acessos" → tela dedicada. Linha MASTER mostra um
+ * chip "acesso total" discreto: deixa explícito o porquê da ausência do botão
+ * (MASTER tem bypass — nada a configurar), em vez de só "sumir" com a ação.
+ */
+function renderAcessoCol(u, isSelf, nomeSeguro) {
+    const isMaster = (u.role || '').toUpperCase() === 'MASTER';
+    if (isMaster) {
+        return `<span class="acesso-total-chip" title="Usuário MASTER tem acesso total — não há acessos por página a configurar.">acesso total</span>`;
+    }
+    if (isSelf) return '';
+    return `<a class="btn-row" href="/html/gestao-acessos.html?id=${u.id}" aria-label="Configurar acessos de ${nomeSeguro}">Acessos</a>`;
+}
+
 function renderLinhaUsuario(u) {
     const meuEmail = state.usuarioLogado?.email?.toLowerCase();
     const isSelf = u.email && meuEmail && u.email.toLowerCase() === meuEmail;
     const selfBadge = isSelf ? '<span class="cell-self">você</span>' : '';
     const nomeSeguro = escapeHtml(u.nome);
+    const acessoCol = renderAcessoCol(u, isSelf, nomeSeguro);
     const btnDesativar = isSelf
         ? ''
         : `<button type="button" class="btn-row danger" data-desativar="${u.id}" data-nome="${nomeSeguro}" aria-label="Desativar ${nomeSeguro}">Desativar</button>`;
@@ -86,6 +106,7 @@ function renderLinhaUsuario(u) {
             <td data-label="Ações">
                 <div class="acoes-row">
                     <a class="btn-row" href="/html/atualizar-usuario.html?id=${u.id}" aria-label="Editar ${nomeSeguro}">Editar</a>
+                    ${acessoCol}
                     ${btnDesativar}
                 </div>
             </td>
